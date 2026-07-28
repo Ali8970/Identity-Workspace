@@ -157,7 +157,7 @@
       "body": "Your session has ended for security. Sign in again to continue where you left off.",
       "returnHint": "After signing in, you will return to the page you were viewing.",
       "signIn": "Sign in again"
-    },
+    }
   },
   "shell": {
     "applications": "Applications",
