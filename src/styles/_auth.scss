@@ -527,6 +527,26 @@
   }
 }
 
+.auth-dev-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0 0 1rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  border: 1px dashed color-mix(in srgb, var(--warning) 45%, var(--line));
+  background: var(--warning-soft);
+  color: color-mix(in srgb, var(--warning) 85%, black);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.auth-success .app-launcher-card__icon {
+  margin-inline: auto;
+}
+
 .auth-status {
   display: flex;
   gap: 0.65rem;

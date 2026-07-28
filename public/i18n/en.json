@@ -359,9 +359,17 @@
     "openLink": "Open link"
   },
   "mockTarget": {
-    "body": "Mock application landing (SSO redirect target). Not a real CRM/HR embed.",
-    "app": "Application",
-    "back": "Back to Identity"
+    "devOnly": "Mock dev landing",
+    "title": "You reached {{app}}",
+    "body": "This is a mock SSO redirect target — not a real CRM or HR application.",
+    "hint": "Use the mock toolbar in Identity to create intents and test the full SSO cycle.",
+    "app": "Application key",
+    "back": "Back to Identity",
+    "apps": {
+      "identity": "Identity",
+      "crm": "CRM",
+      "hr": "HR"
+    }
   },
   "common": {
     "backToLogin": "Back to sign in",
