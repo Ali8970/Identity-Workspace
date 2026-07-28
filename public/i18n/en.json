@@ -77,7 +77,10 @@
     "account": "Account",
     "logout": "Sign out",
     "language": "Language",
-    "switchCompany": "Switch company"
+    "switchCompany": "Switch company",
+    "workspace": "Workspace",
+    "openSidebar": "Open navigation",
+    "closeSidebar": "Close navigation"
   },
   "applications": {
     "title": "Applications",

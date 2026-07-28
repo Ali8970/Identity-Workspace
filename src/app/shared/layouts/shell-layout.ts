@@ -1,75 +1,75 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { RouterLink, RouterOutlet, RouterLinkActive } from '@angular/router';
+import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { firstValueFrom } from 'rxjs';
+import { filter, firstValueFrom } from 'rxjs';
 import { SessionStore } from '../../core/auth/session.store';
 import { LanguageService } from '../../core/i18n/language.service';
 import { PERMISSIONS } from '../../constants/app.constants';
 import { BroochError } from '../../core/error/brooch-error.model';
+import { DOCUMENT } from '@angular/common';
+import { ShellHeader } from '../ui/shell-header/shell-header';
+import { ShellSidebar } from '../ui/shell-sidebar/shell-sidebar';
+import { ShellNavItem } from './shell-nav.model';
+
+const SIDEBAR_STORAGE_KEY = 'brooch.shell.sidebarCollapsed';
+const MOBILE_BREAKPOINT = 860;
 
 @Component({
   selector: 'app-shell-layout',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe],
+  imports: [RouterOutlet, TranslatePipe, ShellSidebar, ShellHeader],
+  host: {
+    class: 'shell-host',
+    '(document:keydown.escape)': 'onEscape()',
+    '(window:resize)': 'onResize()',
+  },
   template: `
-    <div class="shell">
-      <nav class="shell__nav" aria-label="Main">
-        <div class="shell__brand">Brooch Identity</div>
-        <a routerLink="/applications" routerLinkActive="active" ariaCurrentWhenActive="page">
-          {{ 'shell.applications' | translate }}
-        </a>
-        @if (canReadUsers()) {
-          <a routerLink="/members" routerLinkActive="active" ariaCurrentWhenActive="page">
-            {{ 'shell.members' | translate }}
-          </a>
-        }
-        @if (canReadRoles()) {
-          <a routerLink="/roles" routerLinkActive="active" ariaCurrentWhenActive="page">
-            {{ 'shell.roles' | translate }}
-          </a>
-          <a routerLink="/permissions" routerLinkActive="active" ariaCurrentWhenActive="page">
-            {{ 'shell.permissions' | translate }}
-          </a>
-        }
-        <a routerLink="/teams" routerLinkActive="active" ariaCurrentWhenActive="page">
-          {{ 'shell.teams' | translate }}
-        </a>
-        <a routerLink="/my-access" routerLinkActive="active" ariaCurrentWhenActive="page">
-          {{ 'shell.myAccess' | translate }}
-        </a>
-        <a routerLink="/account" routerLinkActive="active" ariaCurrentWhenActive="page">
-          {{ 'shell.account' | translate }}
-        </a>
-      </nav>
-      <div>
-        <div class="shell__top">
-          <div class="shell__tenant">
-            <label class="ui-field" style="margin:0; min-width:12rem">
-              <span class="visually-hidden">{{ 'shell.switchCompany' | translate }}</span>
-              <select
-                [value]="currentMembershipId()"
-                (change)="onSwitch($any($event.target).value)"
-                [disabled]="switching() || companies().length < 2"
-              >
-                @for (c of companies(); track c.tenantMembershipId) {
-                  <option [value]="c.tenantMembershipId" [disabled]="!c.isSelectable">
-                    {{ label(c.companyNameAr, c.companyNameEn) }}
-                  </option>
-                }
-              </select>
-            </label>
-          </div>
-          <div style="display:flex; gap:0.5rem; flex-wrap:wrap">
-            <button type="button" class="ui-btn ui-btn--ghost" (click)="toggleLanguage()">
-              {{ 'shell.language' | translate }} ({{ language.current() }})
-            </button>
-            <button type="button" class="ui-btn ui-btn--ghost" (click)="logout()" [disabled]="loggingOut()">
-              {{ 'shell.logout' | translate }}
-            </button>
-          </div>
-        </div>
+    <div
+      class="shell"
+      [class.shell--sidebar-collapsed]="sidebarCollapsed()"
+      [class.shell--mobile-nav-open]="mobileNavOpen()"
+    >
+      @if (mobileNavOpen()) {
+        <button
+          type="button"
+          class="shell__backdrop"
+          (click)="closeMobileNav()"
+          [attr.aria-label]="'shell.closeSidebar' | translate"
+        ></button>
+      }
+
+      <app-shell-sidebar
+        [collapsed]="sidebarCollapsed() && !mobileNavOpen()"
+        [mobileOpen]="mobileNavOpen()"
+        [items]="navItems()"
+        (navigate)="closeMobileNav()"
+      />
+
+      <div class="shell__workspace">
+        <app-shell-header
+          [sidebarCollapsed]="sidebarCollapsed()"
+          [mobileNavOpen]="mobileNavOpen()"
+          [companies]="companies()"
+          [currentMembershipId]="currentMembershipId()"
+          [tenantName]="tenantName()"
+          [userName]="userName()"
+          [userEmail]="userEmail()"
+          [userInitial]="userInitial()"
+          [currentLanguage]="language.current()"
+          [switching]="switching()"
+          [loggingOut]="loggingOut()"
+          (toggleSidebar)="toggleSidebar()"
+          (switchCompany)="onSwitch($event)"
+          (languageChange)="setLanguage($event)"
+          (logout)="logout()"
+        />
+
         @if (switchError()) {
-          <div class="ui-alert ui-alert--error" role="alert">{{ switchError()!.message }}</div>
+          <div class="shell__alert ui-alert ui-alert--error" role="alert">
+            {{ switchError()!.message }}
+          </div>
         }
+
         <main class="shell__main" id="main-content">
           <router-outlet />
         </main>
@@ -79,15 +79,82 @@ import { BroochError } from '../../core/error/brooch-error.model';
 })
 export class ShellLayout {
   private readonly session = inject(SessionStore);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly document = inject(DOCUMENT);
   protected readonly language = inject(LanguageService);
+
   protected readonly loggingOut = signal(false);
   protected readonly switching = signal(false);
   protected readonly switchError = signal<BroochError | null>(null);
+  protected readonly sidebarCollapsed = signal(this.readSidebarPreference());
+  protected readonly mobileNavOpen = signal(false);
+  protected readonly isMobile = signal(this.queryIsMobile());
 
   protected readonly companies = computed(() => this.session.companies());
   protected readonly currentMembershipId = computed(
     () => this.session.currentTenant()?.tenantMembershipId ?? '',
   );
+
+  protected readonly tenantName = computed(() => {
+    const tenant = this.session.currentTenant();
+    if (!tenant) {
+      return '';
+    }
+    return this.label(tenant.nameAr, tenant.nameEn);
+  });
+
+  protected readonly userName = computed(() => {
+    const user = this.session.current()?.user;
+    if (!user) {
+      return '';
+    }
+    return this.label(user.nameAr, user.nameEn);
+  });
+
+  protected readonly userEmail = computed(() => this.session.current()?.user.email ?? '');
+
+  protected readonly userInitial = computed(() => {
+    const name = this.userName().trim();
+    return name ? name.charAt(0).toUpperCase() : '?';
+  });
+
+  protected readonly navItems = computed(() => {
+    const items: ShellNavItem[] = [
+      { route: '/applications', labelKey: 'shell.applications', icon: 'applications' },
+    ];
+    if (this.canReadUsers()) {
+      items.push({ route: '/members', labelKey: 'shell.members', icon: 'members' });
+    }
+    if (this.canReadRoles()) {
+      items.push(
+        { route: '/roles', labelKey: 'shell.roles', icon: 'roles' },
+        { route: '/permissions', labelKey: 'shell.permissions', icon: 'permissions' },
+      );
+    }
+    items.push(
+      { route: '/teams', labelKey: 'shell.teams', icon: 'teams' },
+      { route: '/my-access', labelKey: 'shell.myAccess', icon: 'my-access' },
+      { route: '/account', labelKey: 'shell.account', icon: 'account' },
+    );
+    return items;
+  });
+
+  constructor() {
+    effect(() => {
+      this.document.body.classList.toggle('shell-nav-open', this.mobileNavOpen());
+    });
+
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => {
+        this.closeMobileNav();
+        queueMicrotask(() => document.getElementById('main-content-header')?.focus());
+      });
+  }
 
   protected canReadUsers(): boolean {
     return this.session.hasPermission(PERMISSIONS.usersRead);
@@ -101,8 +168,37 @@ export class ShellLayout {
     return this.language.current() === 'ar' ? ar || en : en || ar;
   }
 
-  protected toggleLanguage(): void {
-    this.language.toggle();
+  protected toggleSidebar(): void {
+    if (this.isMobile()) {
+      this.mobileNavOpen.update((open) => !open);
+      return;
+    }
+    this.sidebarCollapsed.update((collapsed) => !collapsed);
+    this.persistSidebarPreference(this.sidebarCollapsed());
+  }
+
+  protected closeMobileNav(): void {
+    if (this.mobileNavOpen()) {
+      this.mobileNavOpen.set(false);
+    }
+  }
+
+  protected onEscape(): void {
+    this.closeMobileNav();
+  }
+
+  protected onResize(): void {
+    const mobile = this.queryIsMobile();
+    this.isMobile.set(mobile);
+    if (!mobile) {
+      this.closeMobileNav();
+    }
+  }
+
+  protected setLanguage(lang: 'en' | 'ar'): void {
+    if (lang !== this.language.current()) {
+      this.language.setLanguage(lang);
+    }
   }
 
   protected async onSwitch(tenantMembershipId: string): Promise<void> {
@@ -128,5 +224,23 @@ export class ShellLayout {
     } finally {
       this.loggingOut.set(false);
     }
+  }
+
+  private readSidebarPreference(): boolean {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+    return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === '1';
+  }
+
+  private persistSidebarPreference(collapsed: boolean): void {
+    window.localStorage.setItem(SIDEBAR_STORAGE_KEY, collapsed ? '1' : '0');
+  }
+
+  private queryIsMobile(): boolean {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+    return window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT}px)`).matches;
   }
 }

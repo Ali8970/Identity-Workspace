@@ -77,7 +77,10 @@
     "account": "الحساب",
     "logout": "تسجيل الخروج",
     "language": "اللغة",
-    "switchCompany": "تبديل الشركة"
+    "switchCompany": "تبديل الشركة",
+    "workspace": "مساحة العمل",
+    "openSidebar": "فتح القائمة",
+    "closeSidebar": "إغلاق القائمة"
   },
   "applications": {
     "title": "التطبيقات",
