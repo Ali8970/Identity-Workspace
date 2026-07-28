@@ -53,6 +53,22 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'onboarding/company',
+    canActivate: [authGuard, onboardingCompleteGuard],
+    loadComponent: () =>
+      import('./features/onboarding/pages/onboarding/onboarding.page').then(
+        (m) => m.OnboardingPage,
+      ),
+  },
+  {
+    path: 'onboarding/package',
+    canActivate: [authGuard, onboardingCompleteGuard],
+    loadComponent: () =>
+      import('./features/onboarding/pages/onboarding/onboarding.page').then(
+        (m) => m.OnboardingPage,
+      ),
+  },
+  {
     path: 'access-denied',
     loadComponent: () =>
       import('./features/auth/pages/access-denied/access-denied.page').then(
@@ -84,22 +100,6 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./shared/layouts/shell-layout').then((m) => m.ShellLayout),
     children: [
-      {
-        path: 'onboarding/company',
-        canActivate: [onboardingCompleteGuard],
-        loadComponent: () =>
-          import('./features/onboarding/pages/onboarding/onboarding.page').then(
-            (m) => m.OnboardingPage,
-          ),
-      },
-      {
-        path: 'onboarding/package',
-        canActivate: [onboardingCompleteGuard],
-        loadComponent: () =>
-          import('./features/onboarding/pages/onboarding/onboarding.page').then(
-            (m) => m.OnboardingPage,
-          ),
-      },
       {
         path: '',
         canActivate: [onboardingGuard],
