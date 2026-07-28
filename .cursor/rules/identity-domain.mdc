@@ -11,7 +11,7 @@ alwaysApply: true
 - CSRF: `GET /api/v1/auth/csrf` returns raw `{ token }` (not ApiResponse); send `X-XSRF-TOKEN` on unsafe non-exempt POSTs
 - CSRF-exempt: login, set-password, forgot-password(+complete), login-intent, csrf, tenants/register
 - Every authenticated call: `X-Brooch-Application: identity` + `Accept-Language`
-- Interceptor order: **application header → language → csrf → error** (then mock if enabled)
+- Interceptor order: **application header → language → csrf → error → mock** (mock last when enabled)
 
 ## Login decision tree (exact order)
 1. `requiresTenantSelection === true` → `/select-company` (wins even if redirectUrl set)
@@ -43,3 +43,6 @@ alwaysApply: true
 ## Mock vs real
 - Features call `*Api` services only — never branch on mock in pages
 - `environment.useMockApi` toggles MockApiInterceptor; same contracts either way
+
+## Errors
+- HTTP errors are global — see `.cursor/rules/error-handling.mdc` (interceptor + banner; no component error UI)

@@ -30,8 +30,8 @@ export const appConfig: ApplicationConfig = {
         applicationHeaderInterceptor,
         languageInterceptor,
         csrfInterceptor,
-        ...(environment.useMockApi ? [mockApiInterceptor] : []),
         errorInterceptor,
+        ...(environment.useMockApi ? [mockApiInterceptor] : []),
       ]),
     ),
     provideTranslateService({

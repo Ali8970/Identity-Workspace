@@ -1,10 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LanguageService } from '../../../core/i18n/language.service';
+import { GlobalErrorBanner } from '../global-error-banner/global-error-banner';
 
 @Component({
   selector: 'app-auth-layout',
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, GlobalErrorBanner],
   template: `
     <div class="auth-page">
       <aside class="auth-page__hero" aria-hidden="true">
@@ -80,6 +81,7 @@ import { LanguageService } from '../../../core/i18n/language.service';
         </div>
 
         <div class="auth-page__card fade-up">
+          <app-global-error-banner variant="auth" />
           <ng-content />
         </div>
       </main>

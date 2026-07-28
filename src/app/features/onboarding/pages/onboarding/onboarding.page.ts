@@ -4,7 +4,6 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { FormField, form, required, submit } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
 import { LanguageService } from '../../../../core/i18n/language.service';
-import { BroochError } from '../../../../core/error/brooch-error.model';
 import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
 import { PackageDto } from '../../models/onboarding-feature.model';
 import { OnboardingService } from '../../services/onboarding.service';
@@ -45,18 +44,6 @@ import { OnboardingService } from '../../services/onboarding.service';
           </li>
         </ol>
       </nav>
-
-      @if (error(); as failure) {
-        <div class="auth-status auth-status--error" role="alert">
-          <span class="auth-status__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-              <circle cx="12" cy="12" r="9" />
-              <path d="M15 9l-6 6M9 9l6 6" />
-            </svg>
-          </span>
-          <span class="auth-status__body">{{ failure.message }}</span>
-        </div>
-      }
 
       @if (loading()) {
         <div class="auth-form__loading" role="status" aria-live="polite">
@@ -225,7 +212,6 @@ export class OnboardingPage {
   protected readonly busy = signal(false);
   protected readonly loading = signal(true);
   protected readonly redirecting = signal(false);
-  protected readonly error = signal<BroochError | null>(null);
   protected readonly companyModel = signal({ arabicCompanyName: '', englishCompanyName: '' });
   protected readonly companyForm = form(this.companyModel, (schema) => {
     required(schema.arabicCompanyName);
@@ -246,7 +232,6 @@ export class OnboardingPage {
 
   private async bootstrap(): Promise<void> {
     this.loading.set(true);
-    this.error.set(null);
     try {
       const tenant = await firstValueFrom(this.onboardingService.loadTenant());
       this.companyModel.set({
@@ -258,8 +243,6 @@ export class OnboardingPage {
         this.packages.set(packages);
         this.selectedPackage.set(packages[0]?.id ?? null);
       }
-    } catch (err) {
-      this.error.set(err as BroochError);
     } finally {
       this.loading.set(false);
     }
@@ -269,7 +252,6 @@ export class OnboardingPage {
     event.preventDefault();
     void submit(this.companyForm, async () => {
       this.busy.set(true);
-      this.error.set(null);
       try {
         const value = this.companyModel();
         await firstValueFrom(this.onboardingService.saveCompanyProfile(value));
@@ -279,8 +261,6 @@ export class OnboardingPage {
         const packages = await firstValueFrom(this.onboardingService.loadPackages());
         this.packages.set(packages);
         this.selectedPackage.set(packages[0]?.id ?? null);
-      } catch (err) {
-        this.error.set(err as BroochError);
       } finally {
         this.busy.set(false);
         this.loading.set(false);
@@ -295,12 +275,10 @@ export class OnboardingPage {
     }
     this.busy.set(true);
     this.redirecting.set(true);
-    this.error.set(null);
     try {
       await firstValueFrom(this.onboardingService.startFreeTrial(packageId));
       window.location.assign('/login?onboarded=1');
-    } catch (err) {
-      this.error.set(err as BroochError);
+    } catch {
       this.busy.set(false);
       this.redirecting.set(false);
     }

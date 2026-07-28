@@ -3,7 +3,6 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { FormField, email, form, required, submit } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
 import { LanguageService } from '../../../../core/i18n/language.service';
-import { BroochError } from '../../../../core/error/brooch-error.model';
 import {
   AddMemberResult,
   MemberListItem,
@@ -38,23 +37,6 @@ import { MembersService } from '../../services/members.service';
           <span>{{ 'members.loading' | translate }}</span>
         </div>
       } @else {
-        @if (error(); as failure) {
-          <div class="workspace-status workspace-status--error" role="alert">
-            <span class="workspace-status__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <circle cx="12" cy="12" r="9" />
-                <path d="M15 9l-6 6M9 9l6 6" />
-              </svg>
-            </span>
-            <div class="workspace-status__body">
-              {{ failure.message }}
-              @if (failure.correlationId) {
-                <div class="workspace-status__meta">{{ failure.correlationId }}</div>
-              }
-            </div>
-          </div>
-        }
-
         @if (inviteResult(); as result) {
           <div class="workspace-status workspace-status--success" role="status">
             <span class="workspace-status__icon" aria-hidden="true">
@@ -242,7 +224,6 @@ export class MembersPage {
   protected readonly roles = signal<RoleListItem[]>([]);
   protected readonly busy = signal(false);
   protected readonly loading = signal(true);
-  protected readonly error = signal<BroochError | null>(null);
   protected readonly inviteResult = signal<AddMemberResult | null>(null);
   protected readonly model = signal({ email: '', arabicName: '', englishName: '' });
   protected readonly addForm = form(this.model, (schema) => {
@@ -299,13 +280,10 @@ export class MembersPage {
 
   private async load(): Promise<void> {
     this.loading.set(true);
-    this.error.set(null);
     try {
       const { members, roles } = await firstValueFrom(this.membersService.loadMembersAndRoles());
       this.members.set(members);
       this.roles.set(roles);
-    } catch (err) {
-      this.error.set(err as BroochError);
     } finally {
       this.loading.set(false);
     }
@@ -315,7 +293,6 @@ export class MembersPage {
     event.preventDefault();
     void submit(this.addForm, async () => {
       this.busy.set(true);
-      this.error.set(null);
       this.inviteResult.set(null);
       try {
         const value = this.model();
@@ -326,8 +303,6 @@ export class MembersPage {
         this.inviteResult.set(result);
         this.model.set({ email: '', arabicName: '', englishName: '' });
         await this.load();
-      } catch (err) {
-        this.error.set(err as BroochError);
       } finally {
         this.busy.set(false);
       }

@@ -3,7 +3,6 @@ import { RouterLink } from '@angular/router';
 import { FormField, email, form, required, submit } from '@angular/forms/signals';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { BroochError } from '../../../../core/error/brooch-error.model';
 import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
 import { environment } from '../../../../../environments/environment';
 import { RegisterService } from '../../services/register.service';
@@ -62,18 +61,6 @@ import { RegisterService } from '../../services/register.service';
           </h1>
           <p class="auth-form__lead">{{ 'auth.register.subtitle' | translate }}</p>
         </header>
-
-        @if (error(); as failure) {
-          <div class="auth-status auth-status--error" role="alert">
-            <span class="auth-status__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <circle cx="12" cy="12" r="9" />
-                <path d="M15 9l-6 6M9 9l6 6" />
-              </svg>
-            </span>
-            <span class="auth-status__body">{{ failure.message }}</span>
-          </div>
-        }
 
         <form class="auth-form auth-form--register" (submit)="onSubmit($event)" novalidate>
           <section class="auth-form__section" aria-labelledby="register-company-heading">
@@ -260,7 +247,6 @@ export class RegisterPage {
   });
 
   protected readonly busy = signal(false);
-  protected readonly error = signal<BroochError | null>(null);
   protected readonly successKey = signal<string | null>(null);
   protected readonly submitted = signal(false);
   protected readonly showDevHint = signal(environment.useMockApi && !environment.production);
@@ -284,7 +270,6 @@ export class RegisterPage {
     this.submitted.set(true);
     void submit(this.registerForm, async () => {
       this.busy.set(true);
-      this.error.set(null);
       try {
         const value = this.model();
         const result = await firstValueFrom(this.registerService.register(value));
@@ -293,8 +278,6 @@ export class RegisterPage {
             ? 'auth.register.successNew'
             : 'auth.register.successExisting',
         );
-      } catch (err) {
-        this.error.set(err as BroochError);
       } finally {
         this.busy.set(false);
       }

@@ -10,7 +10,7 @@ import {
   SelectMembershipRequest,
   SelectMembershipResponse,
 } from '../../models/auth.model';
-import { BroochError } from '../error/brooch-error.model';
+import { BroochError } from '../error/error.model';
 import { AuthApi } from './auth-api.service';
 import { AuthFlowStore } from './auth-flow.store';
 import { CsrfService } from './csrf.service';
@@ -36,8 +36,7 @@ export class SessionStore {
 
   readonly isAuthenticated = computed(
     () =>
-      this.stageSignal() === SessionStage.Active ||
-      this.stageSignal() === SessionStage.Selection,
+      this.stageSignal() === SessionStage.Active || this.stageSignal() === SessionStage.Selection,
   );
   readonly isActive = computed(() => this.stageSignal() === SessionStage.Active);
   readonly isSelection = computed(() => this.stageSignal() === SessionStage.Selection);
@@ -76,9 +75,7 @@ export class SessionStore {
       tap(({ me, companies }) => {
         this.userSignal.set(me);
         this.companiesSignal.set(companies);
-        this.stageSignal.set(
-          me.currentTenant ? SessionStage.Active : SessionStage.Selection,
-        );
+        this.stageSignal.set(me.currentTenant ? SessionStage.Active : SessionStage.Selection);
         this.csrf.invalidate();
       }),
       map(() => this.stageSignal()),

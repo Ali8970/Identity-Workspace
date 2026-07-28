@@ -2,7 +2,6 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { LanguageService } from '../../../../core/i18n/language.service';
-import { BroochError } from '../../../../core/error/brooch-error.model';
 import { RoleListItem } from '../../models/workspace-feature.model';
 import { RolesService } from '../../services/roles.service';
 
@@ -41,18 +40,6 @@ import { RolesService } from '../../services/roles.service';
           <span>{{ 'roles.loading' | translate }}</span>
         </div>
       } @else {
-        @if (error(); as failure) {
-          <div class="workspace-status workspace-status--error" role="alert">
-            <span class="workspace-status__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <circle cx="12" cy="12" r="9" />
-                <path d="M15 9l-6 6M9 9l6 6" />
-              </svg>
-            </span>
-            <span class="workspace-status__body">{{ failure.message }}</span>
-          </div>
-        }
-
         @if (roles().length === 0) {
           <section class="workspace-empty" role="status">
             <div class="workspace-empty__icon" aria-hidden="true">
@@ -160,7 +147,6 @@ export class RolesPage {
 
   protected readonly roles = signal<RoleListItem[]>([]);
   protected readonly loading = signal(true);
-  protected readonly error = signal<BroochError | null>(null);
 
   protected readonly groupedRoles = computed(() => {
     const groups = new Map<string, RoleListItem[]>();
@@ -195,11 +181,8 @@ export class RolesPage {
 
   private async load(): Promise<void> {
     this.loading.set(true);
-    this.error.set(null);
     try {
       this.roles.set(await firstValueFrom(this.rolesService.listForCurrentTenant()));
-    } catch (err) {
-      this.error.set(err as BroochError);
     } finally {
       this.loading.set(false);
     }

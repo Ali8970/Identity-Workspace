@@ -4,12 +4,8 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { FormField, email, form, required, submit } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
 import { SsoHandshakeService } from '../../../../core/auth/sso-handshake.service';
-import {
-  BroochError,
-  isApplicationAccessDenied,
-  isLoginIntentFailure,
-  isNavigableRedirect,
-} from '../../../../core/error/brooch-error.model';
+import { GlobalErrorService } from '../../../../core/error/global-error.service';
+import { isNavigableRedirect } from '../../../../core/error/error.model';
 import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
 import { environment } from '../../../../../environments/environment';
 import { LoginService } from '../../services/login.service';
@@ -53,34 +49,20 @@ import { LoginService } from '../../services/login.service';
           <span class="auth-status__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
               <path d="M12 8v5M12 16h.01" />
-              <path d="M10.3 4.5 2.6 18a1 1 0 0 0 .9 1.5h16.9a1 1 0 0 0 .9-1.5L13.7 4.5a1 1 0 0 0-1.8 0Z" />
+              <path
+                d="M10.3 4.5 2.6 18a1 1 0 0 0 .9 1.5h16.9a1 1 0 0 0 .9-1.5L13.7 4.5a1 1 0 0 0-1.8 0Z"
+              />
             </svg>
           </span>
           <span class="auth-status__body">{{ 'auth.login.selectionRestart' | translate }}</span>
         </div>
       }
-      @if (error(); as failure) {
-        <div class="auth-status auth-status--error" role="alert">
-          <span class="auth-status__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-              <circle cx="12" cy="12" r="9" />
-              <path d="M15 9l-6 6M9 9l6 6" />
-            </svg>
-          </span>
-          <div class="auth-status__body">
-            {{ failure.message }}
-            @if (cooldown() > 0) {
-              <div class="auth-status__hint">
-                {{ 'auth.login.retryIn' | translate: { seconds: cooldown() } }}
-              </div>
-            }
-          </div>
-        </div>
-      }
 
       <form class="auth-form" (submit)="onSubmit($event)" novalidate>
         <div class="auth-field">
-          <label class="auth-field__label" for="login-email">{{ 'auth.login.email' | translate }}</label>
+          <label class="auth-field__label" for="login-email">{{
+            'auth.login.email' | translate
+          }}</label>
           <div class="auth-field__control">
             <span class="auth-field__icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
@@ -167,7 +149,7 @@ import { LoginService } from '../../services/login.service';
           <button
             class="ui-btn ui-btn--primary auth-form__submit"
             type="submit"
-            [disabled]="busy() || loginForm().invalid() || cooldown() > 0"
+            [disabled]="busy() || loginForm().invalid() || globalErrors.retryAfter() > 0"
           >
             <span class="auth-form__submit-inner">
               @if (busy()) {
@@ -183,7 +165,9 @@ import { LoginService } from '../../services/login.service';
 
       <p class="auth-form__register">
         {{ 'auth.login.noAccount' | translate }}
-        <a class="auth-form__link" routerLink="/register">{{ 'auth.login.register' | translate }}</a>
+        <a class="auth-form__link" routerLink="/register">{{
+          'auth.login.register' | translate
+        }}</a>
       </p>
 
       @if (showDevHint()) {
@@ -207,6 +191,7 @@ import { LoginService } from '../../services/login.service';
 export class LoginPage {
   private readonly loginService = inject(LoginService);
   protected readonly flow = this.loginService.flowStore;
+  protected readonly globalErrors = inject(GlobalErrorService);
   private readonly sso = inject(SsoHandshakeService);
   private readonly router = inject(Router);
 
@@ -218,11 +203,9 @@ export class LoginPage {
   });
 
   protected readonly busy = signal(false);
-  protected readonly error = signal<BroochError | null>(null);
   protected readonly justOnboarded = signal(false);
   protected readonly selectionRestartRequired = signal(false);
   protected readonly redirecting = signal(false);
-  protected readonly cooldown = signal(0);
   protected readonly showPassword = signal(false);
   protected readonly submitted = signal(false);
   protected readonly showDevHint = signal(environment.useMockApi && !environment.production);
@@ -235,7 +218,6 @@ export class LoginPage {
   );
 
   private readonly returnUrl = signal<string | null>(null);
-  private cooldownTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
     const query = this.loginService.readQueryState();
@@ -253,7 +235,7 @@ export class LoginPage {
     this.submitted.set(true);
     void submit(this.loginForm, async () => {
       this.busy.set(true);
-      this.error.set(null);
+      this.globalErrors.clear();
       try {
         const value = this.model();
         const response = await firstValueFrom(this.loginService.signIn(value));
@@ -275,45 +257,9 @@ export class LoginPage {
         await firstValueFrom(this.loginService.refreshSession());
         const target = this.returnUrl();
         await (target ? this.router.navigateByUrl(target) : this.router.navigate(['/']));
-      } catch (err) {
-        const failure = err as BroochError;
-        if (isApplicationAccessDenied(failure) && isNavigableRedirect(failure.redirectUrl)) {
-          this.redirecting.set(true);
-          this.loginService.clearFlow();
-          this.sso.navigate(failure.redirectUrl);
-          return;
-        }
-        if (isLoginIntentFailure(failure)) {
-          this.loginService.clearIntent();
-          this.loginService.scrubIntentFromUrl();
-        }
-        this.error.set(failure);
-        if (failure.status === 429 || failure.code === 'Auth.RateLimited') {
-          this.startCooldown(30);
-        }
-        if (failure.code === 'Auth.SessionExpired') {
-          await this.router.navigate(['/session-expired'], {
-            queryParams: this.returnUrl() ? { returnUrl: this.returnUrl() } : {},
-          });
-        }
       } finally {
         this.busy.set(false);
       }
     });
-  }
-
-  private startCooldown(seconds: number): void {
-    this.cooldown.set(seconds);
-    if (this.cooldownTimer) {
-      clearInterval(this.cooldownTimer);
-    }
-    this.cooldownTimer = setInterval(() => {
-      const next = this.cooldown() - 1;
-      this.cooldown.set(Math.max(0, next));
-      if (next <= 0 && this.cooldownTimer) {
-        clearInterval(this.cooldownTimer);
-        this.cooldownTimer = null;
-      }
-    }, 1000);
   }
 }

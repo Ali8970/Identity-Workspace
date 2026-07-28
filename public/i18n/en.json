@@ -375,5 +375,11 @@
     "backToLogin": "Back to sign in",
     "required": "Required",
     "error": "Something went wrong"
+  },
+  "errors": {
+    "dismiss": "Dismiss error",
+    "retryIn": "Try again in {{seconds}}s",
+    "traceId": "Reference",
+    "requiredPermissions": "Required permissions"
   }
 }

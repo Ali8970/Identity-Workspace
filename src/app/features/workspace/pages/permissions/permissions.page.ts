@@ -2,7 +2,6 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { LanguageService } from '../../../../core/i18n/language.service';
-import { BroochError } from '../../../../core/error/brooch-error.model';
 import { PermissionCatalogItem } from '../../models/workspace-feature.model';
 import { PermissionsService } from '../../services/permissions.service';
 
@@ -41,18 +40,6 @@ import { PermissionsService } from '../../services/permissions.service';
           <span>{{ 'permissions.loading' | translate }}</span>
         </div>
       } @else {
-        @if (error(); as failure) {
-          <div class="workspace-status workspace-status--error" role="alert">
-            <span class="workspace-status__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <circle cx="12" cy="12" r="9" />
-                <path d="M15 9l-6 6M9 9l6 6" />
-              </svg>
-            </span>
-            <span class="workspace-status__body">{{ failure.message }}</span>
-          </div>
-        }
-
         @if (items().length === 0) {
           <section class="workspace-empty" role="status">
             <div class="workspace-empty__icon" aria-hidden="true">
@@ -163,7 +150,6 @@ export class PermissionsPage {
 
   protected readonly items = signal<PermissionCatalogItem[]>([]);
   protected readonly loading = signal(true);
-  protected readonly error = signal<BroochError | null>(null);
 
   protected readonly applicationGroups = computed(() => {
     const byApp = new Map<string, Map<string, PermissionCatalogItem[]>>();
@@ -219,11 +205,8 @@ export class PermissionsPage {
 
   private async load(): Promise<void> {
     this.loading.set(true);
-    this.error.set(null);
     try {
       this.items.set(await firstValueFrom(this.permissionsService.loadCatalog()));
-    } catch (err) {
-      this.error.set(err as BroochError);
     } finally {
       this.loading.set(false);
     }

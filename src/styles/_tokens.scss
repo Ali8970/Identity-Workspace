@@ -10,12 +10,12 @@
   --text: #152033;
   --text-2: #3d4a5c;
   --muted: #66758a;
-  --primary: #0f766e;
-  --primary-hover: #0d9488;
-  --primary-soft: rgba(15, 118, 110, 0.1);
-  //  --primary: #1e00b0;
-  // --primary-hover: #2a14d4;
-  // --primary-soft: rgba(30, 0, 176, 0.1);
+  // --primary: #0f766e;
+  // --primary-hover: #0d9488;
+  // --primary-soft: rgba(15, 118, 110, 0.1);
+   --primary: #1e00b0;
+  --primary-hover: #2a14d4;
+  --primary-soft: rgba(30, 0, 176, 0.1);
   --primary-ink: #ffffff;
   --danger: #c23545;
   --danger-soft: rgba(194, 53, 69, 0.1);
@@ -53,8 +53,8 @@ body {
   font-family: var(--font-sans);
   color: var(--text);
   background:
-    radial-gradient(900px 420px at 8% -10%, rgba(15, 118, 110, 0.07), transparent 55%),
-        // radial-gradient(900px 420px at 8% -10%, rgba(30, 0, 176, 0.07), transparent 55%),
+    // radial-gradient(900px 420px at 8% -10%, rgba(15, 118, 110, 0.07), transparent 55%),
+        radial-gradient(900px 420px at 8% -10%, rgba(30, 0, 176, 0.07), transparent 55%),
     radial-gradient(700px 380px at 100% 0%, rgba(29, 91, 184, 0.05), transparent 50%),
     var(--ground);
   -webkit-font-smoothing: antialiased;

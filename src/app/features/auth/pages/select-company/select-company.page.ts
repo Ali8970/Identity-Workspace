@@ -3,11 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { SsoHandshakeService } from '../../../../core/auth/sso-handshake.service';
-import {
-  BroochError,
-  isApplicationAccessDenied,
-  isNavigableRedirect,
-} from '../../../../core/error/brooch-error.model';
+import { isNavigableRedirect } from '../../../../core/error/error.model';
 import { LanguageService } from '../../../../core/i18n/language.service';
 import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
 import { SelectCompanyService } from '../../services/select-company.service';
@@ -36,18 +32,6 @@ import { SelectCompanyService } from '../../services/select-company.service';
             </svg>
           </span>
           <span class="auth-status__body">{{ 'auth.selectCompany.intentBanner' | translate }}</span>
-        </div>
-      }
-
-      @if (error(); as failure) {
-        <div class="auth-status auth-status--error" role="alert">
-          <span class="auth-status__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-              <circle cx="12" cy="12" r="9" />
-              <path d="M15 9l-6 6M9 9l6 6" />
-            </svg>
-          </span>
-          <span class="auth-status__body">{{ failure.message }}</span>
         </div>
       }
 
@@ -145,7 +129,6 @@ export class SelectCompanyPage {
   protected readonly busy = signal(false);
   protected readonly selectingId = signal<string | null>(null);
   protected readonly redirecting = signal(false);
-  protected readonly error = signal<BroochError | null>(null);
 
   protected label(ar: string, en: string): string {
     return this.language.current() === 'ar' ? ar || en : en || ar;
@@ -157,7 +140,6 @@ export class SelectCompanyPage {
     }
     this.busy.set(true);
     this.selectingId.set(tenantMembershipId);
-    this.error.set(null);
     try {
       const response = await firstValueFrom(
         this.selectCompanyService.selectCompany(tenantMembershipId),
@@ -171,15 +153,6 @@ export class SelectCompanyPage {
       this.selectCompanyService.clearFlow();
       await firstValueFrom(this.selectCompanyService.refreshSession());
       await this.router.navigate(['/']);
-    } catch (err) {
-      const failure = err as BroochError;
-      if (isApplicationAccessDenied(failure) && isNavigableRedirect(failure.redirectUrl)) {
-        this.redirecting.set(true);
-        this.selectCompanyService.clearFlow();
-        this.sso.navigate(failure.redirectUrl);
-        return;
-      }
-      this.error.set(failure);
     } finally {
       this.busy.set(false);
       this.selectingId.set(null);

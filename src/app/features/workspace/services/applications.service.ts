@@ -1,7 +1,7 @@
 import { Service, inject } from '@angular/core';
 import { SessionStore } from '../../../core/auth/session.store';
 import { SsoHandshakeService } from '../../../core/auth/sso-handshake.service';
-import { isNavigableRedirect } from '../../../core/error/brooch-error.model';
+import { isNavigableRedirect } from '../../../core/error/error.model';
 
 @Service()
 export class ApplicationsService {

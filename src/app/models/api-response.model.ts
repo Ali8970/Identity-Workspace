@@ -9,6 +9,11 @@ export interface BilingualMessage {
   ar: string;
 }
 
+export interface ValidationFieldError {
+  code: string;
+  message: string | BilingualMessage;
+}
+
 export interface ProblemDetails {
   type?: string;
   title?: string;
@@ -20,5 +25,7 @@ export interface ProblemDetails {
   correlationId?: string;
   requestId?: string;
   traceId?: string;
+  errors?: Record<string, ValidationFieldError[]>;
+  requiredPermissions?: string[];
   extensions?: Record<string, unknown>;
 }

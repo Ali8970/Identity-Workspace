@@ -6,10 +6,10 @@ import { filter, firstValueFrom } from 'rxjs';
 import { SessionStore } from '../../core/auth/session.store';
 import { LanguageService } from '../../core/i18n/language.service';
 import { PERMISSIONS } from '../../constants/app.constants';
-import { BroochError } from '../../core/error/brooch-error.model';
 import { DOCUMENT } from '@angular/common';
 import { ShellHeader } from '../ui/shell-header/shell-header';
 import { ShellSidebar } from '../ui/shell-sidebar/shell-sidebar';
+import { GlobalErrorBanner } from '../ui/global-error-banner/global-error-banner';
 import { ShellNavItem } from './shell-nav.model';
 
 const SIDEBAR_STORAGE_KEY = 'brooch.shell.sidebarCollapsed';
@@ -17,7 +17,7 @@ const MOBILE_BREAKPOINT = 860;
 
 @Component({
   selector: 'app-shell-layout',
-  imports: [RouterOutlet, TranslatePipe, ShellSidebar, ShellHeader],
+  imports: [RouterOutlet, TranslatePipe, ShellSidebar, ShellHeader, GlobalErrorBanner],
   host: {
     class: 'shell-host',
     '(document:keydown.escape)': 'onEscape()',
@@ -64,11 +64,7 @@ const MOBILE_BREAKPOINT = 860;
           (logout)="logout()"
         />
 
-        @if (switchError()) {
-          <div class="shell__alert ui-alert ui-alert--error" role="alert">
-            {{ switchError()!.message }}
-          </div>
-        }
+        <app-global-error-banner variant="shell" />
 
         <main class="shell__main" id="main-content">
           <router-outlet />
@@ -86,7 +82,6 @@ export class ShellLayout {
 
   protected readonly loggingOut = signal(false);
   protected readonly switching = signal(false);
-  protected readonly switchError = signal<BroochError | null>(null);
   protected readonly sidebarCollapsed = signal(this.readSidebarPreference());
   protected readonly mobileNavOpen = signal(false);
   protected readonly isMobile = signal(this.queryIsMobile());
@@ -206,11 +201,8 @@ export class ShellLayout {
       return;
     }
     this.switching.set(true);
-    this.switchError.set(null);
     try {
       await firstValueFrom(this.session.switchCompany(tenantMembershipId));
-    } catch (err) {
-      this.switchError.set(err as BroochError);
     } finally {
       this.switching.set(false);
     }

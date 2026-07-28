@@ -3,7 +3,6 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { SessionStore } from '../../../../core/auth/session.store';
 import { LanguageService } from '../../../../core/i18n/language.service';
-import { BroochError } from '../../../../core/error/brooch-error.model';
 import { MyAccessService } from '../../services/my-access.service';
 
 @Component({
@@ -52,18 +51,6 @@ import { MyAccessService } from '../../services/my-access.service';
           <span>{{ 'myAccess.loading' | translate }}</span>
         </div>
       } @else {
-        @if (error(); as failure) {
-          <div class="workspace-status workspace-status--error" role="alert">
-            <span class="workspace-status__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <circle cx="12" cy="12" r="9" />
-                <path d="M15 9l-6 6M9 9l6 6" />
-              </svg>
-            </span>
-            <span class="workspace-status__body">{{ failure.message }}</span>
-          </div>
-        }
-
         <div class="workspace-access-grid">
           <section class="workspace-panel" aria-labelledby="my-access-roles-heading">
             <header class="workspace-panel__head">
@@ -153,7 +140,6 @@ export class MyAccessPage {
   );
   protected readonly permissions = signal<string[]>([]);
   protected readonly loading = signal(true);
-  protected readonly error = signal<BroochError | null>(null);
 
   protected readonly tenantName = computed(() => {
     const tenant = this.session.currentTenant();
@@ -198,13 +184,10 @@ export class MyAccessPage {
 
   private async load(): Promise<void> {
     this.loading.set(true);
-    this.error.set(null);
     try {
       const access = await firstValueFrom(this.myAccessService.loadAccess());
       this.roles.set(access.roles ?? []);
       this.permissions.set(access.permissions ?? []);
-    } catch (err) {
-      this.error.set(err as BroochError);
     } finally {
       this.loading.set(false);
     }

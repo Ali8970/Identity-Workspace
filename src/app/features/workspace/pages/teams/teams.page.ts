@@ -3,7 +3,6 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { LanguageService } from '../../../../core/i18n/language.service';
-import { BroochError } from '../../../../core/error/brooch-error.model';
 import { TeamNode } from '../../models/workspace-feature.model';
 import { TeamsService } from '../../services/teams.service';
 
@@ -42,18 +41,6 @@ import { TeamsService } from '../../services/teams.service';
           <span>{{ 'teams.loading' | translate }}</span>
         </div>
       } @else {
-        @if (error(); as failure) {
-          <div class="workspace-status workspace-status--error" role="alert">
-            <span class="workspace-status__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <circle cx="12" cy="12" r="9" />
-                <path d="M15 9l-6 6M9 9l6 6" />
-              </svg>
-            </span>
-            <span class="workspace-status__body">{{ failure.message }}</span>
-          </div>
-        }
-
         @if (teams().length === 0) {
           <section class="workspace-empty" role="status">
             <div class="workspace-empty__icon" aria-hidden="true">
@@ -136,7 +123,6 @@ export class TeamsPage {
 
   protected readonly teams = signal<TeamNode[]>([]);
   protected readonly loading = signal(true);
-  protected readonly error = signal<BroochError | null>(null);
 
   protected readonly teamCount = computed(() => this.countTeams(this.teams()));
 
@@ -154,11 +140,8 @@ export class TeamsPage {
 
   private async load(): Promise<void> {
     this.loading.set(true);
-    this.error.set(null);
     try {
       this.teams.set(await firstValueFrom(this.teamsService.loadTree()));
-    } catch (err) {
-      this.error.set(err as BroochError);
     } finally {
       this.loading.set(false);
     }

@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { isSafeReturnUrl } from '../../../../core/error/brooch-error.model';
+import { isSafeReturnUrl } from '../../../../core/error/error.model';
 import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
 
 @Component({

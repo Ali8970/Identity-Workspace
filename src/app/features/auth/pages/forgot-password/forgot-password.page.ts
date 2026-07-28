@@ -3,7 +3,6 @@ import { RouterLink } from '@angular/router';
 import { FormField, email, form, required, submit } from '@angular/forms/signals';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { BroochError } from '../../../../core/error/brooch-error.model';
 import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
 import { environment } from '../../../../../environments/environment';
 import { PasswordService } from '../../services/password.service';
@@ -55,18 +54,6 @@ import { PasswordService } from '../../services/password.service';
         <div class="auth-form__info" role="note">
           {{ 'auth.forgot.privacyNote' | translate }}
         </div>
-
-        @if (error(); as failure) {
-          <div class="auth-status auth-status--error" role="alert">
-            <span class="auth-status__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <circle cx="12" cy="12" r="9" />
-                <path d="M15 9l-6 6M9 9l6 6" />
-              </svg>
-            </span>
-            <span class="auth-status__body">{{ failure.message }}</span>
-          </div>
-        }
 
         <form class="auth-form" (submit)="onSubmit($event)" novalidate>
           <div class="auth-field">
@@ -135,7 +122,6 @@ export class ForgotPasswordPage {
   });
 
   protected readonly busy = signal(false);
-  protected readonly error = signal<BroochError | null>(null);
   protected readonly done = signal(false);
   protected readonly submitted = signal(false);
   protected readonly submittedEmail = signal('');
@@ -150,14 +136,11 @@ export class ForgotPasswordPage {
     this.submitted.set(true);
     void submit(this.forgotForm, async () => {
       this.busy.set(true);
-      this.error.set(null);
       try {
         const emailValue = this.model().email.trim();
         await firstValueFrom(this.passwordService.requestForgotPassword(emailValue));
         this.submittedEmail.set(emailValue);
         this.done.set(true);
-      } catch (err) {
-        this.error.set(err as BroochError);
       } finally {
         this.busy.set(false);
       }

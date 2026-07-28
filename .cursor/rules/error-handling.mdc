@@ -1,0 +1,50 @@
+---
+description: Global HTTP error handling — no component-level error UI
+globs: src/app/**/*.{ts,html}
+alwaysApply: true
+---
+
+# Error handling
+
+## Pipeline
+- Interceptor order: `applicationHeader → language → csrf → **error** → mock` (error MUST wrap mock — mock short-circuits without calling `next`)
+- `ApiErrorHandler` applies auth side-effects and publishes user-facing errors to `GlobalErrorService`
+- `GlobalErrorService.show()` calls `ApplicationRef.tick()` — required in zoneless when HTTP/RxJS emits outside Angular
+- **Display only in layouts** (never per-page):
+  - `AuthLayout` → `<app-global-error-banner variant="auth" />` (login, register, etc.)
+  - `ShellLayout` → `<app-global-error-banner variant="shell" />` (workspace pages)
+
+## Components MUST NOT
+- Add local `error` signals or `@if (error())` panels for HTTP failures
+- Catch HTTP errors solely to display `failure.message` — the interceptor already did that
+- Parse `HttpErrorResponse` or ProblemDetails in feature code
+
+## Allowed
+- `HttpContextToken` `SILENT_ERROR` on requests that must not show the global banner (rare)
+- Catch errors only for non-display control flow (e.g. stopping a spinner) — never duplicate messaging
+- Client-side form validation stays in Signal Forms schemas; server `Validation` field errors appear globally
+
+## ProblemDetails contract
+| Status | Code examples | Notes |
+|--------|---------------|-------|
+| 400 | `Validation`, `Request.InvalidBody`, `Auth.AntiforgeryFailed` | `errors` map for field messages |
+| 401 | `Auth.NotAuthenticated`, `Auth.InvalidCredentials` | Coded = stay; uncoded = re-auth |
+| 403 | `Auth.PermissionDenied` | includes `requiredPermissions` |
+| 404 | `*.NotFound` | domain-specific |
+| 409 | `*.EmailAlreadyExists`, business conflict | domain-specific |
+| 422 | business validation | domain-specific |
+| 429 | `Request.RateLimitExceeded` | `Retry-After` header when present |
+| 500 | `System.UnexpectedError` | generic fallback message |
+
+## Auth side-effects (ApiErrorHandler only)
+- `Auth.AntiforgeryFailed` → invalidate CSRF token
+- `Auth.ApplicationAccessDenied` + navigable `redirectUrl` → SSO redirect
+- `Identity.LoginIntent.*` → clear intent + scrub URL
+- `Auth.SessionExpired` → `/session-expired`
+- Uncoded 401 → `/login`
+- `Auth.NotAuthenticated` during selection stage → `/select-company`
+- Bootstrap probes (`/auth/me`, `/auth/companies`, `/auth/csrf`) → silent (no banner)
+
+## i18n
+- Display `message.en` / `message.ar` from ProblemDetails via `normalizeError`
+- Global banner strings use `errors.*` keys

@@ -2,7 +2,6 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { LanguageService } from '../../../../core/i18n/language.service';
-import { BroochError } from '../../../../core/error/brooch-error.model';
 import { MyCompanyDto } from '../../../../models/auth.model';
 import { SessionRowDto } from '../../models/workspace-feature.model';
 import { AccountService } from '../../services/account.service';
@@ -39,18 +38,6 @@ import { AccountService } from '../../services/account.service';
           <span>{{ 'account.loading' | translate }}</span>
         </div>
       } @else {
-        @if (error(); as failure) {
-          <div class="workspace-status workspace-status--error" role="alert">
-            <span class="workspace-status__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <circle cx="12" cy="12" r="9" />
-                <path d="M15 9l-6 6M9 9l6 6" />
-              </svg>
-            </span>
-            <span class="workspace-status__body">{{ failure.message }}</span>
-          </div>
-        }
-
         <div class="workspace-account-stack">
           <section class="workspace-panel" aria-labelledby="account-profile-heading">
             <header class="workspace-panel__head">
@@ -214,7 +201,6 @@ export class AccountPage {
   protected readonly companies = signal<MyCompanyDto[]>([]);
   protected readonly sessions = signal<SessionRowDto[]>([]);
   protected readonly loading = signal(true);
-  protected readonly error = signal<BroochError | null>(null);
   protected readonly busy = signal(false);
   protected readonly switching = signal(false);
 
@@ -264,13 +250,10 @@ export class AccountPage {
 
   private async load(): Promise<void> {
     this.loading.set(true);
-    this.error.set(null);
     try {
       const { companies, sessions } = await firstValueFrom(this.accountService.loadAccountData());
       this.companies.set(companies);
       this.sessions.set(sessions);
-    } catch (err) {
-      this.error.set(err as BroochError);
     } finally {
       this.loading.set(false);
     }
@@ -278,12 +261,9 @@ export class AccountPage {
 
   protected async switchTo(tenantMembershipId: string): Promise<void> {
     this.switching.set(true);
-    this.error.set(null);
     try {
       await firstValueFrom(this.accountService.switchCompany(tenantMembershipId));
       await this.load();
-    } catch (err) {
-      this.error.set(err as BroochError);
     } finally {
       this.switching.set(false);
     }

@@ -375,5 +375,11 @@
     "backToLogin": "العودة لتسجيل الدخول",
     "required": "مطلوب",
     "error": "حدث خطأ"
+  },
+  "errors": {
+    "dismiss": "إغلاق رسالة الخطأ",
+    "retryIn": "أعد المحاولة خلال {{seconds}} ث",
+    "traceId": "مرجع",
+    "requiredPermissions": "الصلاحيات المطلوبة"
   }
 }
