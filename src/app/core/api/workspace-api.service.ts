@@ -3,77 +3,27 @@ import { Service, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { API_ROUTES } from '../../constants/api-routes';
 import { ApiResponse } from '../../models/api-response.model';
+import {
+  AddMemberRequest,
+  AddMemberResult,
+  MemberListItem,
+  PackageDto,
+  PermissionCatalogItem,
+  RoleListItem,
+  TeamNode,
+  TenantDto,
+} from '../../models/workspace.model';
 
-export interface MemberListItem {
-  tenantMembershipId: string;
-  userId: string;
-  email: string;
-  nameAr: string;
-  nameEn: string;
-  status: string;
-  isOwner: boolean;
-  roles: { id: string; code: string; nameAr: string; nameEn: string }[];
-}
-
-export interface AddMemberRequest {
-  email: string;
-  arabicName: string;
-  englishName: string;
-  roleIds?: string[];
-}
-
-export interface AddMemberResult {
-  tenantMembershipId: string;
-  userId: string;
-  tenantId: string;
-  email: string;
-  userAlreadyExisted: boolean;
-  requiresPasswordSetup: boolean;
-  emailType: string;
-  isNewUser: boolean;
-  tenantMembershipStatus: string;
-}
-
-export interface RoleListItem {
-  id: string;
-  code: string;
-  nameAr: string;
-  nameEn: string;
-  applicationKey: string;
-  permissionKeys?: string[];
-}
-
-export interface PermissionCatalogItem {
-  key: string;
-  nameAr: string;
-  nameEn: string;
-  applicationKey: string;
-  group: string;
-}
-
-export interface TeamNode {
-  id: string;
-  nameAr: string;
-  nameEn: string;
-  parentId: string | null;
-  children: TeamNode[];
-}
-
-export interface PackageDto {
-  id: string;
-  code: string;
-  nameAr: string;
-  nameEn: string;
-  descriptionAr: string;
-  descriptionEn: string;
-}
-
-export interface TenantDto {
-  tenantId: string;
-  arabicCompanyName: string;
-  englishCompanyName: string;
-  status: string;
-}
+export type {
+  AddMemberRequest,
+  AddMemberResult,
+  MemberListItem,
+  PackageDto,
+  PermissionCatalogItem,
+  RoleListItem,
+  TeamNode,
+  TenantDto,
+} from '../../models/workspace.model';
 
 function unwrap<T>(response: ApiResponse<T>): T {
   if (response.data === undefined) {
