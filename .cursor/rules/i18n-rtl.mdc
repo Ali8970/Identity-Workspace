@@ -1,0 +1,16 @@
+---
+description: Arabic/English i18n and RTL rules
+globs: src/app/**/*.{ts,html,scss}, public/i18n/**
+alwaysApply: true
+---
+
+# i18n / RTL
+
+- Use ngx-translate for all user-facing strings — no hardcoded UI copy
+- Keys: `feature.section.key` (e.g. `auth.login.title`)
+- Map API ProblemDetails `message.en` / `message.ar` (or messageKey) via translate
+- Bilingual DTOs: display with `LocalizedNamePipe` (`nameAr` / `nameEn`)
+- `LanguageService` sets `document.documentElement.lang` and `dir` (`rtl` for `ar`, `ltr` for `en`)
+- Send `Accept-Language` on every HTTP request
+- SCSS: prefer logical properties; add `[dir='rtl']` overrides only when needed
+- Forms and error panels must flip correctly in both languages

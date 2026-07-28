@@ -1,0 +1,14 @@
+---
+description: Custom SASS design system — no UI libraries
+globs: **/*.{scss,html,ts}
+alwaysApply: true
+---
+
+# SASS / UI
+
+- No Angular Material, PrimeNG, Bootstrap, Tailwind UI kits
+- Design tokens live in `src/styles/_tokens.scss` — use CSS variables
+- Shared primitives under `src/app/shared/ui/` only
+- Prefer native `<button>`, `<input>`, `<a>` with attribute-selector components when wrapping
+- Keep components small; auth layout vs shell layout are separate
+- Dev-only mock toolbar must not ship in production builds (`environment.showMockToolbar`)

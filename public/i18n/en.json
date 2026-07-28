@@ -1,0 +1,163 @@
+{
+  "app": {
+    "name": "Brooch Identity",
+    "loading": "Loading…"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Access your Brooch workspace",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "forgot": "Forgot password?",
+      "register": "Register a company",
+      "justOnboarded": "Company activated. Sign in to continue.",
+      "selectionRestart": "Please sign in again to choose a company.",
+      "intentBanner": "You are signing in to open another Brooch application.",
+      "retryIn": "Try again in {{seconds}}s"
+    },
+    "register": {
+      "title": "Register company",
+      "subtitle": "Create your company — no password yet",
+      "arabicName": "Company name (Arabic)",
+      "englishName": "Company name (English)",
+      "email": "Owner email",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "submit": "Register",
+      "successNew": "Check the Mock mailbox (bottom-right) and open the set-password link — the code is in the link, not typed.",
+      "successExisting": "Email already registered — sign in with your existing password."
+    },
+    "setPassword": {
+      "title": "Set your password",
+      "password": "New password",
+      "confirm": "Confirm password",
+      "submit": "Set password & continue",
+      "success": "Password set. Sign in to continue.",
+      "invalidLink": "This activation link is not valid. Open the set-password link from your email (mock mailbox in dev)."
+    },
+    "forgot": {
+      "title": "Forgot password",
+      "email": "Email",
+      "submit": "Send reset link",
+      "success": "If the email exists, a reset link was sent."
+    },
+    "reset": {
+      "title": "Choose a new password",
+      "password": "New password",
+      "confirm": "Confirm password",
+      "submit": "Update password",
+      "success": "Password updated. Sign in with your new password.",
+      "invalidLink": "This reset link is not valid or has already been used. Request a fresh link.",
+      "requestNew": "Request a new link"
+    },
+    "selectCompany": {
+      "title": "Select company",
+      "subtitle": "Choose which company to continue with",
+      "continue": "Continue",
+      "intentBanner": "Continue to the requested application after selecting a company."
+    },
+    "denied": {
+      "title": "Access denied",
+      "body": "You cannot open this application with the current account."
+    },
+    "sessionExpired": {
+      "body": "Your session has expired. Sign in again to continue.",
+      "signIn": "Sign in again"
+    }
+  },
+  "shell": {
+    "applications": "Applications",
+    "members": "Members",
+    "roles": "Roles",
+    "permissions": "Permissions",
+    "teams": "Teams",
+    "myAccess": "My access",
+    "account": "Account",
+    "logout": "Sign out",
+    "language": "Language",
+    "switchCompany": "Switch company"
+  },
+  "applications": {
+    "title": "Applications",
+    "subtitle": "Open an eligible Brooch application",
+    "open": "Open",
+    "current": "Current"
+  },
+  "members": {
+    "title": "Members",
+    "subtitle": "People in this company",
+    "add": "Invite member",
+    "email": "Email",
+    "nameAr": "Name (Arabic)",
+    "nameEn": "Name (English)",
+    "submit": "Send invite",
+    "colName": "Name",
+    "colRoles": "Roles",
+    "colStatus": "Status",
+    "empty": "No members yet",
+    "invitedSetPassword": "Invite sent — set-password email is in the mock mailbox.",
+    "invitedExisting": "Existing user linked to this company."
+  },
+  "roles": {
+    "title": "Roles",
+    "subtitle": "Roles and permissions for this company"
+  },
+  "permissions": {
+    "title": "Permissions",
+    "subtitle": "Permission catalog"
+  },
+  "teams": {
+    "title": "Teams",
+    "subtitle": "Organization structure",
+    "empty": "No teams yet"
+  },
+  "myAccess": {
+    "title": "My access",
+    "subtitle": "Your roles and permissions in the current company",
+    "roles": "Roles",
+    "permissions": "Permissions"
+  },
+  "account": {
+    "title": "Account",
+    "subtitle": "Profile, companies, and sessions",
+    "profile": "Profile",
+    "email": "Email",
+    "name": "Name",
+    "companies": "Companies",
+    "current": "Current",
+    "switch": "Switch",
+    "sessions": "Sessions",
+    "logout": "Sign out (this device)",
+    "logoutAll": "Sign out all devices"
+  },
+  "onboarding": {
+    "subtitle": "Finish setting up your company",
+    "companyTitle": "Company profile",
+    "packageTitle": "Choose a package",
+    "arabicName": "Company name (Arabic)",
+    "englishName": "Company name (English)",
+    "continue": "Continue",
+    "startTrial": "Start free trial"
+  },
+  "mock": {
+    "title": "Mock API",
+    "scenario": "Scenario",
+    "mailbox": "Mailbox",
+    "apply": "Apply scenario",
+    "hint": "APIs are mocked — flip environment.useMockApi when backend is ready.",
+    "createIntent": "Create CRM intent",
+    "openLink": "Open link"
+  },
+  "mockTarget": {
+    "body": "Mock application landing (SSO redirect target). Not a real CRM/HR embed.",
+    "app": "Application",
+    "back": "Back to Identity"
+  },
+  "common": {
+    "backToLogin": "Back to sign in",
+    "required": "Required",
+    "error": "Something went wrong"
+  }
+}

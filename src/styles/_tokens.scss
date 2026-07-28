@@ -1,0 +1,107 @@
+:root {
+  /* Light theme — Brooch Identity */
+  --ground: #f3f5f8;
+  --ground-accent: #e8eef6;
+  --surface: #ffffff;
+  --surface-2: #f7f9fc;
+  --surface-3: #eef2f7;
+  --line: #dce3ee;
+  --line-strong: #c5cfde;
+  --text: #152033;
+  --text-2: #3d4a5c;
+  --muted: #66758a;
+  --primary: #0f766e;
+  --primary-hover: #0d9488;
+  --primary-soft: rgba(15, 118, 110, 0.1);
+  //  --primary: #1e00b0;
+  // --primary-hover: #2a14d4;
+  // --primary-soft: rgba(30, 0, 176, 0.1);
+  --primary-ink: #ffffff;
+  --danger: #c23545;
+  --danger-soft: rgba(194, 53, 69, 0.1);
+  --success: #0f7a4f;
+  --success-soft: rgba(15, 122, 79, 0.1);
+  --warning: #a15c07;
+  --warning-soft: rgba(161, 92, 7, 0.12);
+  --info: #1d5bb8;
+  --info-soft: rgba(29, 91, 184, 0.1);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --font-sans: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+  --font-display: 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
+  --shadow: 0 12px 32px -16px rgba(21, 32, 51, 0.22);
+  --shadow-sm: 0 2px 8px rgba(21, 32, 51, 0.06);
+  --header-h: 56px;
+  --nav-w: 248px;
+  --transition: 160ms ease;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--text);
+  background:
+    radial-gradient(900px 420px at 8% -10%, rgba(15, 118, 110, 0.07), transparent 55%),
+        // radial-gradient(900px 420px at 8% -10%, rgba(30, 0, 176, 0.07), transparent 55%),
+    radial-gradient(700px 380px at 100% 0%, rgba(29, 91, 184, 0.05), transparent 50%),
+    var(--ground);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--primary);
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.app-skip-link {
+  position: absolute;
+  inset-inline-start: -999px;
+  top: 0;
+  background: var(--primary);
+  color: var(--primary-ink);
+  padding: 0.5rem 0.75rem;
+  z-index: 1000;
+  border-radius: var(--radius-sm);
+}
+
+.app-skip-link:focus {
+  inset-inline-start: 0.75rem;
+  top: 0.75rem;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up {
+  animation: fade-up 280ms ease both;
+}

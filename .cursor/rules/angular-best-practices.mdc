@@ -1,0 +1,46 @@
+---
+description: Angular 22 best practices — apply to every TypeScript/Angular file
+globs: **/*.{ts,html,scss}
+alwaysApply: true
+---
+
+You are an expert in TypeScript, Angular 22, and scalable web apps. Follow Angular and TypeScript best practices on every change.
+
+## TypeScript
+- Strict typing; prefer inference when obvious
+- Ban `any`; use `unknown` when uncertain
+
+## Angular
+- Standalone only — never set `standalone: true` (default in v20+)
+- Never set `changeDetection: OnPush` explicitly (default in v22+)
+- Signals for state; `computed()` for derived; never `signal.mutate` — use `set` / `update`
+- Lazy-load feature routes
+- Host via `host: {}` — never `@HostBinding` / `@HostListener`
+- `NgOptimizedImage` for static images (not base64)
+- `input()` / `output()` / `model()` — never `@Input` / `@Output`
+- Prefer `inject()` over constructor DI
+- Singletons: prefer `@Service()` (v22+); else `@Injectable({ providedIn: 'root' })`
+- **Signal Forms only** (`@angular/forms/signals`) for forms in this project
+- Templates: `@if` / `@for` / `@switch` — never `*ngIf` / `*ngFor` / `*ngSwitch`
+- `[class]` / `[style]` — never `ngClass` / `ngStyle`
+- Prefer `protected` for template-only members; `readonly` for inputs/outputs/queries
+- Feature folders — never type folders (`components/`, `services/` at root)
+- Event handlers named by action (`saveUser()`), not `handleClick()`
+- Prefer CLI `ng generate`; after codegen run `ng build` and fix errors
+- Call Angular CLI MCP `get_best_practices` when unsure about APIs
+
+## Accessibility
+- Must pass AXE; WCAG AA (focus, contrast, ARIA)
+- Focus main content after `NavigationEnd`; use `ariaCurrentWhenActive` on nav links
+- Prefer native elements; announce deferred content with live regions
+
+## Security
+- Never concatenate untrusted input into templates
+- Prefer Angular bindings over raw DOM / `ElementRef`
+- Audit any `bypassSecurityTrust*`
+- Cookie session only — never store JWT/session tokens in `localStorage`
+
+## Performance
+- Zoneless (`provideZonelessChangeDetection`)
+- Lazy routes, `@defer`, `NgOptimizedImage`
+- Scope `resource` / `httpResource` to consumers

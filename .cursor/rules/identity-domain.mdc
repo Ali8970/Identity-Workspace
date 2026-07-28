@@ -1,0 +1,45 @@
+---
+description: Brooch Identity auth/SSO domain contracts
+globs: src/app/**/*.{ts,html}
+alwaysApply: true
+---
+
+# Brooch Identity domain rules
+
+## Auth model
+- Cookie session `brooch_sid` (HttpOnly) — SPA never reads it
+- CSRF: `GET /api/v1/auth/csrf` returns raw `{ token }` (not ApiResponse); send `X-XSRF-TOKEN` on unsafe non-exempt POSTs
+- CSRF-exempt: login, set-password, forgot-password(+complete), login-intent, csrf, tenants/register
+- Every authenticated call: `X-Brooch-Application: identity` + `Accept-Language`
+- Interceptor order: **application header → language → csrf → error** (then mock if enabled)
+
+## Login decision tree (exact order)
+1. `requiresTenantSelection === true` → `/select-company` (wins even if redirectUrl set)
+2. Navigable `redirectUrl` → full-page `location.assign` (not Angular router cross-origin)
+3. Else → stay in Identity, `GET /auth/me`, applications launcher
+
+## Selection stage
+- Picker rows ONLY from `LoginResponse.availableCompanies` — never rebuild from `/me/companies`
+- Keep `intentId` in AuthFlowStore across selection (API does not echo it)
+- Selection allow-list only; other APIs → 401 Auth.NotAuthenticated (route to picker, not login)
+
+## SSO / redirects
+- Sibling apps hand off via opaque `?intentId=` only
+- Trust only backend `redirectUrl` or registry `baseUrl` (absolute http/https)
+- Same-app `returnUrl` must be relative starting with single `/`
+- App switch = navigate to `baseUrl` — no backend select-application endpoint
+- Workspace logout = `POST /auth/logout-all`
+
+## Authz
+- Permissions gate **actions/nav links**, never routes — backend 403 is truth
+- `/roles` is read-only viewer in v1
+- Coded 401 = business denial (stay); uncoded 401 = session loss → re-auth
+- `login-intent` may return HTTP 200 with `isValid: false` — treat as failure
+
+## Registration
+- `POST /tenants/register` — no password; then set-password email → login
+- No OTP — 4-digit set-password codes / reset tokens only
+
+## Mock vs real
+- Features call `*Api` services only — never branch on mock in pages
+- `environment.useMockApi` toggles MockApiInterceptor; same contracts either way
