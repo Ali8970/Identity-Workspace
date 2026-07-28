@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { LanguageService } from '../../../../core/i18n/language.service';
@@ -11,68 +11,199 @@ import { AccountService } from '../../services/account.service';
   selector: 'app-account-page',
   imports: [TranslatePipe],
   template: `
-    <h1 class="page-title" id="main-content-header" tabindex="-1">
-      {{ 'account.title' | translate }}
-    </h1>
-    <p class="page-lead">{{ 'account.subtitle' | translate }}</p>
+    <div class="workspace-page">
+      <header class="workspace-page__head">
+        <div class="workspace-page__intro">
+          <p class="workspace-page__eyebrow">{{ 'account.eyebrow' | translate }}</p>
+          <h1 class="workspace-page__title" id="main-content-header" tabindex="-1">
+            {{ 'account.title' | translate }}
+          </h1>
+          <p class="workspace-page__lead">{{ 'account.subtitle' | translate }}</p>
+        </div>
 
-    @if (error()) {
-      <div class="ui-alert ui-alert--error" role="alert">{{ error()!.message }}</div>
-    }
-
-    <section class="ui-card" style="margin-bottom:1rem">
-      <h2 class="page-title" style="font-size:1.05rem">{{ 'account.profile' | translate }}</h2>
-      @if (session.current(); as me) {
-        <p><strong>{{ 'account.email' | translate }}:</strong> {{ me.user.email }}</p>
-        <p>
-          <strong>{{ 'account.name' | translate }}:</strong>
-          {{ label(me.user.nameAr, me.user.nameEn) }}
-        </p>
-      }
-    </section>
-
-    <section class="ui-card" style="margin-bottom:1rem">
-      <h2 class="page-title" style="font-size:1.05rem">{{ 'account.companies' | translate }}</h2>
-      <ul class="perm-tree">
-        @for (company of companies(); track company.tenantMembershipId) {
-          <li style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap">
-            <span>
-              {{ label(company.companyNameAr, company.companyNameEn) }}
-              @if (company.isCurrent) {
-                <span class="ui-badge">{{ 'account.current' | translate }}</span>
-              }
+        @if (userInitial()) {
+          <div class="workspace-page__meta">
+            <span class="workspace-chip">
+              <span class="workspace-profile__avatar" style="width:1.65rem;height:1.65rem;font-size:0.72rem;flex:0 0 1.65rem" aria-hidden="true">
+                {{ userInitial() }}
+              </span>
+              {{ userEmail() }}
             </span>
-            @if (!company.isCurrent && company.isSelectable) {
-              <button
-                type="button"
-                class="ui-btn ui-btn--ghost"
-                [disabled]="switching()"
-                (click)="switchTo(company.tenantMembershipId)"
-              >
-                {{ 'account.switch' | translate }}
-              </button>
-            }
-          </li>
+          </div>
         }
-      </ul>
-    </section>
+      </header>
 
-    <section class="ui-card" style="margin-bottom:1rem">
-      <h2 class="page-title" style="font-size:1.05rem">{{ 'account.sessions' | translate }}</h2>
-      <ul class="perm-tree">
-        @for (row of sessions(); track $index) {
-          <li>{{ row.id }} · {{ row.stage }}</li>
+      @if (loading()) {
+        <div class="workspace-loading" role="status" aria-live="polite">
+          <span class="workspace-loading__spinner" aria-hidden="true"></span>
+          <span>{{ 'account.loading' | translate }}</span>
+        </div>
+      } @else {
+        @if (error(); as failure) {
+          <div class="workspace-status workspace-status--error" role="alert">
+            <span class="workspace-status__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M15 9l-6 6M9 9l6 6" />
+              </svg>
+            </span>
+            <span class="workspace-status__body">{{ failure.message }}</span>
+          </div>
         }
-      </ul>
-      <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.75rem">
-        <button type="button" class="ui-btn ui-btn--ghost" [disabled]="busy()" (click)="logout()">
-          {{ 'account.logout' | translate }}
-        </button>
-        <button type="button" class="ui-btn ui-btn--danger" [disabled]="busy()" (click)="logoutAll()">
-          {{ 'account.logoutAll' | translate }}
-        </button>
-      </div>
-    </section>
+
+        <div class="workspace-account-stack">
+          <section class="workspace-panel" aria-labelledby="account-profile-heading">
+            <header class="workspace-panel__head">
+              <h2 class="workspace-panel__title" id="account-profile-heading">
+                {{ 'account.profile' | translate }}
+              </h2>
+              <p class="workspace-panel__lead">{{ 'account.profileLead' | translate }}</p>
+            </header>
+
+            <div class="workspace-panel__body">
+              @if (session.current(); as me) {
+                <div class="workspace-profile">
+                  <span class="workspace-profile__avatar" aria-hidden="true">{{ userInitial() }}</span>
+                  <div class="workspace-profile__details">
+                    <dl class="workspace-dl">
+                      <div class="workspace-dl__row">
+                        <dt class="workspace-dl__label">{{ 'account.email' | translate }}</dt>
+                        <dd class="workspace-dl__value">{{ me.user.email }}</dd>
+                      </div>
+                      <div class="workspace-dl__row">
+                        <dt class="workspace-dl__label">{{ 'account.name' | translate }}</dt>
+                        <dd class="workspace-dl__value">
+                          {{ label(me.user.nameAr, me.user.nameEn) }}
+                        </dd>
+                      </div>
+                    </dl>
+                  </div>
+                </div>
+              }
+            </div>
+          </section>
+
+          <section class="workspace-panel" aria-labelledby="account-companies-heading">
+            <header class="workspace-panel__head">
+              <h2 class="workspace-panel__title" id="account-companies-heading">
+                {{ 'account.companies' | translate }}
+              </h2>
+              <p class="workspace-panel__lead">{{ 'account.companiesLead' | translate }}</p>
+            </header>
+
+            <div class="workspace-panel__body">
+              @if (companies().length === 0) {
+                <p class="workspace-panel__empty" role="status">{{ 'account.noCompanies' | translate }}</p>
+              } @else {
+                <div class="workspace-company-list" role="list">
+                  @for (company of companies(); track company.tenantMembershipId) {
+                    <article
+                      class="workspace-company-row"
+                      role="listitem"
+                      [class.workspace-company-row--current]="company.isCurrent"
+                    >
+                      <div class="workspace-company-row__body">
+                        <strong class="workspace-company-row__name">
+                          {{ label(company.companyNameAr, company.companyNameEn) }}
+                        </strong>
+                        <div class="workspace-company-row__meta">
+                          @if (company.isCurrent) {
+                            <span class="workspace-role-pill">{{ 'account.current' | translate }}</span>
+                          }
+                          @if (company.isOwner) {
+                            <span class="workspace-member__owner">{{ 'account.owner' | translate }}</span>
+                          }
+                          @if (company.isPrimary) {
+                            <span class="workspace-chip workspace-chip--muted">
+                              {{ 'account.primary' | translate }}
+                            </span>
+                          }
+                        </div>
+                        @if (company.jobTitle) {
+                          <span class="workspace-company-row__job">{{ company.jobTitle }}</span>
+                        }
+                      </div>
+
+                      @if (!company.isCurrent && company.isSelectable) {
+                        <button
+                          type="button"
+                          class="ui-btn ui-btn--primary"
+                          [disabled]="switching()"
+                          [attr.aria-busy]="switching()"
+                          (click)="switchTo(company.tenantMembershipId)"
+                        >
+                          {{ 'account.switch' | translate }}
+                        </button>
+                      } @else if (!company.isSelectable && !company.isCurrent) {
+                        <span class="workspace-chip workspace-chip--muted">
+                          {{ 'account.unavailable' | translate }}
+                        </span>
+                      }
+                    </article>
+                  }
+                </div>
+              }
+            </div>
+          </section>
+
+          <section class="workspace-panel" aria-labelledby="account-sessions-heading">
+            <header class="workspace-panel__head">
+              <h2 class="workspace-panel__title" id="account-sessions-heading">
+                {{ 'account.sessions' | translate }}
+              </h2>
+              <p class="workspace-panel__lead">{{ 'account.sessionsLead' | translate }}</p>
+            </header>
+
+            <div class="workspace-panel__body">
+              @if (sessions().length === 0) {
+                <p class="workspace-panel__empty" role="status">{{ 'account.noSessions' | translate }}</p>
+              } @else {
+                <ul class="workspace-session-list">
+                  @for (row of sessions(); track row.id) {
+                    <li class="workspace-session-row">
+                      <span class="workspace-session-row__body">
+                        <span class="workspace-session-row__id">{{ row.id }}</span>
+                        <span class="workspace-session-row__label">
+                          {{ 'account.sessionLabel' | translate }}
+                        </span>
+                      </span>
+                      @if (isKnownSessionStage(row.stage)) {
+                        <span [class]="sessionStageClass(row.stage)">
+                          {{ sessionStageLabel(row.stage) | translate }}
+                        </span>
+                      } @else {
+                        <span class="workspace-status-pill">{{ row.stage }}</span>
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+
+              <div class="workspace-actions">
+                <button
+                  type="button"
+                  class="ui-btn ui-btn--ghost"
+                  [disabled]="busy()"
+                  [attr.aria-busy]="busy()"
+                  (click)="logout()"
+                >
+                  {{ 'account.logout' | translate }}
+                </button>
+                <button
+                  type="button"
+                  class="ui-btn ui-btn--danger"
+                  [disabled]="busy()"
+                  [attr.aria-busy]="busy()"
+                  (click)="logoutAll()"
+                >
+                  {{ 'account.logoutAll' | translate }}
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+      }
+    </div>
   `,
 })
 export class AccountPage {
@@ -82,9 +213,27 @@ export class AccountPage {
 
   protected readonly companies = signal<MyCompanyDto[]>([]);
   protected readonly sessions = signal<SessionRowDto[]>([]);
+  protected readonly loading = signal(true);
   protected readonly error = signal<BroochError | null>(null);
   protected readonly busy = signal(false);
   protected readonly switching = signal(false);
+
+  protected readonly userEmail = computed(() => this.session.current()?.user.email ?? '');
+  protected readonly userInitial = computed(() => {
+    const me = this.session.current()?.user;
+    if (!me) {
+      return '';
+    }
+    const name = this.language.current() === 'ar' ? me.nameAr || me.nameEn : me.nameEn || me.nameAr;
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) {
+      return me.email.slice(0, 2).toUpperCase();
+    }
+    if (parts.length === 1) {
+      return parts[0].slice(0, 2).toUpperCase();
+    }
+    return `${parts[0][0] ?? ''}${parts[1][0] ?? ''}`.toUpperCase();
+  });
 
   constructor() {
     void this.load();
@@ -94,13 +243,36 @@ export class AccountPage {
     return this.language.current() === 'ar' ? ar || en : en || ar;
   }
 
+  protected isKnownSessionStage(stage: string): boolean {
+    return ['Active', 'Selection', 'Anonymous'].includes(stage);
+  }
+
+  protected sessionStageLabel(stage: string): string {
+    return `account.sessionStage.${stage}`;
+  }
+
+  protected sessionStageClass(stage: string): string {
+    const normalized = stage.toLowerCase();
+    if (normalized === 'active') {
+      return 'workspace-status-pill workspace-status-pill--active';
+    }
+    if (normalized === 'selection') {
+      return 'workspace-status-pill workspace-status-pill--pending';
+    }
+    return 'workspace-status-pill';
+  }
+
   private async load(): Promise<void> {
+    this.loading.set(true);
+    this.error.set(null);
     try {
       const { companies, sessions } = await firstValueFrom(this.accountService.loadAccountData());
       this.companies.set(companies);
       this.sessions.set(sessions);
     } catch (err) {
       this.error.set(err as BroochError);
+    } finally {
+      this.loading.set(false);
     }
   }
 
