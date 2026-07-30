@@ -172,7 +172,7 @@ export class ApplicationsPage {
     return 'default';
   }
 
-  protected canLaunch(baseUrl: string): boolean {
+  protected canLaunch(baseUrl: string | null): boolean {
     return this.applicationsService.canLaunch(baseUrl);
   }
 

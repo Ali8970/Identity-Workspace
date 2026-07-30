@@ -42,6 +42,15 @@ export class SessionStore {
   readonly isSelection = computed(() => this.stageSignal() === SessionStage.Selection);
   readonly permissions = computed(() => this.userSignal()?.permissions ?? []);
   readonly currentTenant = computed(() => this.userSignal()?.currentTenant ?? null);
+  /** Current company row from GET /me/companies (includes tenantStatus). */
+  readonly currentCompany = computed(
+    () =>
+      this.companiesSignal().find((c) => c.isCurrent) ??
+      this.companiesSignal().find(
+        (c) => c.tenantMembershipId === this.userSignal()?.currentTenant?.tenantMembershipId,
+      ) ??
+      null,
+  );
 
   hasPermission(permission: string): boolean {
     return this.permissions().includes(permission);

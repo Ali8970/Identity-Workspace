@@ -81,8 +81,8 @@ export const tenantSelectionGuard: CanActivateFn = () => {
 export const onboardingGuard: CanActivateFn = () => {
   const session = inject(SessionStore);
   const router = inject(Router);
-  const tenant = session.currentTenant();
-  if (tenant?.tenantStatus === 'Onboarding') {
+  const company = session.currentCompany();
+  if (company?.tenantStatus === 'Onboarding') {
     return router.createUrlTree(['/onboarding/company']);
   }
   return true;
@@ -91,8 +91,8 @@ export const onboardingGuard: CanActivateFn = () => {
 export const onboardingCompleteGuard: CanActivateFn = () => {
   const session = inject(SessionStore);
   const router = inject(Router);
-  const tenant = session.currentTenant();
-  if (tenant && tenant.tenantStatus !== 'Onboarding') {
+  const company = session.currentCompany();
+  if (company && company.tenantStatus !== 'Onboarding') {
     return router.createUrlTree(['/applications']);
   }
   return true;

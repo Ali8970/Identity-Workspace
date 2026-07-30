@@ -21,8 +21,6 @@
       "emailInvalid": "Enter a valid email address.",
       "passwordRequired": "Password is required.",
       "redirecting": "Redirecting you securely…",
-      "devHintTitle": "Dev mock:",
-      "devHintBody": " owner@brooch.sa / P@ssw0rd!2026",
       "justOnboarded": "Company activated. Sign in to continue.",
       "selectionRestart": "Please sign in again to choose a company.",
       "intentBanner": "You are signing in to open another Brooch application.",
@@ -54,8 +52,8 @@
       "successExistingTitle": "Email already registered",
       "successNew": "We sent a set-password link to your email. Open it to activate your account.",
       "successExisting": "This email is already registered. Sign in with your existing password.",
-      "stepMailbox": "Open the mock mailbox (bottom-right in dev).",
-      "stepSetPassword": "Click the set-password link — the code is in the URL.",
+      "stepMailbox": "Check your email for the set-password link.",
+      "stepSetPassword": "Open the link and choose a secure password.",
       "stepSignIn": "Return here and sign in with your new password.",
       "goToLogin": "Go to sign in"
     },
@@ -79,8 +77,8 @@
       "invalidLink": "This activation link is not valid. Open the set-password link from your email.",
       "needAccount": "Need an account?",
       "stepRegister": "Register a company first.",
-      "stepMailbox": "Open the mock mailbox (bottom-right in dev).",
-      "stepOpenLink": "Click Open link on the set-password email — the code is in the URL."
+      "stepMailbox": "Check your email for the activation link.",
+      "stepOpenLink": "Open the set-password link from that email."
     },
     "forgot": {
       "title": "Forgot password",
@@ -94,8 +92,8 @@
       "rememberPassword": "Remember your password?",
       "successTitle": "Check your email",
       "success": "If an account exists for this address, a password reset link has been sent.",
-      "stepMailbox": "Open the mock mailbox (bottom-right in dev).",
-      "stepResetLink": "Click the reset-password link — the token is in the URL.",
+      "stepMailbox": "Check your email for the password reset link.",
+      "stepResetLink": "Open the link and choose a new password.",
       "stepSignIn": "Sign in with your new password when finished.",
       "goToLogin": "Back to sign in"
     },
@@ -209,13 +207,12 @@
     "owner": "Owner",
     "noRoles": "No roles",
     "empty": "No members yet — invite someone to get started.",
-    "invitedSetPassword": "Invite sent — set-password email is in the mock mailbox.",
+    "invitedSetPassword": "Invite sent — the user will receive a set-password email.",
     "invitedExisting": "Existing user linked to this company.",
     "status": {
       "Active": "Active",
       "Suspended": "Suspended",
-      "Removed": "Removed",
-      "PendingActivation": "Pending"
+      "Removed": "Removed"
     }
   },
   "roles": {
@@ -348,28 +345,6 @@
     "loading": "Loading your workspace…",
     "redirecting": "Starting your trial…",
     "noPackages": "No packages are available right now. Contact support or try again later."
-  },
-  "mock": {
-    "title": "Mock API",
-    "scenario": "Scenario",
-    "mailbox": "Mailbox",
-    "apply": "Apply scenario",
-    "hint": "APIs are mocked — flip environment.useMockApi when backend is ready.",
-    "createIntent": "Create CRM intent",
-    "openLink": "Open link"
-  },
-  "mockTarget": {
-    "devOnly": "Mock dev landing",
-    "title": "You reached {{app}}",
-    "body": "This is a mock SSO redirect target — not a real CRM or HR application.",
-    "hint": "Use the mock toolbar in Identity to create intents and test the full SSO cycle.",
-    "app": "Application key",
-    "back": "Back to Identity",
-    "apps": {
-      "identity": "Identity",
-      "crm": "CRM",
-      "hr": "HR"
-    }
   },
   "common": {
     "backToLogin": "Back to sign in",

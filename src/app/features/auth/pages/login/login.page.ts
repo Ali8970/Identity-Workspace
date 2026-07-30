@@ -7,7 +7,6 @@ import { SsoHandshakeService } from '../../../../core/auth/sso-handshake.service
 import { GlobalErrorService } from '../../../../core/error/global-error.service';
 import { isNavigableRedirect } from '../../../../core/error/error.model';
 import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
-import { environment } from '../../../../../environments/environment';
 import { LoginService } from '../../services/login.service';
 
 @Component({
@@ -169,13 +168,6 @@ import { LoginService } from '../../services/login.service';
           'auth.login.register' | translate
         }}</a>
       </p>
-
-      @if (showDevHint()) {
-        <div class="auth-dev-hint" role="note">
-          <strong>{{ 'auth.login.devHintTitle' | translate }}</strong>
-          {{ 'auth.login.devHintBody' | translate }}
-        </div>
-      }
     </app-auth-layout>
 
     @if (redirecting()) {
@@ -195,7 +187,7 @@ export class LoginPage {
   private readonly sso = inject(SsoHandshakeService);
   private readonly router = inject(Router);
 
-  protected readonly model = signal({ email: 'owner@brooch.sa', password: 'P@ssw0rd!2026' });
+  protected readonly model = signal({ email: '', password: '' });
   protected readonly loginForm = form(this.model, (schema) => {
     required(schema.email);
     email(schema.email);
@@ -208,7 +200,6 @@ export class LoginPage {
   protected readonly redirecting = signal(false);
   protected readonly showPassword = signal(false);
   protected readonly submitted = signal(false);
-  protected readonly showDevHint = signal(environment.useMockApi && !environment.production);
 
   protected readonly emailInvalid = computed(
     () => this.submitted() && this.loginForm.email().invalid(),

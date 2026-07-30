@@ -21,8 +21,8 @@ export class OnboardingService {
 
   saveCompanyProfile(value: CompanyProfileFormValue): Observable<unknown> {
     return this.tenantApi.updateProfile({
-      arabicCompanyName: value.arabicCompanyName.trim(),
-      englishCompanyName: value.englishCompanyName.trim(),
+      companyNameAr: value.arabicCompanyName.trim(),
+      companyNameEn: value.englishCompanyName.trim(),
     });
   }
 

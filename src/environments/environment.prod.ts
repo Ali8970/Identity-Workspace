@@ -1,8 +1,5 @@
 export const environment = {
   production: true,
   appKey: 'identity' as const,
-  apiBaseUrl: '/api/v1',
-  useMockApi: false,
-  showMockToolbar: false,
-  mockLatencyMs: 0,
+  apiBaseUrl: 'https://stg.api.brooch.sa/api/v1',
 };

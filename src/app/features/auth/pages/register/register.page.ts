@@ -4,7 +4,6 @@ import { FormField, email, form, required, submit } from '@angular/forms/signals
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
-import { environment } from '../../../../../environments/environment';
 import { RegisterService } from '../../services/register.service';
 
 @Component({
@@ -42,7 +41,7 @@ import { RegisterService } from '../../services/register.service';
 
           <p class="auth-success__message">{{ key | translate }}</p>
 
-          @if (isNewRegistration() && showDevHint()) {
+          @if (isNewRegistration()) {
             <ol class="auth-success__steps">
               <li>{{ 'auth.register.stepMailbox' | translate }}</li>
               <li>{{ 'auth.register.stepSetPassword' | translate }}</li>
@@ -249,7 +248,6 @@ export class RegisterPage {
   protected readonly busy = signal(false);
   protected readonly successKey = signal<string | null>(null);
   protected readonly submitted = signal(false);
-  protected readonly showDevHint = signal(environment.useMockApi && !environment.production);
 
   protected readonly isNewRegistration = computed(
     () => this.successKey() === 'auth.register.successNew',

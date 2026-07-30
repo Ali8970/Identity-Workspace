@@ -11,4 +11,3 @@ alwaysApply: true
 - Shared primitives under `src/app/shared/ui/` only
 - Prefer native `<button>`, `<input>`, `<a>` with attribute-selector components when wrapping
 - Keep components small; auth layout vs shell layout are separate
-- Dev-only mock toolbar must not ship in production builds (`environment.showMockToolbar`)

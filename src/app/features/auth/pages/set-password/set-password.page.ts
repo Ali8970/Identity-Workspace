@@ -5,7 +5,6 @@ import { FormField, form, required, submit } from '@angular/forms/signals';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom, map } from 'rxjs';
 import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
-import { environment } from '../../../../../environments/environment';
 import { PasswordService } from '../../services/password.service';
 
 /**
@@ -31,13 +30,11 @@ import { PasswordService } from '../../services/password.service';
           </h1>
           <p class="auth-success__message">{{ 'auth.setPassword.invalidLink' | translate }}</p>
 
-          @if (showDevHint()) {
-            <ol class="auth-success__steps">
-              <li>{{ 'auth.setPassword.stepRegister' | translate }}</li>
-              <li>{{ 'auth.setPassword.stepMailbox' | translate }}</li>
-              <li>{{ 'auth.setPassword.stepOpenLink' | translate }}</li>
-            </ol>
-          }
+          <ol class="auth-success__steps">
+            <li>{{ 'auth.setPassword.stepRegister' | translate }}</li>
+            <li>{{ 'auth.setPassword.stepMailbox' | translate }}</li>
+            <li>{{ 'auth.setPassword.stepOpenLink' | translate }}</li>
+          </ol>
 
           <a class="ui-btn ui-btn--primary auth-form__submit" routerLink="/login">
             {{ 'common.backToLogin' | translate }}
@@ -232,7 +229,6 @@ export class SetPasswordPage {
   protected readonly submitted = signal(false);
   protected readonly showPassword = signal(false);
   protected readonly showConfirmPassword = signal(false);
-  protected readonly showDevHint = signal(environment.useMockApi && !environment.production);
 
   protected readonly hasLink = computed(() => this.userId() !== '' && this.code() !== '');
 

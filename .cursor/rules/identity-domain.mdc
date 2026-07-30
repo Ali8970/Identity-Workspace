@@ -11,7 +11,7 @@ alwaysApply: true
 - CSRF: `GET /api/v1/auth/csrf` returns raw `{ token }` (not ApiResponse); send `X-XSRF-TOKEN` on unsafe non-exempt POSTs
 - CSRF-exempt: login, set-password, forgot-password(+complete), login-intent, csrf, tenants/register
 - Every authenticated call: `X-Brooch-Application: identity` + `Accept-Language`
-- Interceptor order: **application header → language → csrf → error → mock** (mock last when enabled)
+- Interceptor order: **application header → language → csrf → error**
 
 ## Login decision tree (exact order)
 1. `requiresTenantSelection === true` → `/select-company` (wins even if redirectUrl set)
@@ -40,9 +40,10 @@ alwaysApply: true
 - `POST /tenants/register` — no password; then set-password email → login
 - No OTP — 4-digit set-password codes / reset tokens only
 
-## Mock vs real
-- Features call `*Api` services only — never branch on mock in pages
-- `environment.useMockApi` toggles MockApiInterceptor; same contracts either way
+## API
+- Features call `*Api` services only — never invent endpoints
+- Dev SPA: `https://my.dev.brooch.sa:4200` (ssl + host); `apiBaseUrl` absolute to staging (`https://stg.api.brooch.sa/api/v1`)
+- No local API proxy — backend must CORS-allow the Identity origin (same pattern as CRM)
 
 ## Errors
 - HTTP errors are global — see `.cursor/rules/error-handling.mdc` (interceptor + banner; no component error UI)

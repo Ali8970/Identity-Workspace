@@ -7,7 +7,7 @@ alwaysApply: true
 # Error handling
 
 ## Pipeline
-- Interceptor order: `applicationHeader → language → csrf → **error** → mock` (error MUST wrap mock — mock short-circuits without calling `next`)
+- Interceptor order: `applicationHeader → language → csrf → **error**`
 - `ApiErrorHandler` applies auth side-effects and publishes user-facing errors to `GlobalErrorService`
 - `GlobalErrorService.show()` calls `ApplicationRef.tick()` — required in zoneless when HTTP/RxJS emits outside Angular
 - **Display only in layouts** (never per-page):

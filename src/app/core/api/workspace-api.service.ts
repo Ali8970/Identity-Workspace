@@ -102,17 +102,55 @@ export class TenantApi {
 
   get(): Observable<TenantDto> {
     return this.http
-      .get<ApiResponse<TenantDto>>(API_ROUTES.tenant, { withCredentials: true })
-      .pipe(map(unwrap));
+      .get<
+        ApiResponse<{
+          tenantId: string;
+          companyNameAr: string | null;
+          companyNameEn: string | null;
+          status: string;
+          onboardingState?: string;
+          onboardingCompleted?: boolean;
+        }>
+      >(API_ROUTES.tenant, { withCredentials: true })
+      .pipe(
+        map(unwrap),
+        map((tenant) => ({
+          tenantId: tenant.tenantId,
+          companyNameAr: tenant.companyNameAr,
+          companyNameEn: tenant.companyNameEn,
+          status: tenant.status,
+          onboardingState: tenant.onboardingState,
+          onboardingCompleted: tenant.onboardingCompleted,
+        })),
+      );
   }
 
   updateProfile(request: {
-    arabicCompanyName: string;
-    englishCompanyName: string;
+    companyNameAr: string | null;
+    companyNameEn: string | null;
   }): Observable<TenantDto> {
     return this.http
-      .put<ApiResponse<TenantDto>>(API_ROUTES.tenantProfile, request, { withCredentials: true })
-      .pipe(map(unwrap));
+      .put<
+        ApiResponse<{
+          tenantId: string;
+          companyNameAr: string | null;
+          companyNameEn: string | null;
+          status: string;
+          onboardingState?: string;
+          onboardingCompleted?: boolean;
+        }>
+      >(API_ROUTES.tenantProfile, request, { withCredentials: true })
+      .pipe(
+        map(unwrap),
+        map((tenant) => ({
+          tenantId: tenant.tenantId,
+          companyNameAr: tenant.companyNameAr,
+          companyNameEn: tenant.companyNameEn,
+          status: tenant.status,
+          onboardingState: tenant.onboardingState,
+          onboardingCompleted: tenant.onboardingCompleted,
+        })),
+      );
   }
 
   packages(): Observable<PackageDto[]> {

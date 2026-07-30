@@ -1,23 +1,54 @@
-export enum UserStatus {
-  Active = 1,
-  Inactive = 2,
-  Suspended = 3,
-  PendingActivation = 4,
-}
+/** Wire enums — PascalCase strings (JsonStringEnumConverter). */
 
-export enum MembershipStatus {
-  Active = 1,
-  Suspended = 2,
-  Removed = 3,
-}
+export type BroochUserStatus =
+  | 'Active'
+  | 'Inactive'
+  | 'Suspended'
+  | 'PendingActivation';
 
-export enum TenantStatus {
-  Onboarding = 'Onboarding',
-  Active = 'Active',
-  Suspended = 'Suspended',
-  Disabled = 'Disabled',
-}
+export type TenantMembershipStatus = 'Active' | 'Suspended' | 'Removed';
 
+export type TenantStatus = 'Onboarding' | 'Active' | 'Suspended' | 'Disabled';
+
+/** OpenAPI TenantOnboardingState (includes provisioning steps). */
+export type TenantOnboardingState =
+  | 'Registered'
+  | 'ProfileSaved'
+  | 'SubscriptionActive'
+  | 'CrmProvisioned'
+  | 'TeamsProvisioned'
+  | 'Completed';
+
+export type ApplicationStatus = 'Draft' | 'Active' | 'Disabled' | 'Retired';
+
+export type EligibilityReason =
+  | 'Eligible'
+  | 'UnknownApplication'
+  | 'ApplicationDisabled'
+  | 'ApplicationRetired'
+  | 'UserInactive'
+  | 'NoTenantMembership'
+  | 'TenantMembershipSuspended'
+  | 'TenantDisabled'
+  | 'ApplicationRoleMissing'
+  | 'SubscriptionInactive';
+
+export type RemediationAction =
+  | 'None'
+  | 'ContactPlatformAdmin'
+  | 'ContactSupport'
+  | 'RequestAccessFromTenantAdmin'
+  | 'ContactTenantOwner'
+  | 'ContactBilling';
+
+export type TenantMemberAccessEmailType = 'WelcomeBack' | 'SetPassword';
+
+/** camelCase string codes on GET /me/companies when not selectable. */
+export type CompanyUnavailableReason = 'tenantMembershipSuspended' | 'tenantDisabled';
+
+export type ApplicationKey = 'identity' | 'crm' | 'hr' | 'administration';
+
+/** SPA-only session stage (not on the wire). */
 export enum SessionStage {
   Unknown = 'unknown',
   Anonymous = 'anonymous',
@@ -25,14 +56,24 @@ export enum SessionStage {
   Active = 'active',
 }
 
-export enum ApplicationKey {
-  Identity = 'identity',
-  Crm = 'crm',
-  Hr = 'hr',
-  Administration = 'administration',
-}
+export const ONBOARDING_ORDER: TenantOnboardingState[] = [
+  'Registered',
+  'ProfileSaved',
+  'SubscriptionActive',
+  'CrmProvisioned',
+  'TeamsProvisioned',
+  'Completed',
+];
 
-export enum EmailType {
-  SetPassword = 'SetPassword',
-  WelcomeBack = 'WelcomeBack',
-}
+export const REMEDIATION_BY_REASON: Record<EligibilityReason, RemediationAction> = {
+  Eligible: 'None',
+  UnknownApplication: 'ContactPlatformAdmin',
+  ApplicationDisabled: 'ContactPlatformAdmin',
+  ApplicationRetired: 'ContactPlatformAdmin',
+  UserInactive: 'ContactSupport',
+  NoTenantMembership: 'RequestAccessFromTenantAdmin',
+  TenantMembershipSuspended: 'RequestAccessFromTenantAdmin',
+  TenantDisabled: 'ContactTenantOwner',
+  ApplicationRoleMissing: 'RequestAccessFromTenantAdmin',
+  SubscriptionInactive: 'ContactBilling',
+};

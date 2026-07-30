@@ -58,5 +58,5 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 ## Brooch Identity project
 
 - SPA only (no SSR), zoneless, Signal Forms, SASS, ngx-translate AR/EN
-- Dev mock API: `environment.useMockApi` — see `.cursor/rules/identity-domain.mdc`
+- Real API via `https://stg.api.brooch.sa` from `https://my.dev.brooch.sa:4200` (ssl) — see `.cursor/rules/identity-domain.mdc`
 - Also read `CLAUDE.md` and `.cursor/rules/*`

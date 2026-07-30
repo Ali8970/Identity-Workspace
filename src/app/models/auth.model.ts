@@ -1,4 +1,10 @@
-import { MembershipStatus, TenantStatus, UserStatus } from '../enums/domain.enums';
+import {
+  BroochUserStatus,
+  CompanyUnavailableReason,
+  TenantMembershipStatus,
+  TenantOnboardingState,
+  TenantStatus,
+} from '../enums/domain.enums';
 
 export interface LoginRequest {
   email: string;
@@ -11,7 +17,7 @@ export interface AvailableTenantDto {
   tenantId: string;
   companyNameAr: string;
   companyNameEn: string;
-  status: string;
+  status: TenantStatus | string;
   isOwner: boolean;
   hasActiveSubscription: boolean;
 }
@@ -57,7 +63,7 @@ export interface CompleteForgotPasswordRequest {
 export interface CreateLoginIntentRequest {
   applicationKey: string;
   returnUrl: string;
-  action?: string;
+  action?: string | null;
 }
 
 export interface CreateIntentResultDto {
@@ -90,14 +96,14 @@ export interface CurrentUserDto {
   email: string;
   nameAr: string;
   nameEn: string;
-  status: keyof typeof UserStatus | string;
+  status: BroochUserStatus | string;
 }
 
 export interface CurrentApplicationDto {
   key: string;
   nameAr: string;
   nameEn: string;
-  baseUrl: string;
+  baseUrl: string | null;
 }
 
 export interface CurrentTenantDto {
@@ -108,7 +114,6 @@ export interface CurrentTenantDto {
   jobTitle: string | null;
   isPrimary: boolean;
   isOwner: boolean;
-  tenantStatus?: TenantStatus | string;
 }
 
 export interface RoleDto {
@@ -122,10 +127,8 @@ export interface AvailableApplicationDto {
   key: string;
   nameAr: string;
   nameEn: string;
-  baseUrl: string;
+  baseUrl: string | null;
   isCurrent: boolean;
-  isEligible?: boolean;
-  isActive?: boolean;
 }
 
 export interface CurrentUserResponse {
@@ -138,20 +141,20 @@ export interface CurrentUserResponse {
   availableApplications: AvailableApplicationDto[];
 }
 
+/** GET /me/companies — MyTenantDto */
 export interface MyCompanyDto {
   tenantMembershipId: string;
   tenantId: string;
   companyNameAr: string;
   companyNameEn: string;
-  tenantMembershipStatus: keyof typeof MembershipStatus | string;
+  tenantMembershipStatus: TenantMembershipStatus | string;
   isOwner: boolean;
   isPrimary: boolean;
   jobTitle: string | null;
   tenantStatus: TenantStatus | string;
   isSelectable: boolean;
-  unavailableReason: string | null;
+  unavailableReason: CompanyUnavailableReason | string | null;
   isCurrent: boolean;
-  hasActiveSubscription: boolean;
 }
 
 export interface CsrfTokenResponse {
@@ -172,4 +175,15 @@ export interface UpdateProfileRequest {
   lastNameAr: string;
   firstNameEn: string;
   lastNameEn: string;
+}
+
+/** GET /tenant — TenantMeResponse (subset used by Identity SPA). */
+export interface TenantMeDto {
+  tenantId: string;
+  email: string;
+  status: TenantStatus | string;
+  onboardingState: TenantOnboardingState | string;
+  onboardingCompleted: boolean;
+  companyNameAr: string | null;
+  companyNameEn: string | null;
 }

@@ -10,11 +10,11 @@ export class ApplicationsService {
 
   readonly availableApplications = () => this.session.current()?.availableApplications ?? [];
 
-  canLaunch(baseUrl: string): boolean {
+  canLaunch(baseUrl: string | null | undefined): boolean {
     return isNavigableRedirect(baseUrl);
   }
 
-  open(baseUrl: string): void {
+  open(baseUrl: string | null | undefined): void {
     if (isNavigableRedirect(baseUrl)) {
       this.sso.navigate(baseUrl);
     }

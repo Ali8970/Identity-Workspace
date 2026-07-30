@@ -4,7 +4,6 @@ import { FormField, email, form, required, submit } from '@angular/forms/signals
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
-import { environment } from '../../../../../environments/environment';
 import { PasswordService } from '../../services/password.service';
 
 @Component({
@@ -31,13 +30,11 @@ import { PasswordService } from '../../services/password.service';
             <p class="auth-success__email">{{ submittedEmail() }}</p>
           }
 
-          @if (showDevHint()) {
-            <ol class="auth-success__steps">
-              <li>{{ 'auth.forgot.stepMailbox' | translate }}</li>
-              <li>{{ 'auth.forgot.stepResetLink' | translate }}</li>
-              <li>{{ 'auth.forgot.stepSignIn' | translate }}</li>
-            </ol>
-          }
+          <ol class="auth-success__steps">
+            <li>{{ 'auth.forgot.stepMailbox' | translate }}</li>
+            <li>{{ 'auth.forgot.stepResetLink' | translate }}</li>
+            <li>{{ 'auth.forgot.stepSignIn' | translate }}</li>
+          </ol>
 
           <a class="ui-btn ui-btn--primary auth-form__submit" routerLink="/login">
             {{ 'auth.forgot.goToLogin' | translate }}
@@ -125,7 +122,6 @@ export class ForgotPasswordPage {
   protected readonly done = signal(false);
   protected readonly submitted = signal(false);
   protected readonly submittedEmail = signal('');
-  protected readonly showDevHint = signal(environment.useMockApi && !environment.production);
 
   protected readonly emailInvalid = computed(
     () => this.submitted() && this.forgotForm.email().invalid(),

@@ -1,21 +1,35 @@
+import { TenantMemberAccessEmailType, TenantMembershipStatus } from '../enums/domain.enums';
+
 /** Wire DTOs for workspace / tenant APIs (OpenAPI-shaped). */
 
+export interface TenantMemberRoleDto {
+  roleId: string;
+  code: string;
+  nameAr: string;
+  nameEn: string;
+}
+
+/** GET /companies/{tenantId}/members — TenantMemberDto */
 export interface MemberListItem {
   tenantMembershipId: string;
   userId: string;
   email: string;
-  nameAr: string;
-  nameEn: string;
-  status: string;
+  arabicName: string;
+  englishName: string;
+  tenantMembershipStatus: TenantMembershipStatus | string;
   isOwner: boolean;
-  roles: { id: string; code: string; nameAr: string; nameEn: string }[];
+  isPrimary: boolean;
+  jobTitle: string | null;
+  roles: TenantMemberRoleDto[];
+  applicationKeys: string[];
 }
 
 export interface AddMemberRequest {
   email: string;
-  arabicName: string;
-  englishName: string;
-  roleIds?: string[];
+  arabicName: string | null;
+  englishName: string | null;
+  roleIds?: string[] | null;
+  teamIds?: string[] | null;
 }
 
 export interface AddMemberResult {
@@ -25,9 +39,9 @@ export interface AddMemberResult {
   email: string;
   userAlreadyExisted: boolean;
   requiresPasswordSetup: boolean;
-  emailType: string;
+  emailType: TenantMemberAccessEmailType | string;
   isNewUser: boolean;
-  tenantMembershipStatus: string;
+  tenantMembershipStatus: TenantMembershipStatus | string;
 }
 
 export interface RoleListItem {
@@ -64,11 +78,19 @@ export interface PackageDto {
   descriptionEn: string;
 }
 
+/** Mapped view of GET /tenant for onboarding forms. */
 export interface TenantDto {
   tenantId: string;
-  arabicCompanyName: string;
-  englishCompanyName: string;
+  companyNameAr: string | null;
+  companyNameEn: string | null;
   status: string;
+  onboardingState?: string;
+  onboardingCompleted?: boolean;
+}
+
+export interface UpdateTenantProfileRequest {
+  companyNameAr?: string | null;
+  companyNameEn?: string | null;
 }
 
 export interface MyAccessDto {

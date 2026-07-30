@@ -46,6 +46,7 @@ export class MembersService {
       arabicName: form.arabicName.trim(),
       englishName: form.englishName.trim(),
       roleIds: identityRoleId ? [identityRoleId] : [],
+      teamIds: [],
     };
     return this.membersApi.add(tenantId, request);
   }

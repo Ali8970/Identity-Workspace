@@ -235,8 +235,8 @@ export class OnboardingPage {
     try {
       const tenant = await firstValueFrom(this.onboardingService.loadTenant());
       this.companyModel.set({
-        arabicCompanyName: tenant.arabicCompanyName,
-        englishCompanyName: tenant.englishCompanyName,
+        arabicCompanyName: tenant.companyNameAr ?? '',
+        englishCompanyName: tenant.companyNameEn ?? '',
       });
       if (this.step() === 'package') {
         const packages = await firstValueFrom(this.onboardingService.loadPackages());

@@ -81,13 +81,6 @@ export const routes: Routes = [
       import('./features/auth/pages/denied/denied.page').then((m) => m.DeniedPage),
   },
   {
-    path: 'mock-target/:app',
-    loadComponent: () =>
-      import('./features/mock-target/pages/mock-target/mock-target.page').then(
-        (m) => m.MockTargetPage,
-      ),
-  },
-  {
     path: 'session-expired',
     loadComponent: () =>
       import('./features/auth/pages/session-expired/session-expired.page').then(

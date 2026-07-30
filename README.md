@@ -8,28 +8,28 @@ Angular **22.0.8** SPA for Brooch SSO + tenant Identity workspace.
 - SASS (no UI libraries)
 - ngx-translate (`en` / `ar` + RTL)
 - Cookie session + CSRF (contract-aligned)
-- **Mock API enabled in development** until Brooch API is deployed
+- Real Brooch API: `https://stg.api.brooch.sa/api/v1`
 
-## Run
+## Run (same pattern as CRM)
 
 ```bash
 npm start
 ```
 
-Open http://localhost:4200/
+Opens **https://my.dev.brooch.sa:4200/** (`host` + `ssl` in `angular.json`).
 
-Default mock user: `owner@brooch.sa` / `P@ssw0rd!2026`
+Requires `my.dev.brooch.sa` in your hosts file (same as CRM):
 
-Use the **Mock API** toolbar (bottom-right) to switch Identity-cycle scenarios and read set-password / reset codes from the mailbox.
+```text
+127.0.0.1  my.dev.brooch.sa
+```
 
-## Switch to real API
+API calls go **directly** to staging. Backend must CORS-allow `https://my.dev.brooch.sa:4200`.
 
-In `src/environments/environment.ts` (or production env):
+## Environments
 
 ```ts
-useMockApi: false,
-showMockToolbar: false,
-apiBaseUrl: 'https://your-api-host/api/v1',
+apiBaseUrl: 'https://stg.api.brooch.sa/api/v1'
 ```
 
 ## AI quality gates
@@ -37,4 +37,4 @@ apiBaseUrl: 'https://your-api-host/api/v1',
 - `.cursor/rules/*` — Angular + Identity domain + i18n + SASS
 - `.cursor/mcp.json` — Angular CLI MCP
 - `AGENTS.md` / `CLAUDE.md`
-- Official skills: `npx skills add https://github.com/angular/skills`
+- Journey acceptance: `docs/JOURNEY-MATRIX.md`

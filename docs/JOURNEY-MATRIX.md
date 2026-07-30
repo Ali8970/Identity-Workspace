@@ -1,42 +1,46 @@
-# Journey matrix (mock)
+# Journey matrix (staging API)
+
+Acceptance checklist for the Identity cycle against `https://stg.api.brooch.sa`.
+Dev: `npm start` → **https://my.dev.brooch.sa:4200/** (direct API calls; backend CORS required).
+
+Prerequisites: staging test users/seeds for multi-tenant, intent, invite, and denial scenarios.
 
 | Journey id | How to run | Expected outcome |
 |---|---|---|
-| register-company | Toolbar → Register new email | Mailbox set-password → set password → login |
-| register-existing | Toolbar → Register with `owner@brooch.sa` | Existing-user message → login |
-| invite-user | Login → Members → Add | Mailbox SetPassword for invitee |
-| accept-invitation | Toolbar → open mailbox link | Set password → login |
-| login-single-one-app | Toolbar → login | Redirect to `/mock-target/crm` |
-| login-single-multi-app | Toolbar → login | Applications launcher |
-| login-multi-tenant | Toolbar → login | Select Company |
-| login-intent | Open mailbox intent link → login | Redirect to CRM mock target |
-| intent-multi-tenant | Mailbox intent → login → pick company | Redirect after pick |
-| forgot-password | Forgot form (any email) | Anti-enumeration success; mailbox if known |
-| reset-password | Mailbox reset link | Reset → login (no auto session) |
-| switch-company | Multi-tenant seed → shell switcher / Account | Membership switch + refresh |
-| switch-application | Applications → Open CRM/HR | `/mock-target/:app` |
-| logout | Account → Sign out (this device) | Session cleared → login |
-| logout-all | Shell Sign out / Account logout-all | All sessions cleared |
-| invalid-credentials | Wrong password | `Identity.InvalidCredentials` |
-| user-disabled | Toolbar seed → login | `Identity.Account.Disabled` |
-| no-membership | Toolbar seed → login | `Identity.NoActiveTenantMembership` |
-| tenant-disabled | Toolbar seed → login | `Membership.TenantDisabled` |
-| membership-suspended | Toolbar seed → login | `Membership.Suspended` |
-| app-denied-tenant | Intent mailbox → login | App denied / redirect denied |
-| app-denied-user | Intent mailbox → login | App denied |
+| register-company | `/register` with a new email | Set-password email → `/set-password` → login |
+| register-existing | `/register` with an already-active user email | Existing-user message → login |
+| invite-user | Login → Members → Add | Set-password email for invitee (`emailType: SetPassword` or `WelcomeBack`) |
+| accept-invitation | Open set-password link from email | Set password → login (no auto session) |
+| login-single-one-app | Login (one tenant, one eligible app) | Backend `redirectUrl` → sibling app `baseUrl` |
+| login-single-multi-app | Login (one tenant, multiple apps) | Stay in Identity → applications launcher |
+| login-multi-tenant | Login (multiple selectable companies) | `/select-company` (wins over `redirectUrl`) |
+| login-intent | Sibling app → Identity `?intentId=` → login | Navigable `redirectUrl` to target app |
+| intent-multi-tenant | Intent login → pick company | Redirect after `select-membership` |
+| forgot-password | `/forgot-password` (any email) | Anti-enumeration success; reset email if known |
+| reset-password | Open reset link from email | Reset → login (no auto session) |
+| switch-company | Active session → shell / Account switcher | `POST /auth/select-membership` + refresh |
+| switch-application | Applications → Open app | Navigate to registry `baseUrl` (no select-application API) |
+| logout | Account → Sign out (this device) | `POST /auth/logout` → `/login` |
+| logout-all | Shell / Account logout-all | `POST /auth/logout-all` → `/login` |
+| invalid-credentials | Wrong password | ProblemDetails coded denial (stay on login) |
+| user-disabled | Disabled account login | Account disabled ProblemDetails |
+| no-membership | User with no active membership | No-active-membership ProblemDetails |
+| tenant-disabled | Only disabled company available | Tenant disabled ProblemDetails |
+| membership-suspended | Suspended membership select | Membership not active ProblemDetails |
+| app-denied-tenant | Intent for app not entitled to tenant | `Auth.ApplicationAccessDenied` / denied UX |
+| app-denied-user | Intent for app user cannot access | App denied UX |
 | intent-tenant-ineligible | Intent → pick ineligible company | Stay on picker with error |
-| permission-denied | Login → Members → Add | `Auth.PermissionDenied` + correlation id |
-| intent-expired | Mailbox expired intent → login | `Identity.LoginIntent.Expired` |
-| intent-replayed | Mailbox completed intent → login | `Identity.LoginIntent.AlreadyCompleted` |
-| session-expired | Seed then open workspace | `/session-expired` banner |
-| csrf-failure | Login then unsafe action | Auto re-prime + single retry |
-| rate-limit | Toolbar → login | 429 + cooldown UI |
-| onboarding | Toolbar → login | Company → package → free trial → `/login?onboarded=1` |
+| permission-denied | Action without permission (e.g. add member) | `Auth.PermissionDenied` + global banner |
+| intent-expired | Expired `intentId` on login | `Identity.LoginIntent.Expired` → scrub URL |
+| intent-replayed | Already-completed intent | `Identity.LoginIntent.AlreadyCompleted` |
+| session-expired | Expired cookie → authenticated call | `/session-expired` |
+| csrf-failure | Unsafe POST with bad/missing CSRF | `Auth.AntiforgeryFailed` → re-prime + retry |
+| rate-limit | Burst login / limited auth paths | 429 + cooldown UI |
+| onboarding | New tenant owner after set-password + login | `/onboarding/company` → package → free trial → `/login?onboarded=1` |
 
-Default credentials: `owner@brooch.sa` / `P@ssw0rd!2026`
+## Go-live checklist
 
-## Go-live
-
-1. Set `apiBaseUrl` to real API  
-2. `useMockApi: false`  
-3. `showMockToolbar: false`  
+1. SPA runs on `https://my.dev.brooch.sa:4200` (hosts file + ssl)
+2. Staging CORS / cookies allow that origin (same as CRM)
+3. Test accounts exist for the journeys above
+4. ProblemDetails `code` values match error-handler expectations (adjust if staging differs)

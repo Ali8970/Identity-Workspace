@@ -170,7 +170,7 @@ import { MembersService } from '../../services/members.service';
                           </span>
                           <span class="workspace-member__info">
                             <span class="workspace-member__name">
-                              {{ label(row.nameAr, row.nameEn) }}
+                              {{ label(row.arabicName, row.englishName) }}
                             </span>
                             @if (row.isOwner) {
                               <span class="workspace-member__owner">
@@ -188,7 +188,7 @@ import { MembersService } from '../../services/members.service';
                               {{ 'members.noRoles' | translate }}
                             </span>
                           } @else {
-                            @for (role of row.roles; track role.id) {
+                            @for (role of row.roles; track role.roleId) {
                               <span class="workspace-role-pill">
                                 {{ label(role.nameAr, role.nameEn) }}
                               </span>
@@ -197,12 +197,12 @@ import { MembersService } from '../../services/members.service';
                         </div>
                       </td>
                       <td>
-                        @if (isKnownStatus(row.status)) {
-                          <span [class]="statusClass(row.status)">
-                            {{ statusLabel(row.status) | translate }}
+                        @if (isKnownStatus(row.tenantMembershipStatus)) {
+                          <span [class]="statusClass(row.tenantMembershipStatus)">
+                            {{ statusLabel(row.tenantMembershipStatus) | translate }}
                           </span>
                         } @else {
-                          <span class="workspace-status-pill">{{ row.status }}</span>
+                          <span class="workspace-status-pill">{{ row.tenantMembershipStatus }}</span>
                         }
                       </td>
                     </tr>
@@ -244,7 +244,7 @@ export class MembersPage {
   }
 
   protected initials(row: MemberListItem): string {
-    const name = this.label(row.nameAr, row.nameEn).trim();
+    const name = this.label(row.arabicName, row.englishName).trim();
     const parts = name.split(/\s+/).filter(Boolean);
     if (parts.length === 0) {
       return row.email.slice(0, 2).toUpperCase();
@@ -261,7 +261,7 @@ export class MembersPage {
 
   protected isKnownStatus(status: string): boolean {
     const normalized = status.replace(/\s+/g, '');
-    return ['Active', 'Suspended', 'Removed', 'PendingActivation'].includes(normalized);
+    return ['Active', 'Suspended', 'Removed'].includes(normalized);
   }
 
   protected statusClass(status: string): string {

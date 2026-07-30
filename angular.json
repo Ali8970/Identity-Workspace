@@ -63,6 +63,11 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "host": "my.dev.brooch.sa",
+            "port": 4200,
+            "ssl": true
+          },
           "configurations": {
             "production": {
               "buildTarget": "Identity:build:production"
