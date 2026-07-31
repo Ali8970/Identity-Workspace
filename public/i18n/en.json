@@ -201,9 +201,12 @@
     "nameEn": "Name (English)",
     "nameEnPlaceholder": "Full name in English",
     "roles": "Roles",
-    "rolesHint": "Optional — assign one or more roles with the invite.",
+    "rolesPlaceholder": "Select roles",
+    "rolesHint": "Select at least one role for the invite.",
+    "rolesRequired": "Select at least one role.",
     "rolesEmpty": "No roles available for this company.",
     "teams": "Teams",
+    "teamsPlaceholder": "Select teams",
     "teamsHint": "Optional — assign one or more teams with the invite.",
     "teamsEmpty": "No teams available for this company.",
     "submit": "Send invite",
@@ -358,6 +361,19 @@
     "backToLogin": "Back to sign in",
     "required": "Required",
     "error": "Something went wrong"
+  },
+  "ui": {
+    "multiSelect": {
+      "placeholder": "Select…",
+      "search": "Search…",
+      "selectAll": "Select all",
+      "clearFiltered": "Clear filtered",
+      "clear": "Clear selection",
+      "remove": "Remove",
+      "more": "+{{count}}",
+      "selectedCount": "{{count}} / {{total}} selected",
+      "noResults": "No matches found"
+    }
   },
   "errors": {
     "dismiss": "Dismiss error",

@@ -1,0 +1,164 @@
+<div class="ui-ms__field">
+  <div
+    #trigger
+    class="ui-ms__trigger"
+    role="combobox"
+    tabindex="0"
+    [attr.aria-expanded]="open()"
+    [attr.aria-controls]="panelId()"
+    [attr.aria-disabled]="disabled()"
+    [attr.aria-labelledby]="labelledBy() || null"
+    aria-haspopup="listbox"
+    (click)="togglePanel()"
+    (keydown)="onTriggerKeydown($event)"
+  >
+    <span class="ui-ms__value">
+      @if (selectedOptions().length === 0) {
+        <span class="ui-ms__placeholder">
+          {{ placeholder() || ('ui.multiSelect.placeholder' | translate) }}
+        </span>
+      } @else {
+        <span class="ui-ms__chips">
+          @for (chip of visibleChips(); track chip.value) {
+            <span class="ui-ms__chip">
+              <span class="ui-ms__chip-label">{{ chip.label }}</span>
+              <button
+                type="button"
+                class="ui-ms__chip-remove"
+                [disabled]="disabled()"
+                [attr.aria-label]="('ui.multiSelect.remove' | translate) + ': ' + chip.label"
+                (click)="removeChip(chip.value, $event)"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M6 6l12 12M18 6 6 18" />
+                </svg>
+              </button>
+            </span>
+          }
+          @if (overflowCount() > 0) {
+            <span class="ui-ms__overflow">
+              {{ 'ui.multiSelect.more' | translate: { count: overflowCount() } }}
+            </span>
+          }
+        </span>
+      }
+    </span>
+
+    <span class="ui-ms__actions">
+      @if (selectedOptions().length > 0 && !disabled()) {
+        <button
+          type="button"
+          class="ui-ms__clear"
+          [attr.aria-label]="'ui.multiSelect.clear' | translate"
+          (click)="clearAll($event)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M15 9l-6 6M9 9l6 6" />
+          </svg>
+        </button>
+      }
+      <span class="ui-ms__chevron" [class.ui-ms__chevron--open]="open()" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </span>
+    </span>
+  </div>
+</div>
+
+@if (open()) {
+  <div
+    #panel
+    class="ui-ms__panel ui-ms__panel--body"
+    [class.ui-ms__panel--above]="panelPlacement() === 'above'"
+    [class.ui-ms__panel--ready]="panelReady()"
+    [id]="panelId()"
+    role="listbox"
+    [attr.aria-multiselectable]="true"
+    [style.top.px]="panelTop()"
+    [style.left.px]="panelLeft()"
+    [style.width.px]="panelWidth()"
+    [style.max-height.px]="panelMaxHeight()"
+    (keydown)="onPanelKeydown($event)"
+  >
+    @if (filterable()) {
+      <div class="ui-ms__filter">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-3.5-3.5" />
+        </svg>
+        <input
+          #filterInput
+          type="search"
+          class="ui-ms__filter-input"
+          autocomplete="off"
+          [placeholder]="filterPlaceholder() || ('ui.multiSelect.search' | translate)"
+          [value]="filterQuery()"
+          (input)="onFilterInput($event)"
+          (click)="stopPropagation($event)"
+        />
+      </div>
+    }
+
+    @if (filteredOptions().length > 0) {
+      <div class="ui-ms__toolbar">
+        <button type="button" class="ui-ms__toolbar-btn" (click)="toggleSelectAll($event)">
+          {{
+            allFilteredSelected()
+              ? ('ui.multiSelect.clearFiltered' | translate)
+              : ('ui.multiSelect.selectAll' | translate)
+          }}
+        </button>
+        <span class="ui-ms__count">
+          {{
+            'ui.multiSelect.selectedCount'
+              | translate: { count: selectedOptions().length, total: options().length }
+          }}
+        </span>
+      </div>
+    }
+
+    <ul class="ui-ms__list" role="presentation">
+      @if (filteredOptions().length === 0) {
+        <li class="ui-ms__empty" role="option" aria-disabled="true">
+          {{ emptyMessage() || ('ui.multiSelect.noResults' | translate) }}
+        </li>
+      } @else {
+        @for (option of filteredOptions(); track option.value; let i = $index) {
+          <li role="option" [attr.aria-selected]="isSelected(option.value)">
+            <button
+              type="button"
+              class="ui-ms__option"
+              [class.ui-ms__option--selected]="isSelected(option.value)"
+              [class.ui-ms__option--active]="activeIndex() === i"
+              [class.ui-ms__option--disabled]="!!option.disabled"
+              [disabled]="!!option.disabled"
+              [style.padding-inline-start]="optionIndent(option.depth)"
+              (click)="toggleOption(option, $event)"
+              (mouseenter)="setActiveIndex(i)"
+            >
+              <span
+                class="ui-ms__check"
+                [class.ui-ms__check--on]="isSelected(option.value)"
+                aria-hidden="true"
+              >
+                @if (isSelected(option.value)) {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="m5 12 5 5L19 7" />
+                  </svg>
+                }
+              </span>
+              <span class="ui-ms__option-text">
+                <span class="ui-ms__option-label">{{ option.label }}</span>
+                @if (option.meta) {
+                  <span class="ui-ms__option-meta">{{ option.meta }}</span>
+                }
+              </span>
+            </button>
+          </li>
+        }
+      }
+    </ul>
+  </div>
+}

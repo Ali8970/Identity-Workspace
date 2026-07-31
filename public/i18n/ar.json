@@ -201,9 +201,12 @@
     "nameEn": "الاسم (إنجليزي)",
     "nameEnPlaceholder": "الاسم الكامل بالإنجليزية",
     "roles": "الأدوار",
-    "rolesHint": "اختياري — عيّن دوراً واحداً أو أكثر مع الدعوة.",
+    "rolesPlaceholder": "اختر الأدوار",
+    "rolesHint": "اختر دوراً واحداً على الأقل مع الدعوة.",
+    "rolesRequired": "اختر دوراً واحداً على الأقل.",
     "rolesEmpty": "لا توجد أدوار متاحة لهذه الشركة.",
     "teams": "الفرق",
+    "teamsPlaceholder": "اختر الفرق",
     "teamsHint": "اختياري — عيّن فريقاً واحداً أو أكثر مع الدعوة.",
     "teamsEmpty": "لا توجد فرق متاحة لهذه الشركة.",
     "submit": "إرسال الدعوة",
@@ -358,6 +361,19 @@
     "backToLogin": "العودة لتسجيل الدخول",
     "required": "مطلوب",
     "error": "حدث خطأ"
+  },
+  "ui": {
+    "multiSelect": {
+      "placeholder": "اختر…",
+      "search": "بحث…",
+      "selectAll": "تحديد الكل",
+      "clearFiltered": "مسح التصفية",
+      "clear": "مسح التحديد",
+      "remove": "إزالة",
+      "more": "+{{count}}",
+      "selectedCount": "{{count}} / {{total}} محدد",
+      "noResults": "لا توجد نتائج"
+    }
   },
   "errors": {
     "dismiss": "إغلاق رسالة الخطأ",

@@ -343,6 +343,11 @@
   font-weight: 650;
 }
 
+.auth-field__required {
+  margin-inline-start: 0.2rem;
+  color: var(--danger);
+}
+
 .auth-field__label-row {
   display: flex;
   align-items: baseline;

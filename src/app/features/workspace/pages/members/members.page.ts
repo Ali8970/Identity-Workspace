@@ -1,8 +1,12 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { FormField, email, form, required, submit } from '@angular/forms/signals';
+import { FormField, email, form, minLength, required, submit } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
 import { LanguageService } from '../../../../core/i18n/language.service';
+import {
+  MultiSelect,
+  MultiSelectOption,
+} from '../../../../shared/ui/multi-select/multi-select';
 import {
   AddMemberResult,
   MemberListItem,
@@ -12,7 +16,7 @@ import { FlatTeamOption, MembersService } from '../../services/members.service';
 
 @Component({
   selector: 'app-members-page',
-  imports: [TranslatePipe, FormField],
+  imports: [TranslatePipe, FormField, MultiSelect],
   template: `
     <div class="workspace-page">
       <header class="workspace-page__head">
@@ -124,73 +128,46 @@ import { FlatTeamOption, MembersService } from '../../services/members.service';
                 </div>
 
                 <div class="workspace-form__row">
-                  <fieldset class="workspace-multiselect" aria-describedby="member-roles-hint">
-                    <legend class="workspace-multiselect__legend">
+                  <div class="auth-field">
+                    <label class="auth-field__label" id="member-roles-label">
                       {{ 'members.roles' | translate }}
-                    </legend>
-                    @if (roles().length === 0) {
-                      <p class="workspace-multiselect__empty">
-                        {{ 'members.rolesEmpty' | translate }}
+                      <span class="auth-field__required" aria-hidden="true">*</span>
+                    </label>
+                    <app-multi-select
+                      [options]="roleSelectOptions()"
+                      [value]="model().roleIds"
+                      (valueChange)="setRoleIds($event)"
+                      [labelledBy]="'member-roles-label'"
+                      [placeholder]="'members.rolesPlaceholder' | translate"
+                      [emptyMessage]="'members.rolesEmpty' | translate"
+                    />
+                    @if (addForm.roleIds().touched() && addForm.roleIds().invalid()) {
+                      <p class="auth-field__error" id="member-roles-error" role="alert">
+                        {{ 'members.rolesRequired' | translate }}
                       </p>
                     } @else {
-                      <ul class="workspace-multiselect__list" role="list">
-                        @for (role of roles(); track role.id) {
-                          <li>
-                            <label class="workspace-multiselect__option">
-                              <input
-                                type="checkbox"
-                                [checked]="isSelected(model().roleIds, role.id)"
-                                (change)="toggleRole(role.id, $event)"
-                              />
-                              <span class="workspace-multiselect__option-label">
-                                <span>{{ label(role.nameAr, role.nameEn) }}</span>
-                                <span class="workspace-multiselect__option-meta">
-                                  {{ role.applicationKey }}
-                                </span>
-                              </span>
-                            </label>
-                          </li>
-                        }
-                      </ul>
+                      <p class="workspace-field-hint" id="member-roles-hint">
+                        {{ 'members.rolesHint' | translate }}
+                      </p>
                     }
-                    <p class="workspace-field-hint" id="member-roles-hint">
-                      {{ 'members.rolesHint' | translate }}
-                    </p>
-                  </fieldset>
+                  </div>
 
-                  <fieldset class="workspace-multiselect" aria-describedby="member-teams-hint">
-                    <legend class="workspace-multiselect__legend">
+                  <div class="auth-field">
+                    <label class="auth-field__label" id="member-teams-label">
                       {{ 'members.teams' | translate }}
-                    </legend>
-                    @if (teamOptions().length === 0) {
-                      <p class="workspace-multiselect__empty">
-                        {{ 'members.teamsEmpty' | translate }}
-                      </p>
-                    } @else {
-                      <ul class="workspace-multiselect__list" role="list">
-                        @for (team of teamOptions(); track team.id) {
-                          <li>
-                            <label
-                              class="workspace-multiselect__option"
-                              [style.padding-inline-start.rem]="0.7 + team.depth * 0.85"
-                            >
-                              <input
-                                type="checkbox"
-                                [checked]="isSelected(model().teamIds, team.id)"
-                                (change)="toggleTeam(team.id, $event)"
-                              />
-                              <span class="workspace-multiselect__option-label">
-                                {{ team.name }}
-                              </span>
-                            </label>
-                          </li>
-                        }
-                      </ul>
-                    }
+                    </label>
+                    <app-multi-select
+                      [options]="teamSelectOptions()"
+                      [value]="model().teamIds"
+                      (valueChange)="setTeamIds($event)"
+                      [labelledBy]="'member-teams-label'"
+                      [placeholder]="'members.teamsPlaceholder' | translate"
+                      [emptyMessage]="'members.teamsEmpty' | translate"
+                    />
                     <p class="workspace-field-hint" id="member-teams-hint">
                       {{ 'members.teamsHint' | translate }}
                     </p>
-                  </fieldset>
+                  </div>
                 </div>
 
                 <div class="workspace-form__actions">
@@ -308,9 +285,26 @@ export class MembersPage {
     email(schema.email);
     required(schema.arabicName);
     required(schema.englishName);
+    minLength(schema.roleIds, 1);
   });
 
   protected readonly canCreate = computed(() => this.membersService.canCreateMembers());
+
+  protected readonly roleSelectOptions = computed<MultiSelectOption[]>(() =>
+    this.roles().map((role) => ({
+      value: role.id,
+      label: this.label(role.nameAr, role.nameEn),
+      meta: role.applicationKey,
+    })),
+  );
+
+  protected readonly teamSelectOptions = computed<MultiSelectOption[]>(() =>
+    this.teamOptions().map((team) => ({
+      value: team.id,
+      label: team.name,
+      depth: team.depth,
+    })),
+  );
 
   constructor() {
     void this.load();
@@ -320,28 +314,13 @@ export class MembersPage {
     return this.language.current() === 'ar' ? ar || en : en || ar;
   }
 
-  protected isSelected(ids: string[], id: string): boolean {
-    return ids.includes(id);
+  protected setRoleIds(roleIds: string[]): void {
+    this.model.update((current) => ({ ...current, roleIds }));
+    this.addForm.roleIds().markAsTouched();
   }
 
-  protected toggleRole(roleId: string, event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
-    this.model.update((current) => ({
-      ...current,
-      roleIds: checked
-        ? [...current.roleIds, roleId]
-        : current.roleIds.filter((id) => id !== roleId),
-    }));
-  }
-
-  protected toggleTeam(teamId: string, event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
-    this.model.update((current) => ({
-      ...current,
-      teamIds: checked
-        ? [...current.teamIds, teamId]
-        : current.teamIds.filter((id) => id !== teamId),
-    }));
+  protected setTeamIds(teamIds: string[]): void {
+    this.model.update((current) => ({ ...current, teamIds }));
   }
 
   protected initials(row: MemberListItem): string {
