@@ -8,6 +8,7 @@ import {
   AddMemberResult,
   MemberListItem,
   PackageDto,
+  PagedResult,
   PermissionCatalogItem,
   RoleListItem,
   TeamNode,
@@ -91,8 +92,8 @@ export class TeamsApi {
 
   tree(): Observable<TeamNode[]> {
     return this.http
-      .get<ApiResponse<TeamNode[]>>(API_ROUTES.teamsTree, { withCredentials: true })
-      .pipe(map(unwrap));
+      .get<ApiResponse<TeamNode[] | null>>(API_ROUTES.teamsTree, { withCredentials: true })
+      .pipe(map((response) => response.data ?? []));
   }
 }
 
@@ -128,35 +129,20 @@ export class TenantApi {
   updateProfile(request: {
     companyNameAr: string | null;
     companyNameEn: string | null;
-  }): Observable<TenantDto> {
+  }): Observable<void> {
+    // OpenAPI: ApiResponse with message only (e.g. Tenant.Profile.Updated) — no data payload.
     return this.http
-      .put<
-        ApiResponse<{
-          tenantId: string;
-          companyNameAr: string | null;
-          companyNameEn: string | null;
-          status: string;
-          onboardingState?: string;
-          onboardingCompleted?: boolean;
-        }>
-      >(API_ROUTES.tenantProfile, request, { withCredentials: true })
-      .pipe(
-        map(unwrap),
-        map((tenant) => ({
-          tenantId: tenant.tenantId,
-          companyNameAr: tenant.companyNameAr,
-          companyNameEn: tenant.companyNameEn,
-          status: tenant.status,
-          onboardingState: tenant.onboardingState,
-          onboardingCompleted: tenant.onboardingCompleted,
-        })),
-      );
+      .put<ApiResponse<unknown>>(API_ROUTES.tenantProfile, request, { withCredentials: true })
+      .pipe(map(() => undefined));
   }
 
   packages(): Observable<PackageDto[]> {
     return this.http
-      .get<ApiResponse<PackageDto[]>>(API_ROUTES.packages, { withCredentials: true })
-      .pipe(map(unwrap));
+      .get<ApiResponse<PagedResult<PackageDto>>>(API_ROUTES.packages, { withCredentials: true })
+      .pipe(
+        map(unwrap),
+        map((page) => page.items ?? []),
+      );
   }
 
   startFreeTrial(packageId: string): Observable<unknown> {

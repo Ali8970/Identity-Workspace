@@ -8,7 +8,7 @@ import {
   MemberListItem,
   RoleListItem,
 } from '../../models/workspace-feature.model';
-import { MembersService } from '../../services/members.service';
+import { FlatTeamOption, MembersService } from '../../services/members.service';
 
 @Component({
   selector: 'app-members-page',
@@ -123,6 +123,76 @@ import { MembersService } from '../../services/members.service';
                   </div>
                 </div>
 
+                <div class="workspace-form__row">
+                  <fieldset class="workspace-multiselect" aria-describedby="member-roles-hint">
+                    <legend class="workspace-multiselect__legend">
+                      {{ 'members.roles' | translate }}
+                    </legend>
+                    @if (roles().length === 0) {
+                      <p class="workspace-multiselect__empty">
+                        {{ 'members.rolesEmpty' | translate }}
+                      </p>
+                    } @else {
+                      <ul class="workspace-multiselect__list" role="list">
+                        @for (role of roles(); track role.id) {
+                          <li>
+                            <label class="workspace-multiselect__option">
+                              <input
+                                type="checkbox"
+                                [checked]="isSelected(model().roleIds, role.id)"
+                                (change)="toggleRole(role.id, $event)"
+                              />
+                              <span class="workspace-multiselect__option-label">
+                                <span>{{ label(role.nameAr, role.nameEn) }}</span>
+                                <span class="workspace-multiselect__option-meta">
+                                  {{ role.applicationKey }}
+                                </span>
+                              </span>
+                            </label>
+                          </li>
+                        }
+                      </ul>
+                    }
+                    <p class="workspace-field-hint" id="member-roles-hint">
+                      {{ 'members.rolesHint' | translate }}
+                    </p>
+                  </fieldset>
+
+                  <fieldset class="workspace-multiselect" aria-describedby="member-teams-hint">
+                    <legend class="workspace-multiselect__legend">
+                      {{ 'members.teams' | translate }}
+                    </legend>
+                    @if (teamOptions().length === 0) {
+                      <p class="workspace-multiselect__empty">
+                        {{ 'members.teamsEmpty' | translate }}
+                      </p>
+                    } @else {
+                      <ul class="workspace-multiselect__list" role="list">
+                        @for (team of teamOptions(); track team.id) {
+                          <li>
+                            <label
+                              class="workspace-multiselect__option"
+                              [style.padding-inline-start.rem]="0.7 + team.depth * 0.85"
+                            >
+                              <input
+                                type="checkbox"
+                                [checked]="isSelected(model().teamIds, team.id)"
+                                (change)="toggleTeam(team.id, $event)"
+                              />
+                              <span class="workspace-multiselect__option-label">
+                                {{ team.name }}
+                              </span>
+                            </label>
+                          </li>
+                        }
+                      </ul>
+                    }
+                    <p class="workspace-field-hint" id="member-teams-hint">
+                      {{ 'members.teamsHint' | translate }}
+                    </p>
+                  </fieldset>
+                </div>
+
                 <div class="workspace-form__actions">
                   <button
                     class="ui-btn ui-btn--primary"
@@ -222,10 +292,17 @@ export class MembersPage {
 
   protected readonly members = signal<MemberListItem[]>([]);
   protected readonly roles = signal<RoleListItem[]>([]);
+  protected readonly teamOptions = signal<FlatTeamOption[]>([]);
   protected readonly busy = signal(false);
   protected readonly loading = signal(true);
   protected readonly inviteResult = signal<AddMemberResult | null>(null);
-  protected readonly model = signal({ email: '', arabicName: '', englishName: '' });
+  protected readonly model = signal({
+    email: '',
+    arabicName: '',
+    englishName: '',
+    roleIds: [] as string[],
+    teamIds: [] as string[],
+  });
   protected readonly addForm = form(this.model, (schema) => {
     required(schema.email);
     email(schema.email);
@@ -241,6 +318,30 @@ export class MembersPage {
 
   protected label(ar: string, en: string): string {
     return this.language.current() === 'ar' ? ar || en : en || ar;
+  }
+
+  protected isSelected(ids: string[], id: string): boolean {
+    return ids.includes(id);
+  }
+
+  protected toggleRole(roleId: string, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.model.update((current) => ({
+      ...current,
+      roleIds: checked
+        ? [...current.roleIds, roleId]
+        : current.roleIds.filter((id) => id !== roleId),
+    }));
+  }
+
+  protected toggleTeam(teamId: string, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.model.update((current) => ({
+      ...current,
+      teamIds: checked
+        ? [...current.teamIds, teamId]
+        : current.teamIds.filter((id) => id !== teamId),
+    }));
   }
 
   protected initials(row: MemberListItem): string {
@@ -281,9 +382,12 @@ export class MembersPage {
   private async load(): Promise<void> {
     this.loading.set(true);
     try {
-      const { members, roles } = await firstValueFrom(this.membersService.loadMembersAndRoles());
+      const { members, roles, teams } = await firstValueFrom(
+        this.membersService.loadMembersRolesAndTeams(),
+      );
       this.members.set(members);
       this.roles.set(roles);
+      this.teamOptions.set(this.membersService.flattenTeams(teams));
     } finally {
       this.loading.set(false);
     }
@@ -295,13 +399,15 @@ export class MembersPage {
       this.busy.set(true);
       this.inviteResult.set(null);
       try {
-        const value = this.model();
-        const identityRole = this.membersService.findIdentityRole(this.roles());
-        const result = await firstValueFrom(
-          this.membersService.inviteMember(value, identityRole?.id ?? null),
-        );
+        const result = await firstValueFrom(this.membersService.inviteMember(this.model()));
         this.inviteResult.set(result);
-        this.model.set({ email: '', arabicName: '', englishName: '' });
+        this.model.set({
+          email: '',
+          arabicName: '',
+          englishName: '',
+          roleIds: [],
+          teamIds: [],
+        });
         await this.load();
       } finally {
         this.busy.set(false);

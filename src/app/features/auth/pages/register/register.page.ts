@@ -83,8 +83,7 @@ import { RegisterService } from '../../services/register.service';
                   id="register-ar"
                   class="auth-field__input"
                   type="text"
-                  dir="rtl"
-                  lang="ar"
+                  dir="auto"
                   autocomplete="organization"
                   [placeholder]="'auth.register.arabicNamePlaceholder' | translate"
                   [formField]="registerForm.arabicCompanyName"
@@ -159,19 +158,12 @@ import { RegisterService } from '../../services/register.service';
                   <input
                     id="register-fn"
                     class="auth-field__input auth-field__input--plain"
-                    [class.auth-field__input--invalid]="firstNameInvalid()"
                     type="text"
                     autocomplete="given-name"
                     [placeholder]="'auth.register.firstNamePlaceholder' | translate"
                     [formField]="registerForm.firstName"
-                    [attr.aria-describedby]="firstNameInvalid() ? 'register-fn-error' : null"
                   />
                 </div>
-                @if (firstNameInvalid()) {
-                  <p class="auth-field__error" id="register-fn-error">
-                    {{ 'auth.register.firstNameRequired' | translate }}
-                  </p>
-                }
               </div>
 
               <div class="auth-field">
@@ -182,19 +174,12 @@ import { RegisterService } from '../../services/register.service';
                   <input
                     id="register-ln"
                     class="auth-field__input auth-field__input--plain"
-                    [class.auth-field__input--invalid]="lastNameInvalid()"
                     type="text"
                     autocomplete="family-name"
                     [placeholder]="'auth.register.lastNamePlaceholder' | translate"
                     [formField]="registerForm.lastName"
-                    [attr.aria-describedby]="lastNameInvalid() ? 'register-ln-error' : null"
                   />
                 </div>
-                @if (lastNameInvalid()) {
-                  <p class="auth-field__error" id="register-ln-error">
-                    {{ 'auth.register.lastNameRequired' | translate }}
-                  </p>
-                }
               </div>
             </div>
           </section>
@@ -241,8 +226,6 @@ export class RegisterPage {
   protected readonly registerForm = form(this.model, (schema) => {
     required(schema.managerEmail);
     email(schema.managerEmail);
-    required(schema.firstName);
-    required(schema.lastName);
   });
 
   protected readonly busy = signal(false);
@@ -255,12 +238,6 @@ export class RegisterPage {
 
   protected readonly emailInvalid = computed(
     () => this.submitted() && this.registerForm.managerEmail().invalid(),
-  );
-  protected readonly firstNameInvalid = computed(
-    () => this.submitted() && this.registerForm.firstName().invalid(),
-  );
-  protected readonly lastNameInvalid = computed(
-    () => this.submitted() && this.registerForm.lastName().invalid(),
   );
 
   protected onSubmit(event: Event): void {

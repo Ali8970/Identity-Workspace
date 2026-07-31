@@ -64,8 +64,8 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "host": "my.dev.brooch.sa",
-            "port": 4200,
+            "host": "dev.account.brooch.sa",
+            "port": 4300,
             "ssl": true
           },
           "configurations": {

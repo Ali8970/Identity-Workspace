@@ -1,7 +1,9 @@
 # Journey matrix (staging API)
 
 Acceptance checklist for the Identity cycle against `https://stg.api.brooch.sa`.
-Dev: `npm start` → **https://my.dev.brooch.sa:4200/** (direct API calls; backend CORS required).
+Dev: `npm start` → **https://dev.account.brooch.sa:4300/** (direct API calls; backend CORS required).
+
+**Full QA scripts (user action → API → UI):** see [IDENTITY-CYCLE-QA-CHECKLIST.md](./IDENTITY-CYCLE-QA-CHECKLIST.md).
 
 Prerequisites: staging test users/seeds for multi-tenant, intent, invite, and denial scenarios.
 
@@ -40,7 +42,7 @@ Prerequisites: staging test users/seeds for multi-tenant, intent, invite, and de
 
 ## Go-live checklist
 
-1. SPA runs on `https://my.dev.brooch.sa:4200` (hosts file + ssl)
+1. SPA runs on `https://dev.account.brooch.sa:4300` (hosts file + ssl)
 2. Staging CORS / cookies allow that origin (same as CRM)
 3. Test accounts exist for the journeys above
 4. ProblemDetails `code` values match error-handler expectations (adjust if staging differs)

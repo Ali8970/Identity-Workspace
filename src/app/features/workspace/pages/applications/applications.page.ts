@@ -8,6 +8,10 @@ import { ApplicationsService } from '../../services/applications.service';
 @Component({
   selector: 'app-applications-page',
   imports: [TranslatePipe],
+  host: {
+    '(window:pageshow)': 'onPageShow()',
+    '(window:focus)': 'onPageShow()',
+  },
   template: `
     <div class="workspace-page">
       <header class="workspace-page__head">
@@ -106,13 +110,14 @@ import { ApplicationsService } from '../../services/applications.service';
                     </svg>
                     {{ 'applications.current' | translate }}
                   </span>
-                } @else if (canLaunch(app.baseUrl)) {
-                  <button
-                    type="button"
+                } @else if (canLaunch(app.baseUrl) && app.baseUrl) {
+                  <a
                     class="ui-btn ui-btn--primary app-launcher-card__action"
-                    [disabled]="launching() !== null"
-                    [attr.aria-busy]="launching() === app.key"
-                    (click)="open(app)"
+                    [href]="app.baseUrl"
+                    rel="noopener"
+                    [attr.aria-busy]="launching() === app.key || null"
+                    [attr.aria-disabled]="launching() !== null && launching() !== app.key ? true : null"
+                    (click)="onLaunch(app, $event)"
                   >
                     @if (launching() === app.key) {
                       {{ 'applications.opening' | translate }}
@@ -122,7 +127,7 @@ import { ApplicationsService } from '../../services/applications.service';
                         <path d="M14 4h6v6M10 14 20 4M15 9h-4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-4" />
                       </svg>
                     }
-                  </button>
+                  </a>
                 } @else {
                   <span class="workspace-chip workspace-chip--muted">
                     {{ 'applications.unavailable' | translate }}
@@ -176,11 +181,20 @@ export class ApplicationsPage {
     return this.applicationsService.canLaunch(baseUrl);
   }
 
-  protected open(app: AvailableApplicationDto): void {
-    if (!this.canLaunch(app.baseUrl)) {
+  protected onPageShow(): void {
+    this.launching.set(null);
+  }
+
+  protected onLaunch(app: AvailableApplicationDto, event: MouseEvent): void {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
       return;
     }
+
+    if (this.launching() !== null || !this.canLaunch(app.baseUrl)) {
+      event.preventDefault();
+      return;
+    }
+
     this.launching.set(app.key);
-    this.applicationsService.open(app.baseUrl);
   }
 }

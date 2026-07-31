@@ -42,7 +42,7 @@ alwaysApply: true
 
 ## API
 - Features call `*Api` services only — never invent endpoints
-- Dev SPA: `https://my.dev.brooch.sa:4200` (ssl + host); `apiBaseUrl` absolute to staging (`https://stg.api.brooch.sa/api/v1`)
+- Dev SPA: `https://dev.account.brooch.sa:4300` (ssl + host); `apiBaseUrl` absolute to staging (`https://stg.api.brooch.sa/api/v1`)
 - No local API proxy — backend must CORS-allow the Identity origin (same pattern as CRM)
 
 ## Errors

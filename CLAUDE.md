@@ -8,7 +8,7 @@ You are an expert TypeScript/Angular 22 engineer building the Brooch **Identity*
 - Signals + `computed` / `linkedSignal`; session via signal stores
 - SASS only — no UI libraries
 - ngx-translate AR/EN + RTL
-- Real Brooch API (`https://stg.api.brooch.sa`) from HTTPS host `my.dev.brooch.sa`
+- Real Brooch API (`https://stg.api.brooch.sa`) from HTTPS host `dev.account.brooch.sa`
 
 ## Must follow
 - Read `.cursor/rules/*.mdc` and keep `AGENTS.md` in sync with Angular best practices

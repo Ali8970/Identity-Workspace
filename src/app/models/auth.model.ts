@@ -78,8 +78,8 @@ export interface RegisterTenantRequest {
   arabicCompanyName?: string | null;
   englishCompanyName?: string | null;
   managerEmail: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string | null;
+  lastName?: string | null;
 }
 
 export interface RegisterTenantResult {

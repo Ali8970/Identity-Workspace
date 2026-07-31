@@ -19,9 +19,11 @@
     box-shadow var(--transition),
     opacity var(--transition);
 
-  &:disabled {
+  &:disabled,
+  &[aria-disabled='true'] {
     opacity: 0.5;
     cursor: not-allowed;
+    pointer-events: none;
   }
 }
 

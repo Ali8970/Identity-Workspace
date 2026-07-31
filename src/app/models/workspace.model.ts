@@ -61,21 +61,36 @@ export interface PermissionCatalogItem {
   group: string;
 }
 
+/** GET /teams/tree — TeamNodeDto */
 export interface TeamNode {
   id: string;
-  nameAr: string;
-  nameEn: string;
-  parentId: string | null;
+  name: string;
+  managerTenantMembershipId: string | null;
+  isMissingManager: boolean;
+  memberCount: number;
   children: TeamNode[];
 }
 
 export interface PackageDto {
   id: string;
-  code: string;
   nameAr: string;
   nameEn: string;
   descriptionAr: string;
   descriptionEn: string;
+  displayOrder?: number;
+  isActive?: boolean;
+}
+
+export interface PagedResult<T> {
+  items: T[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  isEmpty: boolean;
+  itemsCount: number;
 }
 
 /** Mapped view of GET /tenant for onboarding forms. */

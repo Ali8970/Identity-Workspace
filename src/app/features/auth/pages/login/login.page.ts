@@ -12,6 +12,10 @@ import { LoginService } from '../../services/login.service';
 @Component({
   selector: 'app-login-page',
   imports: [TranslatePipe, RouterLink, FormField, AuthLayout],
+  host: {
+    '(window:pageshow)': 'onPageShow()',
+    '(window:focus)': 'onPageShow()',
+  },
   template: `
     <app-auth-layout>
       <header class="auth-form__head">
@@ -219,6 +223,11 @@ export class LoginPage {
 
   protected togglePasswordVisibility(): void {
     this.showPassword.update((visible) => !visible);
+  }
+
+  protected onPageShow(): void {
+    this.redirecting.set(false);
+    this.busy.set(false);
   }
 
   protected onSubmit(event: Event): void {

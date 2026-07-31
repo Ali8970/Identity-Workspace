@@ -2,7 +2,6 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { LanguageService } from '../../../../core/i18n/language.service';
 import { TeamNode } from '../../models/workspace-feature.model';
 import { TeamsService } from '../../services/teams.service';
 
@@ -95,12 +94,16 @@ import { TeamsService } from '../../services/teams.service';
             }
           </span>
           <span class="workspace-team-node__body">
-            <strong class="workspace-team-node__name">{{ label(node.nameAr, node.nameEn) }}</strong>
-            @if (node.children.length > 0) {
-              <span class="workspace-team-node__meta">
-                {{ 'teams.subteamCount' | translate: { count: node.children.length } }}
-              </span>
-            }
+            <strong class="workspace-team-node__name">{{ node.name }}</strong>
+            <span class="workspace-team-node__meta">
+              {{ 'teams.memberCount' | translate: { count: node.memberCount } }}
+              @if (node.children.length > 0) {
+                · {{ 'teams.subteamCount' | translate: { count: node.children.length } }}
+              }
+              @if (node.isMissingManager) {
+                · {{ 'teams.missingManager' | translate }}
+              }
+            </span>
           </span>
         </div>
 
@@ -119,7 +122,6 @@ import { TeamsService } from '../../services/teams.service';
 })
 export class TeamsPage {
   private readonly teamsService = inject(TeamsService);
-  private readonly language = inject(LanguageService);
 
   protected readonly teams = signal<TeamNode[]>([]);
   protected readonly loading = signal(true);
@@ -130,12 +132,8 @@ export class TeamsPage {
     void this.load();
   }
 
-  protected label(ar: string, en: string): string {
-    return this.language.current() === 'ar' ? ar || en : en || ar;
-  }
-
   private countTeams(nodes: TeamNode[]): number {
-    return nodes.reduce((total, node) => total + 1 + this.countTeams(node.children), 0);
+    return nodes.reduce((total, node) => total + 1 + this.countTeams(node.children ?? []), 0);
   }
 
   private async load(): Promise<void> {

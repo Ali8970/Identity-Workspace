@@ -16,4 +16,6 @@ export interface AddMemberFormValue {
   email: string;
   arabicName: string;
   englishName: string;
+  roleIds: string[];
+  teamIds: string[];
 }

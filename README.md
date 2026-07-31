@@ -16,15 +16,15 @@ Angular **22.0.8** SPA for Brooch SSO + tenant Identity workspace.
 npm start
 ```
 
-Opens **https://my.dev.brooch.sa:4200/** (`host` + `ssl` in `angular.json`).
+Opens **https://dev.account.brooch.sa:4300/** (`host` + `ssl` + port `4300` in `angular.json`).
 
-Requires `my.dev.brooch.sa` in your hosts file (same as CRM):
+Requires `dev.account.brooch.sa` in your hosts file (same as CRM):
 
 ```text
-127.0.0.1  my.dev.brooch.sa
+127.0.0.1  dev.account.brooch.sa
 ```
 
-API calls go **directly** to staging. Backend must CORS-allow `https://my.dev.brooch.sa:4200`.
+API calls go **directly** to staging. Backend must CORS-allow `https://dev.account.brooch.sa:4300`.
 
 ## Environments
 

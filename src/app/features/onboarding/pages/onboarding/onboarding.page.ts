@@ -14,6 +14,8 @@ import { OnboardingService } from '../../services/onboarding.service';
   host: {
     class: 'auth-page-host',
     '[class.auth-page-host--wide]': "step() === 'package'",
+    '(window:pageshow)': 'onPageShow()',
+    '(window:focus)': 'onPageShow()',
   },
   template: `
     <app-auth-layout>
@@ -222,6 +224,12 @@ export class OnboardingPage {
     void this.bootstrap();
   }
 
+  /** Reset outbound UI if the browser restores this page (bfcache / Back). */
+  protected onPageShow(): void {
+    this.redirecting.set(false);
+    this.busy.set(false);
+  }
+
   protected label(ar: string, en: string): string {
     return this.language.current() === 'ar' ? ar || en : en || ar;
   }
@@ -255,15 +263,10 @@ export class OnboardingPage {
       try {
         const value = this.companyModel();
         await firstValueFrom(this.onboardingService.saveCompanyProfile(value));
+        // New /onboarding/package instance loads packages in bootstrap — avoid a second call here.
         await this.router.navigate(['/onboarding/package']);
-        this.step.set('package');
-        this.loading.set(true);
-        const packages = await firstValueFrom(this.onboardingService.loadPackages());
-        this.packages.set(packages);
-        this.selectedPackage.set(packages[0]?.id ?? null);
       } finally {
         this.busy.set(false);
-        this.loading.set(false);
       }
     });
   }

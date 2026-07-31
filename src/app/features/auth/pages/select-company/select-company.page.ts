@@ -13,6 +13,8 @@ import { SelectCompanyService } from '../../services/select-company.service';
   imports: [TranslatePipe, RouterLink, AuthLayout],
   host: {
     class: 'auth-page-host auth-page-host--wide',
+    '(window:pageshow)': 'onPageShow()',
+    '(window:focus)': 'onPageShow()',
   },
   template: `
     <app-auth-layout>
@@ -132,6 +134,12 @@ export class SelectCompanyPage {
 
   protected label(ar: string, en: string): string {
     return this.language.current() === 'ar' ? ar || en : en || ar;
+  }
+
+  protected onPageShow(): void {
+    this.redirecting.set(false);
+    this.busy.set(false);
+    this.selectingId.set(null);
   }
 
   protected async choose(tenantMembershipId: string): Promise<void> {

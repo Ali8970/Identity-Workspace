@@ -13,8 +13,8 @@ export class RegisterService {
       arabicCompanyName: value.arabicCompanyName || null,
       englishCompanyName: value.englishCompanyName || null,
       managerEmail: value.managerEmail,
-      firstName: value.firstName,
-      lastName: value.lastName,
+      firstName: value.firstName || null,
+      lastName: value.lastName || null,
     };
     return this.authApi.registerTenant(request);
   }
