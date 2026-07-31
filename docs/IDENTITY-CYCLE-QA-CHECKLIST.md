@@ -62,7 +62,7 @@ Mark each row: Pass / Fail / Blocked (note reason).
 | 21 | `app-denied-tenant` | Login with CRM intent; tenant not entitled to CRM | `POST /auth/login` | `403 Auth.ApplicationAccessDenied`; **no Active session** |
 | 22 | `app-denied-user` | Login with CRM intent; user has no CRM role | `POST /auth/login` | Same wire code `Auth.ApplicationAccessDenied` (reason differs server-side only) |
 | 23 | `intent-tenant-ineligible` | Intent + pick company that cannot open CRM | `POST /auth/select-membership` | Stay on picker; intent **not** consumed; can pick other company |
-| 24 | `permission-denied` | Members → Add without `identity.users.create` | `POST /companies/.../members` | `403 Auth.PermissionDenied` + banner; stay on page |
+| 24 | `permission-denied` | Members → Add without `identity.memberships.manage` | `POST /companies/.../members` | `403 Auth.PermissionDenied` + banner; stay on page |
 | 25 | `intent-expired` | Login with expired `intentId` | `POST /auth/login` | `Identity.LoginIntent.Expired`; scrub `intentId` from URL |
 | 26 | `intent-replayed` | Reuse already-completed intent | `POST /auth/login` | `Identity.LoginIntent.AlreadyCompleted` |
 | 27 | `session-expired` | Expired cookie → any authenticated call | e.g. `GET /auth/me` | Navigate `/session-expired` |

@@ -152,7 +152,7 @@ export class ShellLayout {
   }
 
   protected canReadUsers(): boolean {
-    return this.session.hasPermission(PERMISSIONS.usersRead);
+    return this.session.hasPermission(PERMISSIONS.membershipsManage);
   }
 
   protected canReadRoles(): boolean {

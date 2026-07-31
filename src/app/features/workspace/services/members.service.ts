@@ -26,7 +26,7 @@ export class MembersService {
   private readonly session = inject(SessionStore);
 
   canCreateMembers(): boolean {
-    return this.session.hasPermission(PERMISSIONS.usersCreate);
+    return this.session.hasPermission(PERMISSIONS.membershipsManage);
   }
 
   loadMembersRolesAndTeams(): Observable<{

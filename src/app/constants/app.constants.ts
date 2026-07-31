@@ -13,8 +13,7 @@ export const STORAGE_KEYS = {
 } as const;
 
 export const PERMISSIONS = {
-  usersCreate: 'identity.users.create',
-  usersRead: 'identity.users.read',
+  membershipsManage: 'identity.memberships.manage',
   rolesRead: 'identity.roles.read',
   applicationsManage: 'identity.applications.manage',
 } as const;
