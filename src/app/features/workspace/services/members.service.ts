@@ -1,5 +1,5 @@
 import { Service, inject } from '@angular/core';
-import { Observable, forkJoin, of } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
 import { MembersApi, RolesApi, TeamsApi } from '../../../core/api/workspace-api.service';
 import { SessionStore } from '../../../core/auth/session.store';
 import { PERMISSIONS } from '../../../constants/app.constants';
@@ -25,10 +25,6 @@ export class MembersService {
   private readonly teamsApi = inject(TeamsApi);
   private readonly session = inject(SessionStore);
 
-  currentTenantId(): string | null {
-    return this.session.currentTenant()?.tenantId ?? null;
-  }
-
   canCreateMembers(): boolean {
     return this.session.hasPermission(PERMISSIONS.usersCreate);
   }
@@ -38,13 +34,10 @@ export class MembersService {
     roles: RoleListItem[];
     teams: TeamNode[];
   }> {
-    const tenantId = this.currentTenantId();
-    if (!tenantId) {
-      return of({ members: [], roles: [], teams: [] });
-    }
+    // The company comes from the session cookie, so these routes need no tenantId.
     return forkJoin({
-      members: this.membersApi.list(tenantId),
-      roles: this.rolesApi.list(tenantId),
+      members: this.membersApi.list(),
+      roles: this.rolesApi.list(),
       teams: this.teamsApi.tree(),
     });
   }
@@ -61,10 +54,6 @@ export class MembersService {
   }
 
   inviteMember(form: AddMemberFormValue): Observable<AddMemberResult> {
-    const tenantId = this.currentTenantId();
-    if (!tenantId) {
-      throw new Error('No tenant selected');
-    }
     const request: AddMemberRequest = {
       email: form.email.trim(),
       arabicName: form.arabicName.trim(),
@@ -72,6 +61,6 @@ export class MembersService {
       roleIds: form.roleIds,
       teamIds: form.teamIds,
     };
-    return this.membersApi.add(tenantId, request);
+    return this.membersApi.add(request);
   }
 }

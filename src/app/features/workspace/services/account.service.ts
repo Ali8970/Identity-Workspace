@@ -1,9 +1,9 @@
 import { Service, inject } from '@angular/core';
-import { Observable, forkJoin, map } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
 import { MeApi } from '../../../core/auth/me-api.service';
 import { SessionStore } from '../../../core/auth/session.store';
 import { MyCompanyDto } from '../../../models/auth.model';
-import { SessionRowDto } from '../models/workspace-feature.model';
+import { SessionDto } from '../models/workspace-feature.model';
 
 @Service()
 export class AccountService {
@@ -12,16 +12,16 @@ export class AccountService {
 
   readonly sessionStore = this.session;
 
-  loadAccountData(): Observable<{ companies: MyCompanyDto[]; sessions: SessionRowDto[] }> {
+  loadAccountData(): Observable<{ companies: MyCompanyDto[]; sessions: SessionDto[] }> {
     return forkJoin({
       companies: this.meApi.companies(),
       sessions: this.meApi.sessions(),
-    }).pipe(
-      map(({ companies, sessions }) => ({
-        companies,
-        sessions: sessions as SessionRowDto[],
-      })),
-    );
+    });
+  }
+
+  /** Signs one other device out, addressed by its opaque sessionRef. */
+  revokeSession(sessionRef: string): Observable<void> {
+    return this.meApi.revokeSession(sessionRef);
   }
 
   switchCompany(tenantMembershipId: string): Observable<unknown> {

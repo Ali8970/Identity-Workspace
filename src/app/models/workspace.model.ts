@@ -2,6 +2,17 @@ import { TenantMemberAccessEmailType, TenantMembershipStatus } from '../enums/do
 
 /** Wire DTOs for workspace / tenant APIs (OpenAPI-shaped). */
 
+/**
+ * /me DTOs the workspace pages also render. They are defined next to the other
+ * /me contracts in auth.model.ts and surfaced here so feature code has one import.
+ */
+export type {
+  MyAccessResponse,
+  MyAccessRoleDto,
+  MyAccessTeamDto,
+  SessionDto,
+} from './auth.model';
+
 export interface TenantMemberRoleDto {
   roleId: string;
   code: string;
@@ -9,7 +20,7 @@ export interface TenantMemberRoleDto {
   nameEn: string;
 }
 
-/** GET /companies/{tenantId}/members — TenantMemberDto */
+/** GET /memberships — TenantMemberDto */
 export interface MemberListItem {
   tenantMembershipId: string;
   userId: string;
@@ -24,12 +35,16 @@ export interface MemberListItem {
   applicationKeys: string[];
 }
 
+/**
+ * POST /memberships — CreateMembershipRequest.
+ * roleIds must carry at least one entry; the server rejects an empty set.
+ */
 export interface AddMemberRequest {
   email: string;
   arabicName: string | null;
   englishName: string | null;
-  roleIds?: string[] | null;
-  teamIds?: string[] | null;
+  roleIds: string[];
+  teamIds: string[] | null;
 }
 
 export interface AddMemberResult {
@@ -44,21 +59,50 @@ export interface AddMemberResult {
   tenantMembershipStatus: TenantMembershipStatus | string;
 }
 
+/** GET /roles — RoleDto. A role belongs to exactly one application. */
 export interface RoleListItem {
   id: string;
+  tenantId: string;
+  applicationKey: string;
   code: string;
   nameAr: string;
   nameEn: string;
-  applicationKey: string;
-  permissionKeys?: string[];
+  description: string | null;
+  /** Seeded catalogue role — immutable through the API. */
+  isSystem: boolean;
+  /** Inactive roles cannot be assigned. */
+  isActive: boolean;
+  permissionKeys: string[];
 }
 
+/**
+ * GET /permissions — PermissionDto.
+ * Permissions are global definitions: `applicationKeys` lists the applications
+ * allowed to OFFER the key, and grouping is derived client-side from
+ * module / resource / action.
+ */
 export interface PermissionCatalogItem {
   key: string;
+  module: string;
+  resource: string;
+  action: string;
   nameAr: string;
   nameEn: string;
-  applicationKey: string;
-  group: string;
+  description: string | null;
+  sortOrder: number;
+  isActive: boolean;
+  applicationKeys: string[];
+}
+
+/**
+ * GET|PUT /memberships/{id}/roles — MemberRolesDto.
+ * effectivePermissionsByApplication carries an entry for every role-owning
+ * application (identity, crm, administration); one with no roles maps to [].
+ */
+export interface MemberRolesDto {
+  tenantMembershipId: string;
+  roles: RoleListItem[];
+  effectivePermissionsByApplication: Record<string, string[]>;
 }
 
 /** GET /teams/tree — TeamNodeDto */
@@ -71,14 +115,16 @@ export interface TeamNode {
   children: TeamNode[];
 }
 
+/** GET /packages — PackageResponse. Descriptions are nullable. */
 export interface PackageDto {
   id: string;
   nameAr: string;
   nameEn: string;
-  descriptionAr: string;
-  descriptionEn: string;
-  displayOrder?: number;
-  isActive?: boolean;
+  descriptionAr: string | null;
+  descriptionEn: string | null;
+  displayOrder: number;
+  isActive: boolean;
+  createdAt?: string;
 }
 
 export interface PagedResult<T> {
@@ -93,6 +139,34 @@ export interface PagedResult<T> {
   itemsCount: number;
 }
 
+/**
+ * GET /tenant — TenantMeResponse as it comes off the wire.
+ *
+ * `tenantId` is the one place in the whole API that leaks a strongly-typed id
+ * wrapper (`{ value }`) instead of a bare uuid, so it is modelled permissively
+ * and normalised by TenantApi.get(). See `readTenantId`.
+ */
+export interface TenantMeResponseWire {
+  tenantId: string | { value: string };
+  code: string;
+  email: string;
+  status: string;
+  onboardingState: string;
+  onboardingCompleted: boolean;
+  companyNameAr: string | null;
+  companyNameEn: string | null;
+  phone: string | null;
+  createdAt: string;
+  emailVerifiedAt: string | null;
+  activatedAt: string | null;
+  onboardingCompletedAt: string | null;
+}
+
+/** Accepts both the wrapped and the bare form so either serialisation works. */
+export function readTenantId(value: string | { value: string }): string {
+  return typeof value === 'string' ? value : value.value;
+}
+
 /** Mapped view of GET /tenant for onboarding forms. */
 export interface TenantDto {
   tenantId: string;
@@ -103,19 +177,11 @@ export interface TenantDto {
   onboardingCompleted?: boolean;
 }
 
+/** PUT /tenant/profile — phone is accepted alongside the company names. */
 export interface UpdateTenantProfileRequest {
   companyNameAr?: string | null;
   companyNameEn?: string | null;
-}
-
-export interface MyAccessDto {
-  roles: { id: string; code: string; nameAr: string; nameEn: string }[];
-  permissions: string[];
-}
-
-export interface SessionRowDto {
-  id: string;
-  stage: string;
+  phone?: string | null;
 }
 
 /** @deprecated use AddMemberRequest */
@@ -132,6 +198,12 @@ export type PermissionDto = PermissionCatalogItem;
 
 /** @deprecated use TenantDto */
 export type TenantProfileDto = TenantDto;
+
+/** @deprecated use MyAccessResponse — the API has no flat permission array. */
+export type MyAccessDto = import('./auth.model').MyAccessResponse;
+
+/** @deprecated use SessionDto — sessions are addressed by sessionRef. */
+export type SessionRowDto = import('./auth.model').SessionDto;
 
 export interface TeamDto {
   id: string;

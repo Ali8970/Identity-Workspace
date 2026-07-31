@@ -186,8 +186,15 @@ export class MyAccessPage {
     this.loading.set(true);
     try {
       const access = await firstValueFrom(this.myAccessService.loadAccess());
-      this.roles.set(access.roles ?? []);
-      this.permissions.set(access.permissions ?? []);
+      const roles = access.roles ?? [];
+      this.roles.set(roles);
+      // /me/access carries permissions per role, not as a flat list — the union
+      // across roles is what summary.permissionsCount counts.
+      this.permissions.set(
+        [...new Set(roles.flatMap((role) => role.permissionKeys ?? []))].sort((left, right) =>
+          left.localeCompare(right),
+        ),
+      );
     } finally {
       this.loading.set(false);
     }

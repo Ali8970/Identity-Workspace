@@ -1,13 +1,15 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Service, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { API_ROUTES } from '../../constants/api-routes';
 import { ApiResponse } from '../../models/api-response.model';
 import {
   CurrentUserResponse,
+  MyAccessResponse,
   MyCompanyDto,
+  ProfileDto,
+  SessionDto,
   UpdateProfileRequest,
-  UserProfileDto,
 } from '../../models/auth.model';
 
 function unwrap<T>(response: ApiResponse<T>): T {
@@ -21,45 +23,61 @@ function unwrap<T>(response: ApiResponse<T>): T {
 export class MeApi {
   private readonly http = inject(HttpClient);
 
+  /**
+   * Bootstrap call. Requires X-Brooch-Application (added by the interceptor) and
+   * carries the effective permission set for that application — there is no
+   * separate permissions endpoint.
+   */
   me(): Observable<CurrentUserResponse> {
     return this.http
       .get<ApiResponse<CurrentUserResponse>>(API_ROUTES.me, { withCredentials: true })
       .pipe(map(unwrap));
   }
 
-  permissions(): Observable<string[]> {
+  profile(): Observable<ProfileDto> {
     return this.http
-      .get<ApiResponse<string[]>>(API_ROUTES.mePermissions, { withCredentials: true })
+      .get<ApiResponse<ProfileDto>>(API_ROUTES.myProfile, { withCredentials: true })
       .pipe(map(unwrap));
   }
 
-  profile(): Observable<UserProfileDto> {
+  /** Returns the freshly re-read profile — the handler re-runs GetProfileQuery. */
+  updateProfile(request: UpdateProfileRequest): Observable<ProfileDto> {
     return this.http
-      .get<ApiResponse<UserProfileDto>>(API_ROUTES.myProfile, { withCredentials: true })
+      .put<ApiResponse<ProfileDto>>(API_ROUTES.myProfile, request, { withCredentials: true })
       .pipe(map(unwrap));
   }
 
-  updateProfile(request: UpdateProfileRequest): Observable<UserProfileDto> {
+  /** includeUnavailable defaults to true server-side; pass false to drop non-selectable rows. */
+  companies(includeUnavailable?: boolean): Observable<MyCompanyDto[]> {
+    const params =
+      includeUnavailable === undefined
+        ? undefined
+        : new HttpParams().set('includeUnavailable', includeUnavailable);
     return this.http
-      .put<ApiResponse<UserProfileDto>>(API_ROUTES.myProfile, request, { withCredentials: true })
+      .get<ApiResponse<MyCompanyDto[]>>(API_ROUTES.myCompanies, {
+        withCredentials: true,
+        params,
+      })
       .pipe(map(unwrap));
   }
 
-  companies(): Observable<MyCompanyDto[]> {
+  /** Active-stage only: roles across every application in the current company. */
+  access(): Observable<MyAccessResponse> {
     return this.http
-      .get<ApiResponse<MyCompanyDto[]>>(API_ROUTES.myCompanies, { withCredentials: true })
+      .get<ApiResponse<MyAccessResponse>>(API_ROUTES.myAccess, { withCredentials: true })
       .pipe(map(unwrap));
   }
 
-  access(): Observable<unknown> {
+  sessions(): Observable<SessionDto[]> {
     return this.http
-      .get<ApiResponse<unknown>>(API_ROUTES.myAccess, { withCredentials: true })
+      .get<ApiResponse<SessionDto[]>>(API_ROUTES.mySessions, { withCredentials: true })
       .pipe(map(unwrap));
   }
 
-  sessions(): Observable<unknown[]> {
+  /** Signs one device out, addressed by the opaque fingerprint from sessions(). */
+  revokeSession(sessionRef: string): Observable<void> {
     return this.http
-      .get<ApiResponse<unknown[]>>(API_ROUTES.mySessions, { withCredentials: true })
-      .pipe(map(unwrap));
+      .delete<ApiResponse<unknown>>(API_ROUTES.mySession(sessionRef), { withCredentials: true })
+      .pipe(map(() => undefined));
   }
 }

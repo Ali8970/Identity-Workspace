@@ -3,6 +3,7 @@ import { environment } from '../../environments/environment';
 const base = environment.apiBaseUrl.replace(/\/$/, '');
 
 export const API_ROUTES = {
+  // Auth — public + session lifecycle
   csrf: `${base}/auth/csrf`,
   login: `${base}/auth/login`,
   selectMembership: `${base}/auth/select-membership`,
@@ -11,25 +12,40 @@ export const API_ROUTES = {
   forgotPasswordComplete: `${base}/auth/forgot-password/complete`,
   logout: `${base}/auth/logout`,
   logoutAll: `${base}/auth/logout-all`,
-  me: `${base}/auth/me`,
-  mePermissions: `${base}/auth/me/permissions`,
   loginIntent: `${base}/auth/login-intent`,
+
+  // Me — the signed-in user's own view. Effective permissions arrive inside
+  // GET /me; there is no separate permissions route.
+  me: `${base}/me`,
   myProfile: `${base}/me/profile`,
   myCompanies: `${base}/me/companies`,
-  mySessions: `${base}/me/sessions`,
   myAccess: `${base}/me/access`,
+  mySessions: `${base}/me/sessions`,
+  mySession: (sessionRef: string) => `${base}/me/sessions/${sessionRef}`,
+
+  // Memberships — company scope comes from the session, not the URL.
+  memberships: `${base}/memberships`,
+  membership: (tenantMembershipId: string) => `${base}/memberships/${tenantMembershipId}`,
+  membershipRoles: (tenantMembershipId: string) =>
+    `${base}/memberships/${tenantMembershipId}/roles`,
+
+  // Roles — likewise scoped to the caller's company by the session.
+  roles: `${base}/roles`,
+  role: (roleId: string) => `${base}/roles/${roleId}`,
+  rolePermissions: (roleId: string) => `${base}/roles/${roleId}/permissions`,
+
+  // Platform catalogues
+  applications: `${base}/applications`,
+  permissions: `${base}/permissions`,
+
+  // Tenant / onboarding
   registerTenant: `${base}/tenants/register`,
   tenant: `${base}/tenant`,
   tenantProfile: `${base}/tenant/profile`,
   packages: `${base}/packages`,
   freeTrial: `${base}/subscriptions/free-trial`,
-  applications: `${base}/applications`,
-  permissions: `${base}/permissions`,
-  companies: (tenantId: string) => `${base}/companies/${tenantId}`,
-  members: (tenantId: string) => `${base}/companies/${tenantId}/members`,
-  memberRoles: (tenantId: string, membershipId: string) =>
-    `${base}/companies/${tenantId}/members/${membershipId}/roles`,
-  roles: (tenantId: string) => `${base}/companies/${tenantId}/roles`,
+
+  // Teams (Tenant module)
   teams: `${base}/teams`,
   teamsTree: `${base}/teams/tree`,
 } as const;

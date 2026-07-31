@@ -154,7 +154,7 @@ import { OnboardingService } from '../../services/onboarding.service';
                   <span class="auth-package-card__body">
                     <span class="auth-package-card__name">{{ label(pkg.nameAr, pkg.nameEn) }}</span>
                     <span class="auth-package-card__desc">
-                      {{ label(pkg.descriptionAr, pkg.descriptionEn) }}
+                      {{ label(pkg.descriptionAr ?? '', pkg.descriptionEn ?? '') }}
                     </span>
                     <span class="auth-package-card__badge">{{ 'onboarding.trialBadge' | translate }}</span>
                   </span>

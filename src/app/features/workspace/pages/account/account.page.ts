@@ -3,7 +3,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { LanguageService } from '../../../../core/i18n/language.service';
 import { MyCompanyDto } from '../../../../models/auth.model';
-import { SessionRowDto } from '../../models/workspace-feature.model';
+import { SessionDto } from '../../models/workspace-feature.model';
 import { AccountService } from '../../services/account.service';
 
 @Component({
@@ -146,10 +146,10 @@ import { AccountService } from '../../services/account.service';
                 <p class="workspace-panel__empty" role="status">{{ 'account.noSessions' | translate }}</p>
               } @else {
                 <ul class="workspace-session-list">
-                  @for (row of sessions(); track row.id) {
+                  @for (row of sessions(); track row.sessionRef) {
                     <li class="workspace-session-row">
                       <span class="workspace-session-row__body">
-                        <span class="workspace-session-row__id">{{ row.id }}</span>
+                        <span class="workspace-session-row__id">{{ row.sessionRef }}</span>
                         <span class="workspace-session-row__label">
                           {{ 'account.sessionLabel' | translate }}
                         </span>
@@ -199,7 +199,7 @@ export class AccountPage {
   private readonly language = inject(LanguageService);
 
   protected readonly companies = signal<MyCompanyDto[]>([]);
-  protected readonly sessions = signal<SessionRowDto[]>([]);
+  protected readonly sessions = signal<SessionDto[]>([]);
   protected readonly loading = signal(true);
   protected readonly busy = signal(false);
   protected readonly switching = signal(false);

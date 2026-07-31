@@ -154,12 +154,17 @@ export class PermissionsPage {
   protected readonly applicationGroups = computed(() => {
     const byApp = new Map<string, Map<string, PermissionCatalogItem[]>>();
 
+    // A permission is a global definition; applicationKeys lists every application
+    // allowed to offer it, so one entry can appear under several apps. Within an
+    // app we group by `resource`, the middle segment of module.resource.action.
     for (const item of this.items()) {
-      const groups = byApp.get(item.applicationKey) ?? new Map<string, PermissionCatalogItem[]>();
-      const list = groups.get(item.group) ?? [];
-      list.push(item);
-      groups.set(item.group, list);
-      byApp.set(item.applicationKey, groups);
+      for (const applicationKey of item.applicationKeys) {
+        const groups = byApp.get(applicationKey) ?? new Map<string, PermissionCatalogItem[]>();
+        const list = groups.get(item.resource) ?? [];
+        list.push(item);
+        groups.set(item.resource, list);
+        byApp.set(applicationKey, groups);
+      }
     }
 
     return [...byApp.entries()]

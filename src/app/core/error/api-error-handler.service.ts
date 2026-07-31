@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { API_ROUTES } from '../../constants/api-routes';
 import { AuthFlowStore } from '../auth/auth-flow.store';
 import { CsrfService } from '../auth/csrf.service';
 import { SessionStore } from '../auth/session.store';
@@ -80,14 +81,17 @@ export class ApiErrorHandler {
     }
   }
 
+  /**
+   * Bootstrap probes fail routinely for anonymous visitors; the session store
+   * turns those into navigation, so they must not raise the error banner.
+   * Matched on the exact path — `/me` as a substring would also catch
+   * `/memberships`.
+   */
   private shouldSuppressDisplay(error: BroochError, request: ApiErrorRequestContext): boolean {
-    if (request.url.includes('/auth/me') || request.url.includes('/auth/companies')) {
-      return true;
-    }
-    if (request.url.includes('/auth/csrf')) {
-      return true;
-    }
-    return false;
+    const path = request.url.split('?')[0].replace(/\/$/, '');
+    return (
+      path === API_ROUTES.me || path === API_ROUTES.myCompanies || path === API_ROUTES.csrf
+    );
   }
 
   private handledByNavigation(error: BroochError): boolean {
