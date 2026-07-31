@@ -111,13 +111,15 @@ interface AssignManagerFormValue {
               }
             </span>
           </span>
-          <button
-            type="button"
-            class="ui-btn ui-btn--ghost workspace-team-node__action"
-            (click)="openAssignManager(node)"
-          >
-            {{ 'teams.assignManager' | translate }}
-          </button>
+          @if (canManage()) {
+            <button
+              type="button"
+              class="ui-btn ui-btn--ghost workspace-team-node__action"
+              (click)="openAssignManager(node)"
+            >
+              {{ 'teams.assignManager' | translate }}
+            </button>
+          }
         </div>
 
         @if (node.children.length > 0) {
@@ -244,6 +246,7 @@ export class TeamsPage {
   });
 
   protected readonly teamCount = computed(() => this.countTeams(this.teams()));
+  protected readonly canManage = computed(() => this.teamsService.canManageTeams());
 
   constructor() {
     void this.load();
@@ -257,6 +260,9 @@ export class TeamsPage {
   }
 
   protected async openAssignManager(team: TeamNode): Promise<void> {
+    if (!this.canManage()) {
+      return;
+    }
     this.assignTeam.set(team);
     this.memberOptions.set([]);
     this.managerModel.set({
@@ -285,6 +291,9 @@ export class TeamsPage {
 
   protected saveManager(event: Event): void {
     event.preventDefault();
+    if (!this.canManage()) {
+      return;
+    }
     void submit(this.managerForm, async () => {
       const team = this.assignTeam();
       const managerTenantMembershipId = this.managerModel().managerTenantMembershipId;

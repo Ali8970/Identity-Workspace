@@ -133,8 +133,10 @@ export class ShellLayout {
         { route: '/permissions', labelKey: 'shell.permissions', icon: 'permissions' },
       );
     }
+    if (this.canReadTeams()) {
+      items.push({ route: '/teams', labelKey: 'shell.teams', icon: 'teams' });
+    }
     items.push(
-      { route: '/teams', labelKey: 'shell.teams', icon: 'teams' },
       { route: '/my-access', labelKey: 'shell.myAccess', icon: 'my-access' },
       { route: '/account', labelKey: 'shell.account', icon: 'account' },
     );
@@ -173,6 +175,10 @@ export class ShellLayout {
 
   protected canReadRoles(): boolean {
     return this.session.hasPermission(PERMISSIONS.rolesRead);
+  }
+
+  protected canReadTeams(): boolean {
+    return this.session.hasPermission(PERMISSIONS.teamsRead);
   }
 
   protected label(ar: string, en: string): string {

@@ -16,4 +16,6 @@ export const PERMISSIONS = {
   membershipsManage: 'identity.memberships.manage',
   rolesRead: 'identity.roles.read',
   applicationsManage: 'identity.applications.manage',
+  teamsRead: 'tenant.teams.read',
+  teamsManage: 'tenant.teams.manage',
 } as const;
