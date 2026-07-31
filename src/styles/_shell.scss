@@ -330,6 +330,10 @@
   background: var(--surface-2);
   color: var(--text);
 
+  &:focus-within {
+    border-color: var(--primary);
+  }
+
   svg {
     width: 1rem;
     height: 1rem;
@@ -347,6 +351,11 @@
     max-width: 14rem;
     padding: 0.35rem 1.5rem 0.35rem 0.15rem;
     cursor: pointer;
+
+    &:focus,
+    &:focus-visible {
+      outline: none;
+    }
 
     &:disabled {
       cursor: not-allowed;

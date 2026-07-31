@@ -39,17 +39,19 @@ import { MyCompanyDto } from '../../../models/auth.model';
             <path d="M4 21V8l8-4 8 4v13" />
             <path d="M9 21V12h6v9" />
           </svg>
-          <select
-            [value]="currentMembershipId()"
-            (change)="switchCompany.emit($any($event.target).value)"
-            [disabled]="switching() || companies().length < 2"
-          >
-            @for (company of companies(); track company.tenantMembershipId) {
-              <option [value]="company.tenantMembershipId" [disabled]="!company.isSelectable">
-                {{ companyLabel(company.companyNameAr, company.companyNameEn) }}
-              </option>
-            }
-          </select>
+          @for (epoch of [selectEpoch()]; track epoch) {
+            <select
+              [value]="currentMembershipId()"
+              (change)="onCompanyChange($any($event.target).value)"
+              [disabled]="switching() || companies().length < 2"
+            >
+              @for (company of companies(); track company.tenantMembershipId) {
+                <option [value]="company.tenantMembershipId" [disabled]="!company.isSelectable">
+                  {{ companyLabel(company) }}
+                </option>
+              }
+            </select>
+          }
         </label>
 
         <div class="shell-header__lang" role="group" [attr.aria-label]="'shell.language' | translate">
@@ -104,6 +106,8 @@ export class ShellHeader {
   readonly currentLanguage = input<'en' | 'ar'>('en');
   readonly switching = input(false);
   readonly loggingOut = input(false);
+  /** Bump to remount the native select (e.g. after a failed switch). */
+  readonly selectEpoch = input(0);
 
   readonly toggleSidebar = output<void>();
   readonly switchCompany = output<string>();
@@ -118,13 +122,39 @@ export class ShellHeader {
     this.sidebarExpanded() ? 'shell.closeSidebar' : 'shell.openSidebar',
   );
 
-  protected companyLabel(ar: string, en: string): string {
-    return this.currentLanguage() === 'ar' ? ar || en : en || ar;
+  private readonly duplicateNameKeys = computed(() => {
+    const counts = new Map<string, number>();
+    for (const company of this.companies()) {
+      const key = this.nameKey(company);
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    return new Set([...counts.entries()].filter(([, n]) => n > 1).map(([key]) => key));
+  });
+
+  protected companyLabel(company: MyCompanyDto): string {
+    const name =
+      this.currentLanguage() === 'ar'
+        ? company.companyNameAr || company.companyNameEn
+        : company.companyNameEn || company.companyNameAr;
+    if (company.code && this.duplicateNameKeys().has(this.nameKey(company))) {
+      return `${name} (${company.code})`;
+    }
+    return name;
+  }
+
+  protected onCompanyChange(tenantMembershipId: string): void {
+    if (tenantMembershipId && tenantMembershipId !== this.currentMembershipId()) {
+      this.switchCompany.emit(tenantMembershipId);
+    }
   }
 
   protected setLanguage(lang: 'en' | 'ar'): void {
     if (lang !== this.currentLanguage()) {
       this.languageChange.emit(lang);
     }
+  }
+
+  private nameKey(company: MyCompanyDto): string {
+    return `${company.companyNameEn}\0${company.companyNameAr}`.toLowerCase();
   }
 }

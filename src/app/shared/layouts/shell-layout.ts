@@ -59,6 +59,7 @@ const MOBILE_BREAKPOINT = 860;
           [currentLanguage]="language.current()"
           [switching]="switching()"
           [loggingOut]="loggingOut()"
+          [selectEpoch]="companySelectEpoch()"
           (toggleSidebar)="toggleSidebar()"
           (switchCompany)="onSwitch($event)"
           (languageChange)="setLanguage($event)"
@@ -84,6 +85,7 @@ export class ShellLayout {
 
   protected readonly loggingOut = signal(false);
   protected readonly switching = signal(false);
+  protected readonly companySelectEpoch = signal(0);
   protected readonly sidebarCollapsed = signal(this.readSidebarPreference());
   protected readonly mobileNavOpen = signal(false);
   protected readonly isMobile = signal(this.queryIsMobile());
@@ -225,9 +227,21 @@ export class ShellLayout {
     this.switching.set(true);
     try {
       await firstValueFrom(this.session.switchCompany(tenantMembershipId));
+      // Remount the active workspace page so tenant-scoped lists reload.
+      await this.reloadActiveRoute();
+    } catch {
+      // Native <select> keeps the chosen option even when the API fails — remount it.
+      this.companySelectEpoch.update((epoch) => epoch + 1);
     } finally {
       this.switching.set(false);
     }
+  }
+
+  private async reloadActiveRoute(): Promise<void> {
+    const url = this.router.url;
+    const bounce = url === '/' || url.startsWith('/applications') ? '/account' : '/applications';
+    await this.router.navigateByUrl(bounce, { skipLocationChange: true });
+    await this.router.navigateByUrl(url);
   }
 
   protected async logout(): Promise<void> {
