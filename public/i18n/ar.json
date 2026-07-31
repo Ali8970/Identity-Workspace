@@ -276,10 +276,20 @@
     "missingManager": "لا يوجد مدير معيّن",
     "loading": "جاري تحميل الفرق…",
     "structureTitle": "هيكل الفرق",
-    "structureHint": "إدارة الفرق للعرض فقط في Identity v1. تتم التغييرات في كل تطبيق عند توفرها.",
+    "structureHint": "عيّن مديراً لكل فريق من أعضائه. تظهر الفرق الفرعية تحت الفريق الأب.",
     "emptyTitle": "لا توجد فرق بعد",
     "emptyBody": "لا توجد فرق مهيأة لهذه الشركة. ستظهر هنا بعد إعداد الهيكل التنظيمي.",
-    "empty": "لا توجد فرق بعد"
+    "empty": "لا توجد فرق بعد",
+    "assignManager": "تعيين مدير الفريق",
+    "assignManagerTitle": "تعيين مدير الفريق",
+    "assignManagerLead": "اختر مديراً لفريق {{team}} من أعضائه.",
+    "assignManagerLoading": "جاري تحميل أعضاء الفريق…",
+    "assignManagerEmpty": "لا يوجد أعضاء في هذا الفريق لتعيينهم مديراً.",
+    "assignManagerCancel": "إلغاء",
+    "assignManagerSave": "حفظ",
+    "assignManagerSaving": "جاري الحفظ…",
+    "managerLabel": "مدير الفريق",
+    "managerPlaceholder": "اختر عضواً"
   },
   "myAccess": {
     "title": "صلاحيتي",

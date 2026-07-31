@@ -82,6 +82,7 @@ export const routes: Routes = [
   },
   {
     path: 'session-expired',
+    canActivate: [guestGuard],
     loadComponent: () =>
       import('./features/auth/pages/session-expired/session-expired.page').then(
         (m) => m.SessionExpiredPage,

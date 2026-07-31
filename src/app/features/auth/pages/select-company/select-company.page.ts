@@ -160,7 +160,7 @@ export class SelectCompanyPage {
       }
       this.selectCompanyService.clearFlow();
       await firstValueFrom(this.selectCompanyService.refreshSession());
-      await this.router.navigate(['/']);
+      await this.router.navigate(['/'], { replaceUrl: true });
     } finally {
       this.busy.set(false);
       this.selectingId.set(null);

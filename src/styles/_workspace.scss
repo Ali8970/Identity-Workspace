@@ -419,7 +419,9 @@
 
 .workspace-form__actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
+  gap: 0.55rem;
   margin-top: 0.35rem;
 }
 
@@ -902,6 +904,15 @@
   }
 }
 
+.workspace-team-node__action {
+  flex: 0 0 auto;
+  min-height: 2.15rem;
+  padding-block: 0.35rem;
+  padding-inline: 0.75rem;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
 .workspace-team-node__icon {
   flex: 0 0 2.15rem;
   width: 2.15rem;
@@ -948,6 +959,113 @@
   .workspace-team-tree--nested {
     margin-inline-start: 0.75rem;
   }
+
+  .workspace-team-node__card {
+    flex-wrap: wrap;
+  }
+
+  .workspace-team-node__action {
+    inline-size: 100%;
+  }
+}
+
+.workspace-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+}
+
+.workspace-dialog__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  background: color-mix(in srgb, var(--text) 38%, transparent);
+}
+
+.workspace-dialog__panel {
+  position: relative;
+  z-index: 1;
+  inline-size: min(100%, 28rem);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg, var(--shadow-sm));
+}
+
+.workspace-dialog__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1.15rem 1.15rem 0.85rem;
+  border-block-end: 1px solid var(--line);
+}
+
+.workspace-dialog__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.workspace-dialog__lead {
+  margin: 0.35rem 0 0;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+
+.workspace-dialog__close {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  inline-size: 2.15rem;
+  block-size: 2.15rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-2);
+  cursor: pointer;
+  transition:
+    background var(--transition),
+    border-color var(--transition),
+    color var(--transition);
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  &:hover {
+    background: var(--surface-2);
+    border-color: var(--line-strong);
+    color: var(--text);
+  }
+}
+
+.workspace-dialog__body {
+  padding: 1.15rem;
+}
+
+.workspace-dialog__empty {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+
+.workspace-dialog__actions {
+  gap: 0.55rem;
+}
+
+.workspace-loading--compact {
+  padding: 0.85rem 0;
 }
 
 .workspace-access-grid {

@@ -1,7 +1,11 @@
 import { Service, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { TeamsApi } from '../../../core/api/workspace-api.service';
-import { TeamNode } from '../models/workspace-feature.model';
+import {
+  TeamDetailDto,
+  TeamMembershipDdlItem,
+  TeamNode,
+} from '../models/workspace-feature.model';
 
 @Service()
 export class TeamsService {
@@ -9,5 +13,13 @@ export class TeamsService {
 
   loadTree(): Observable<TeamNode[]> {
     return this.teamsApi.tree();
+  }
+
+  loadMembershipsDdl(teamId: string): Observable<TeamMembershipDdlItem[]> {
+    return this.teamsApi.membershipsDdl(teamId);
+  }
+
+  assignManager(teamId: string, managerTenantMembershipId: string): Observable<TeamDetailDto> {
+    return this.teamsApi.setManager(teamId, { managerTenantMembershipId });
   }
 }

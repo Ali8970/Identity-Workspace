@@ -13,6 +13,9 @@ import {
   PagedResult,
   PermissionCatalogItem,
   RoleListItem,
+  SetTeamManagerRequest,
+  TeamDetailDto,
+  TeamMembershipDdlItem,
   TeamNode,
   TenantDto,
   TenantMeResponseWire,
@@ -28,6 +31,9 @@ export type {
   PackageDto,
   PermissionCatalogItem,
   RoleListItem,
+  SetTeamManagerRequest,
+  TeamDetailDto,
+  TeamMembershipDdlItem,
   TeamNode,
   TenantDto,
 } from '../../models/workspace.model';
@@ -142,6 +148,22 @@ export class TeamsApi {
     return this.http
       .get<ApiResponse<TeamNode[] | null>>(API_ROUTES.teamsTree, { withCredentials: true })
       .pipe(map((response) => response.data ?? []));
+  }
+
+  membershipsDdl(teamId: string): Observable<TeamMembershipDdlItem[]> {
+    return this.http
+      .get<ApiResponse<TeamMembershipDdlItem[] | null>>(API_ROUTES.teamMembershipsDdl(teamId), {
+        withCredentials: true,
+      })
+      .pipe(map((response) => response.data ?? []));
+  }
+
+  setManager(teamId: string, request: SetTeamManagerRequest): Observable<TeamDetailDto> {
+    return this.http
+      .put<ApiResponse<TeamDetailDto>>(API_ROUTES.teamManager(teamId), request, {
+        withCredentials: true,
+      })
+      .pipe(map(unwrap));
   }
 }
 

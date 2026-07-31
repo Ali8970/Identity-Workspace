@@ -1,12 +1,15 @@
 import { ApplicationRef, Injectable, computed, inject, signal } from '@angular/core';
 import { BroochError } from './error.model';
 
+const AUTO_DISMISS_MS = 5_000;
+
 @Injectable({ providedIn: 'root' })
 export class GlobalErrorService {
   private readonly appRef = inject(ApplicationRef);
   private readonly errorSignal = signal<BroochError | null>(null);
   private readonly retryAfterSignal = signal(0);
   private countdownTimer: ReturnType<typeof setInterval> | null = null;
+  private dismissTimer: ReturnType<typeof setTimeout> | null = null;
 
   readonly error = this.errorSignal.asReadonly();
   readonly retryAfter = this.retryAfterSignal.asReadonly();
@@ -24,10 +27,12 @@ export class GlobalErrorService {
   show(error: BroochError): void {
     this.errorSignal.set(error);
     this.startRetryCountdown(error.retryAfterSeconds);
+    this.scheduleAutoDismiss();
     this.notifyViews();
   }
 
   clear(): void {
+    this.stopAutoDismiss();
     this.stopRetryCountdown();
     this.errorSignal.set(null);
     this.retryAfterSignal.set(0);
@@ -36,6 +41,21 @@ export class GlobalErrorService {
 
   dismiss(): void {
     this.clear();
+  }
+
+  private scheduleAutoDismiss(): void {
+    this.stopAutoDismiss();
+    this.dismissTimer = setTimeout(() => {
+      this.dismissTimer = null;
+      this.clear();
+    }, AUTO_DISMISS_MS);
+  }
+
+  private stopAutoDismiss(): void {
+    if (this.dismissTimer) {
+      clearTimeout(this.dismissTimer);
+      this.dismissTimer = null;
+    }
   }
 
   private startRetryCountdown(seconds: number | null): void {

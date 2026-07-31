@@ -1,12 +1,18 @@
-import { Component, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
+import { SessionStore } from '../../../../core/auth/session.store';
 import { isSafeReturnUrl } from '../../../../core/error/error.model';
+import { redirectAwayIfAuthenticated } from '../../../../core/guards/auth.guards';
 import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
 
 @Component({
   selector: 'app-session-expired-page',
   imports: [TranslatePipe, RouterLink, AuthLayout],
+  host: {
+    '(window:pageshow)': 'onPageShow($event)',
+  },
   template: `
     <app-auth-layout>
       <div class="auth-success fade-up">
@@ -33,6 +39,7 @@ import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
           class="ui-btn ui-btn--primary auth-form__submit"
           [routerLink]="['/login']"
           [queryParams]="loginParams()"
+          [replaceUrl]="true"
         >
           {{ 'auth.sessionExpired.signIn' | translate }}
         </a>
@@ -41,10 +48,19 @@ import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
   `,
 })
 export class SessionExpiredPage {
+  private readonly session = inject(SessionStore);
+  private readonly router = inject(Router);
+
   protected readonly loginParams = signal<Record<string, string>>(this.readLoginParams());
 
   protected hasReturnUrl(): boolean {
     return Object.hasOwn(this.loginParams(), 'returnUrl');
+  }
+
+  protected onPageShow(event: PageTransitionEvent): void {
+    if (event.persisted || this.session.isAuthenticated()) {
+      void firstValueFrom(redirectAwayIfAuthenticated(this.session, this.router));
+    }
   }
 
   private readLoginParams(): Record<string, string> {

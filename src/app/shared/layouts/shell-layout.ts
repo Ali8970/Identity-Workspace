@@ -1,15 +1,15 @@
-import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
+import { ApplicationRef, Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DOCUMENT } from '@angular/common';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { filter, firstValueFrom } from 'rxjs';
+import { PERMISSIONS } from '../../constants/app.constants';
 import { SessionStore } from '../../core/auth/session.store';
 import { LanguageService } from '../../core/i18n/language.service';
-import { PERMISSIONS } from '../../constants/app.constants';
-import { DOCUMENT } from '@angular/common';
+import { GlobalErrorBanner } from '../ui/global-error-banner/global-error-banner';
 import { ShellHeader } from '../ui/shell-header/shell-header';
 import { ShellSidebar } from '../ui/shell-sidebar/shell-sidebar';
-import { GlobalErrorBanner } from '../ui/global-error-banner/global-error-banner';
 import { ShellNavItem } from './shell-nav.model';
 
 const SIDEBAR_STORAGE_KEY = 'brooch.shell.sidebarCollapsed';
@@ -22,6 +22,7 @@ const MOBILE_BREAKPOINT = 860;
     class: 'shell-host',
     '(document:keydown.escape)': 'onEscape()',
     '(window:resize)': 'onResize()',
+    '(window:pageshow)': 'onPageShow($event)',
   },
   template: `
     <div
@@ -78,6 +79,7 @@ export class ShellLayout {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly document = inject(DOCUMENT);
+  private readonly appRef = inject(ApplicationRef);
   protected readonly language = inject(LanguageService);
 
   protected readonly loggingOut = signal(false);
@@ -111,7 +113,11 @@ export class ShellLayout {
 
   protected readonly userInitial = computed(() => {
     const name = this.userName().trim();
-    return name ? name.charAt(0).toUpperCase() : '?';
+    if (name) {
+      return name.charAt(0).toUpperCase();
+    }
+    const email = this.userEmail().trim();
+    return email ? email.charAt(0).toUpperCase() : '?';
   });
 
   protected readonly navItems = computed(() => {
@@ -149,6 +155,16 @@ export class ShellLayout {
         this.closeMobileNav();
         queueMicrotask(() => document.getElementById('main-content-header')?.focus());
       });
+  }
+
+  /** bfcache restore can revive Active-without-/me; re-hydrate before painting empty UI. */
+  protected onPageShow(event: PageTransitionEvent): void {
+    if (!event.persisted && this.session.current()) {
+      return;
+    }
+    if (!this.session.current()) {
+      void firstValueFrom(this.session.bootstrap()).then(() => this.appRef.tick());
+    }
   }
 
   protected canReadUsers(): boolean {

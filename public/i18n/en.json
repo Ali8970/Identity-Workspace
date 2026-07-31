@@ -276,10 +276,20 @@
     "missingManager": "No manager assigned",
     "loading": "Loading teams…",
     "structureTitle": "Team structure",
-    "structureHint": "Team management is view-only in Identity v1. Changes are made in each application when supported.",
+    "structureHint": "Assign a manager to each team from its members. Nested sub-teams appear under their parent.",
     "emptyTitle": "No teams yet",
     "emptyBody": "This company has no teams configured. They will appear here once your organization structure is set up.",
-    "empty": "No teams yet"
+    "empty": "No teams yet",
+    "assignManager": "Assign Team Manager",
+    "assignManagerTitle": "Assign team manager",
+    "assignManagerLead": "Choose a manager for {{team}} from the team's members.",
+    "assignManagerLoading": "Loading team members…",
+    "assignManagerEmpty": "This team has no members to assign as manager.",
+    "assignManagerCancel": "Cancel",
+    "assignManagerSave": "Save",
+    "assignManagerSaving": "Saving…",
+    "managerLabel": "Team manager",
+    "managerPlaceholder": "Select a member"
   },
   "myAccess": {
     "title": "My access",

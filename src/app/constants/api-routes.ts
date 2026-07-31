@@ -48,6 +48,8 @@ export const API_ROUTES = {
   // Teams (Tenant module)
   teams: `${base}/teams`,
   teamsTree: `${base}/teams/tree`,
+  teamMembershipsDdl: (teamId: string) => `${base}/teams/${teamId}/memberships/ddl`,
+  teamManager: (teamId: string) => `${base}/teams/${teamId}/manager`,
 } as const;
 
 export const CSRF_EXEMPT_PATHS = [

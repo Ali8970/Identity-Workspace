@@ -1,13 +1,19 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
+import { FormField, form, required, submit } from '@angular/forms/signals';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { TeamNode } from '../../models/workspace-feature.model';
+import { LanguageService } from '../../../../core/i18n/language.service';
+import { TeamMembershipDdlItem, TeamNode } from '../../models/workspace-feature.model';
 import { TeamsService } from '../../services/teams.service';
+
+interface AssignManagerFormValue {
+  managerTenantMembershipId: string;
+}
 
 @Component({
   selector: 'app-teams-page',
-  imports: [TranslatePipe, NgTemplateOutlet],
+  imports: [TranslatePipe, NgTemplateOutlet, FormField],
   template: `
     <div class="workspace-page">
       <header class="workspace-page__head">
@@ -105,6 +111,13 @@ import { TeamsService } from '../../services/teams.service';
               }
             </span>
           </span>
+          <button
+            type="button"
+            class="ui-btn ui-btn--ghost workspace-team-node__action"
+            (click)="openAssignManager(node)"
+          >
+            {{ 'teams.assignManager' | translate }}
+          </button>
         </div>
 
         @if (node.children.length > 0) {
@@ -118,18 +131,177 @@ import { TeamsService } from '../../services/teams.service';
         }
       </li>
     </ng-template>
+
+    @if (assignTeam(); as team) {
+      <div class="workspace-dialog" role="presentation">
+        <button
+          type="button"
+          class="workspace-dialog__backdrop"
+          [attr.aria-label]="'teams.assignManagerCancel' | translate"
+          (click)="closeAssignManager()"
+        ></button>
+        <div
+          class="workspace-dialog__panel"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="assign-manager-title"
+        >
+          <header class="workspace-dialog__head">
+            <div>
+              <h2 class="workspace-dialog__title" id="assign-manager-title">
+                {{ 'teams.assignManagerTitle' | translate }}
+              </h2>
+              <p class="workspace-dialog__lead">
+                {{ 'teams.assignManagerLead' | translate: { team: team.name } }}
+              </p>
+            </div>
+            <button
+              type="button"
+              class="workspace-dialog__close"
+              [attr.aria-label]="'teams.assignManagerCancel' | translate"
+              (click)="closeAssignManager()"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                <path d="M6 6l12 12M18 6 6 18" />
+              </svg>
+            </button>
+          </header>
+
+          <div class="workspace-dialog__body">
+            @if (membersLoading()) {
+              <div class="workspace-loading workspace-loading--compact" role="status" aria-live="polite">
+                <span class="workspace-loading__spinner" aria-hidden="true"></span>
+                <span>{{ 'teams.assignManagerLoading' | translate }}</span>
+              </div>
+            } @else if (memberOptions().length === 0) {
+              <p class="workspace-dialog__empty" role="status">
+                {{ 'teams.assignManagerEmpty' | translate }}
+              </p>
+            } @else {
+              <form class="workspace-form" (submit)="saveManager($event)" novalidate>
+                <div class="auth-field">
+                  <label class="auth-field__label" for="team-manager-select">
+                    {{ 'teams.managerLabel' | translate }}
+                  </label>
+                  <div class="auth-field__control auth-field__control--plain">
+                    <select
+                      id="team-manager-select"
+                      class="auth-field__input auth-field__input--plain"
+                      [formField]="managerForm.managerTenantMembershipId"
+                    >
+                      <option value="" disabled>
+                        {{ 'teams.managerPlaceholder' | translate }}
+                      </option>
+                      @for (member of memberOptions(); track member.id) {
+                        <option [value]="member.id">{{ memberLabel(member) }}</option>
+                      }
+                    </select>
+                  </div>
+                </div>
+
+                <div class="workspace-form__actions workspace-dialog__actions">
+                  <button
+                    type="button"
+                    class="ui-btn ui-btn--ghost"
+                    [disabled]="saving()"
+                    (click)="closeAssignManager()"
+                  >
+                    {{ 'teams.assignManagerCancel' | translate }}
+                  </button>
+                  <button type="submit" class="ui-btn ui-btn--primary" [disabled]="saving()">
+                    @if (saving()) {
+                      {{ 'teams.assignManagerSaving' | translate }}
+                    } @else {
+                      {{ 'teams.assignManagerSave' | translate }}
+                    }
+                  </button>
+                </div>
+              </form>
+            }
+          </div>
+        </div>
+      </div>
+    }
   `,
 })
 export class TeamsPage {
   private readonly teamsService = inject(TeamsService);
+  private readonly language = inject(LanguageService);
 
   protected readonly teams = signal<TeamNode[]>([]);
   protected readonly loading = signal(true);
+  protected readonly assignTeam = signal<TeamNode | null>(null);
+  protected readonly memberOptions = signal<TeamMembershipDdlItem[]>([]);
+  protected readonly membersLoading = signal(false);
+  protected readonly saving = signal(false);
+
+  private readonly managerModel = signal<AssignManagerFormValue>({
+    managerTenantMembershipId: '',
+  });
+
+  protected readonly managerForm = form(this.managerModel, (schema) => {
+    required(schema.managerTenantMembershipId);
+  });
 
   protected readonly teamCount = computed(() => this.countTeams(this.teams()));
 
   constructor() {
     void this.load();
+  }
+
+  protected memberLabel(member: TeamMembershipDdlItem): string {
+    const lang = this.language.current();
+    return lang === 'ar'
+      ? member.title.ar || member.title.en
+      : member.title.en || member.title.ar;
+  }
+
+  protected async openAssignManager(team: TeamNode): Promise<void> {
+    this.assignTeam.set(team);
+    this.memberOptions.set([]);
+    this.managerModel.set({
+      managerTenantMembershipId: team.managerTenantMembershipId ?? '',
+    });
+    this.membersLoading.set(true);
+
+    try {
+      const members = await firstValueFrom(this.teamsService.loadMembershipsDdl(team.id));
+      this.memberOptions.set(members);
+    } catch {
+      this.closeAssignManager();
+    } finally {
+      this.membersLoading.set(false);
+    }
+  }
+
+  protected closeAssignManager(): void {
+    if (this.saving()) {
+      return;
+    }
+    this.assignTeam.set(null);
+    this.memberOptions.set([]);
+    this.managerModel.set({ managerTenantMembershipId: '' });
+  }
+
+  protected saveManager(event: Event): void {
+    event.preventDefault();
+    void submit(this.managerForm, async () => {
+      const team = this.assignTeam();
+      const managerTenantMembershipId = this.managerModel().managerTenantMembershipId;
+      if (!team || !managerTenantMembershipId) {
+        return;
+      }
+
+      this.saving.set(true);
+      try {
+        await firstValueFrom(this.teamsService.assignManager(team.id, managerTenantMembershipId));
+        this.saving.set(false);
+        this.closeAssignManager();
+        await this.load();
+      } catch {
+        this.saving.set(false);
+      }
+    });
   }
 
   private countTeams(nodes: TeamNode[]): number {

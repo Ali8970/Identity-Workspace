@@ -3,9 +3,11 @@ import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FormField, email, form, required, submit } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
+import { SessionStore } from '../../../../core/auth/session.store';
 import { SsoHandshakeService } from '../../../../core/auth/sso-handshake.service';
-import { GlobalErrorService } from '../../../../core/error/global-error.service';
 import { isNavigableRedirect } from '../../../../core/error/error.model';
+import { GlobalErrorService } from '../../../../core/error/global-error.service';
+import { redirectAwayIfAuthenticated } from '../../../../core/guards/auth.guards';
 import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
 import { LoginService } from '../../services/login.service';
 
@@ -13,8 +15,7 @@ import { LoginService } from '../../services/login.service';
   selector: 'app-login-page',
   imports: [TranslatePipe, RouterLink, FormField, AuthLayout],
   host: {
-    '(window:pageshow)': 'onPageShow()',
-    '(window:focus)': 'onPageShow()',
+    '(window:pageshow)': 'onPageShow($event)',
   },
   template: `
     <app-auth-layout>
@@ -189,6 +190,7 @@ export class LoginPage {
   protected readonly flow = this.loginService.flowStore;
   protected readonly globalErrors = inject(GlobalErrorService);
   private readonly sso = inject(SsoHandshakeService);
+  private readonly session = inject(SessionStore);
   private readonly router = inject(Router);
 
   protected readonly model = signal({ email: '', password: '' });
@@ -225,7 +227,21 @@ export class LoginPage {
     this.showPassword.update((visible) => !visible);
   }
 
-  protected onPageShow(): void {
+  protected onPageShow(event: PageTransitionEvent): void {
+    // bfcache / history restore — guards do not re-run; leave if still signed in.
+    // Always probe: login() may have left stage=Active with no /me payload.
+    if (event.persisted || this.session.isAuthenticated()) {
+      this.redirecting.set(true);
+      void firstValueFrom(redirectAwayIfAuthenticated(this.session, this.router)).then(
+        (left) => {
+          if (!left) {
+            this.redirecting.set(false);
+            this.busy.set(false);
+          }
+        },
+      );
+      return;
+    }
     this.redirecting.set(false);
     this.busy.set(false);
   }
@@ -242,7 +258,7 @@ export class LoginPage {
 
         if (response.requiresTenantSelection) {
           this.flow.setAvailableCompanies(response.availableCompanies);
-          await this.router.navigate(['/select-company']);
+          await this.router.navigate(['/select-company'], { replaceUrl: true });
           return;
         }
 
@@ -256,7 +272,9 @@ export class LoginPage {
         this.loginService.clearFlow();
         await firstValueFrom(this.loginService.refreshSession());
         const target = this.returnUrl();
-        await (target ? this.router.navigateByUrl(target) : this.router.navigate(['/']));
+        await (target
+          ? this.router.navigateByUrl(target, { replaceUrl: true })
+          : this.router.navigate(['/'], { replaceUrl: true }));
       } finally {
         this.busy.set(false);
       }

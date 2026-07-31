@@ -115,6 +115,37 @@ export interface TeamNode {
   children: TeamNode[];
 }
 
+/** Localized label used by DDL endpoints (`title.ar` / `title.en`). */
+export interface LocalizedTitle {
+  ar: string;
+  en: string;
+}
+
+/** GET /teams/{teamId}/memberships/ddl */
+export interface TeamMembershipDdlItem {
+  id: string;
+  title: LocalizedTitle;
+}
+
+/** PUT /teams/{teamId}/manager */
+export interface SetTeamManagerRequest {
+  managerTenantMembershipId: string | null;
+}
+
+/** PUT /teams/{teamId}/manager — response data */
+export interface TeamDetailDto {
+  id: string;
+  tenantId: string;
+  name: string;
+  description: string | null;
+  parentTeamId: string | null;
+  managerTenantMembershipId: string | null;
+  isMissingManager: boolean;
+  status: string;
+  memberCount: number;
+  version: number;
+}
+
 /** GET /packages — PackageResponse. Descriptions are nullable. */
 export interface PackageDto {
   id: string;

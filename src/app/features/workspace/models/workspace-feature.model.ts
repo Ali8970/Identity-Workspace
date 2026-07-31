@@ -10,6 +10,9 @@ export type {
   PermissionCatalogItem,
   RoleListItem,
   SessionDto,
+  SetTeamManagerRequest,
+  TeamDetailDto,
+  TeamMembershipDdlItem,
   TeamNode,
   TenantDto,
 } from '../../../models/workspace.model';

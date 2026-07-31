@@ -69,6 +69,12 @@ a {
   outline-offset: 2px;
 }
 
+/* Programmatic focus target after NavigationEnd — keep focus for a11y, no ring */
+#main-content-header:focus,
+#main-content-header:focus-visible {
+  outline: none;
+}
+
 button,
 input,
 select,
