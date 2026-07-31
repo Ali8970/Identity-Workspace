@@ -8,6 +8,7 @@ import {
   AddMemberRequest,
   AddMemberResult,
   MemberListItem,
+  MemberRolesDto,
   RoleListItem,
   TeamNode,
 } from '../models/workspace-feature.model';
@@ -62,5 +63,10 @@ export class MembersService {
       teamIds: form.teamIds,
     };
     return this.membersApi.add(request);
+  }
+
+  /** Replaces the member's whole role set; at least one role is required. */
+  updateMemberRoles(tenantMembershipId: string, roleIds: string[]): Observable<MemberRolesDto> {
+    return this.membersApi.updateRoles(tenantMembershipId, roleIds);
   }
 }

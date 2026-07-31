@@ -3,6 +3,7 @@ export type {
   AddMemberRequest,
   AddMemberResult,
   MemberListItem,
+  MemberRolesDto,
   MyAccessResponse,
   MyAccessRoleDto,
   MyAccessTeamDto,

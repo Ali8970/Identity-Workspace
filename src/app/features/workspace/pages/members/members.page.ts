@@ -205,6 +205,9 @@ import { FlatTeamOption, MembersService } from '../../services/members.service';
                     <th scope="col">{{ 'members.email' | translate }}</th>
                     <th scope="col">{{ 'members.colRoles' | translate }}</th>
                     <th scope="col">{{ 'members.colStatus' | translate }}</th>
+                    @if (canManage()) {
+                      <th scope="col">{{ 'members.colActions' | translate }}</th>
+                    }
                   </tr>
                 </thead>
                 <tbody>
@@ -252,6 +255,17 @@ import { FlatTeamOption, MembersService } from '../../services/members.service';
                           <span class="workspace-status-pill">{{ row.tenantMembershipStatus }}</span>
                         }
                       </td>
+                      @if (canManage()) {
+                        <td>
+                          <button
+                            type="button"
+                            class="ui-btn ui-btn--ghost workspace-table__action"
+                            (click)="openEditRoles(row)"
+                          >
+                            {{ 'members.editRoles' | translate }}
+                          </button>
+                        </td>
+                      }
                     </tr>
                   }
                 </tbody>
@@ -261,6 +275,99 @@ import { FlatTeamOption, MembersService } from '../../services/members.service';
         </section>
       }
     </div>
+
+    @if (editingMember(); as member) {
+      <div class="workspace-dialog" role="presentation">
+        <button
+          type="button"
+          class="workspace-dialog__backdrop"
+          [attr.aria-label]="'members.editRolesCancel' | translate"
+          (click)="closeEditRoles()"
+        ></button>
+        <div
+          class="workspace-dialog__panel"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="edit-member-roles-title"
+        >
+          <header class="workspace-dialog__head">
+            <div>
+              <h2 class="workspace-dialog__title" id="edit-member-roles-title">
+                {{ 'members.editRolesTitle' | translate }}
+              </h2>
+              <p class="workspace-dialog__lead">
+                {{
+                  'members.editRolesLead'
+                    | translate: { name: label(member.arabicName, member.englishName) }
+                }}
+              </p>
+            </div>
+            <button
+              type="button"
+              class="workspace-dialog__close"
+              [attr.aria-label]="'members.editRolesCancel' | translate"
+              (click)="closeEditRoles()"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                <path d="M6 6l12 12M18 6 6 18" />
+              </svg>
+            </button>
+          </header>
+
+          <div class="workspace-dialog__body">
+            <form class="workspace-form" (submit)="saveRoles($event)" novalidate>
+              <div class="auth-field">
+                <label class="auth-field__label" id="edit-member-roles-label">
+                  {{ 'members.roles' | translate }}
+                  <span class="auth-field__required" aria-hidden="true">*</span>
+                </label>
+                <app-multi-select
+                  [options]="roleSelectOptions()"
+                  [value]="editModel().roleIds"
+                  (valueChange)="setEditRoleIds($event)"
+                  [labelledBy]="'edit-member-roles-label'"
+                  [placeholder]="'members.rolesPlaceholder' | translate"
+                  [emptyMessage]="'members.rolesEmpty' | translate"
+                  [disabled]="savingRoles()"
+                />
+                @if (editForm.roleIds().touched() && editForm.roleIds().invalid()) {
+                  <p class="auth-field__error" id="edit-member-roles-error" role="alert">
+                    {{ 'members.rolesRequired' | translate }}
+                  </p>
+                } @else {
+                  <p class="workspace-field-hint" id="edit-member-roles-hint">
+                    {{ 'members.editRolesHint' | translate }}
+                  </p>
+                }
+              </div>
+
+              <div class="workspace-form__actions workspace-dialog__actions">
+                <button
+                  type="button"
+                  class="ui-btn ui-btn--ghost"
+                  [disabled]="savingRoles()"
+                  (click)="closeEditRoles()"
+                >
+                  {{ 'members.editRolesCancel' | translate }}
+                </button>
+                <button
+                  type="submit"
+                  class="ui-btn ui-btn--primary"
+                  [disabled]="savingRoles() || editForm().invalid()"
+                  [attr.aria-busy]="savingRoles()"
+                >
+                  @if (savingRoles()) {
+                    {{ 'members.editRolesSaving' | translate }}
+                  } @else {
+                    {{ 'members.editRolesSave' | translate }}
+                  }
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    }
   `,
 })
 export class MembersPage {
@@ -273,6 +380,8 @@ export class MembersPage {
   protected readonly busy = signal(false);
   protected readonly loading = signal(true);
   protected readonly inviteResult = signal<AddMemberResult | null>(null);
+  protected readonly editingMember = signal<MemberListItem | null>(null);
+  protected readonly savingRoles = signal(false);
   protected readonly model = signal({
     email: '',
     arabicName: '',
@@ -280,6 +389,7 @@ export class MembersPage {
     roleIds: [] as string[],
     teamIds: [] as string[],
   });
+  protected readonly editModel = signal({ roleIds: [] as string[] });
   protected readonly addForm = form(this.model, (schema) => {
     required(schema.email);
     email(schema.email);
@@ -287,8 +397,13 @@ export class MembersPage {
     required(schema.englishName);
     minLength(schema.roleIds, 1);
   });
+  protected readonly editForm = form(this.editModel, (schema) => {
+    minLength(schema.roleIds, 1);
+  });
 
-  protected readonly canCreate = computed(() => this.membersService.canCreateMembers());
+  protected readonly canManage = computed(() => this.membersService.canCreateMembers());
+  /** Invite panel uses the same memberships.manage permission. */
+  protected readonly canCreate = this.canManage;
 
   protected readonly roleSelectOptions = computed<MultiSelectOption[]>(() =>
     this.roles().map((role) => ({
@@ -321,6 +436,54 @@ export class MembersPage {
 
   protected setTeamIds(teamIds: string[]): void {
     this.model.update((current) => ({ ...current, teamIds }));
+  }
+
+  protected setEditRoleIds(roleIds: string[]): void {
+    this.editModel.set({ roleIds });
+    this.editForm.roleIds().markAsTouched();
+  }
+
+  protected openEditRoles(member: MemberListItem): void {
+    if (!this.canManage()) {
+      return;
+    }
+    this.editingMember.set(member);
+    this.editModel.set({
+      roleIds: member.roles.map((role) => role.roleId),
+    });
+  }
+
+  protected closeEditRoles(): void {
+    if (this.savingRoles()) {
+      return;
+    }
+    this.editingMember.set(null);
+    this.editModel.set({ roleIds: [] });
+  }
+
+  protected saveRoles(event: Event): void {
+    event.preventDefault();
+    if (!this.canManage()) {
+      return;
+    }
+    void submit(this.editForm, async () => {
+      const member = this.editingMember();
+      if (!member) {
+        return;
+      }
+
+      this.savingRoles.set(true);
+      try {
+        await firstValueFrom(
+          this.membersService.updateMemberRoles(member.tenantMembershipId, this.editModel().roleIds),
+        );
+        this.savingRoles.set(false);
+        this.closeEditRoles();
+        await this.load();
+      } catch {
+        this.savingRoles.set(false);
+      }
+    });
   }
 
   protected initials(row: MemberListItem): string {

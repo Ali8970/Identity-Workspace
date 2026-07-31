@@ -586,6 +586,14 @@
   }
 }
 
+.workspace-table__action {
+  min-height: 2.15rem;
+  padding-block: 0.35rem;
+  padding-inline: 0.75rem;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
 .workspace-table-empty {
   padding: 2rem 1.15rem;
   text-align: center;
