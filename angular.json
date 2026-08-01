@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "Identity": {
+    "brooch-account": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -71,10 +71,10 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "Identity:build:production"
+              "buildTarget": "brooch-account:build:production"
             },
             "development": {
-              "buildTarget": "Identity:build:development"
+              "buildTarget": "brooch-account:build:development"
             }
           },
           "defaultConfiguration": "development"
