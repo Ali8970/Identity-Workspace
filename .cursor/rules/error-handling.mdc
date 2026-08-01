@@ -28,7 +28,7 @@ alwaysApply: true
 | Status | Code examples | Notes |
 |--------|---------------|-------|
 | 400 | `Validation`, `Request.InvalidBody`, `Auth.AntiforgeryFailed` | `errors` map for field messages |
-| 401 | `Auth.NotAuthenticated`, `Auth.InvalidCredentials` | Coded = stay; uncoded = re-auth |
+| 401 | `Auth.NotAuthenticated`, `Auth.InvalidCredentials` | Authenticated API 401 → local logout → `/login`; public auth failures (login etc.) stay + banner; `Auth.SessionExpired` → `/session-expired` |
 | 403 | `Auth.PermissionDenied` | includes `requiredPermissions` |
 | 404 | `*.NotFound` | domain-specific |
 | 409 | `*.EmailAlreadyExists`, business conflict | domain-specific |
@@ -40,9 +40,9 @@ alwaysApply: true
 - `Auth.AntiforgeryFailed` → invalidate CSRF token
 - `Auth.ApplicationAccessDenied` + navigable `redirectUrl` → SSO redirect
 - `Identity.LoginIntent.*` → clear intent + scrub URL
-- `Auth.SessionExpired` → `/session-expired`
-- Uncoded 401 → `/login`
-- `Auth.NotAuthenticated` during selection stage → `/select-company`
+- `Auth.SessionExpired` → mark anonymous → `/session-expired`
+- Authenticated API 401 (coded or not) → mark anonymous → `/login`
+- Public auth 401s (`/auth/login`, register, password flows) and `Auth.InvalidCredentials` → stay + banner
 - Bootstrap probes (`/auth/me`, `/auth/companies`, `/auth/csrf`) → silent (no banner)
 
 ## i18n

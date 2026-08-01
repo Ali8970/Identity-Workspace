@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { API_ROUTES } from '../../constants/api-routes';
+import { API_ROUTES, CSRF_EXEMPT_PATHS } from '../../constants/api-routes';
 import { AuthFlowStore } from '../auth/auth-flow.store';
 import { CsrfService } from '../auth/csrf.service';
 import { SessionStore } from '../auth/session.store';
@@ -30,20 +30,20 @@ export class ApiErrorHandler {
   private readonly router = inject(Router);
 
   handle(error: BroochError, request: ApiErrorRequestContext): void {
-    this.applySideEffects(error);
+    this.applySideEffects(error, request);
 
     if (request.silent || this.shouldSuppressDisplay(error, request)) {
       return;
     }
 
-    if (this.handledByNavigation(error)) {
+    if (this.handledByNavigation(error, request)) {
       return;
     }
 
     this.globalError.show(error);
   }
 
-  private applySideEffects(error: BroochError): void {
+  private applySideEffects(error: BroochError, request: ApiErrorRequestContext): void {
     if (error.code === 'Auth.AntiforgeryFailed') {
       this.csrf.invalidate();
     }
@@ -60,6 +60,7 @@ export class ApiErrorHandler {
     }
 
     if (error.code === 'Auth.SessionExpired') {
+      this.session.markAnonymous();
       const returnUrl = this.readReturnUrl();
       void this.router.navigate(['/session-expired'], {
         queryParams: returnUrl ? { returnUrl } : {},
@@ -67,17 +68,11 @@ export class ApiErrorHandler {
       return;
     }
 
-    if (this.isUncodedSessionLoss(error)) {
-      void this.router.navigate(['/login']);
-      return;
-    }
-
-    if (
-      error.code === 'Auth.NotAuthenticated' &&
-      this.session.isSelection() &&
-      !this.router.url.startsWith('/select-company')
-    ) {
-      void this.router.navigate(['/select-company']);
+    if (this.shouldLogoutOnUnauthorized(error, request)) {
+      this.session.markAnonymous();
+      if (!this.router.url.startsWith('/login')) {
+        void this.router.navigate(['/login']);
+      }
     }
   }
 
@@ -94,28 +89,48 @@ export class ApiErrorHandler {
     );
   }
 
-  private handledByNavigation(error: BroochError): boolean {
+  private handledByNavigation(error: BroochError, request: ApiErrorRequestContext): boolean {
     if (isApplicationAccessDenied(error) && isNavigableRedirect(error.redirectUrl)) {
       return true;
     }
     if (error.code === 'Auth.SessionExpired') {
       return true;
     }
-    if (this.isUncodedSessionLoss(error)) {
-      return true;
-    }
-    if (
-      error.code === 'Auth.NotAuthenticated' &&
-      this.session.isSelection() &&
-      !this.router.url.startsWith('/select-company')
-    ) {
+    // Only suppress the banner when we actually force a re-auth navigation.
+    if (this.shouldLogoutOnUnauthorized(error, request)) {
       return true;
     }
     return false;
   }
 
-  private isUncodedSessionLoss(error: BroochError): boolean {
-    return error.status === 401 && !error.code;
+  /**
+   * Authenticated API 401s end the local session.
+   * Public auth failures (login wrong password, etc.) must stay and show the banner.
+   */
+  private shouldLogoutOnUnauthorized(
+    error: BroochError,
+    request: ApiErrorRequestContext,
+  ): boolean {
+    if (error.status !== 401) {
+      return false;
+    }
+    if (error.code === 'Auth.InvalidCredentials') {
+      return false;
+    }
+    // Login / register / password flows are anonymous — never treat as session loss.
+    if (this.isPublicAuthRequest(request.url)) {
+      return false;
+    }
+    // No session to clear; show the error instead of a no-op logout that hides it.
+    if (!this.session.isAuthenticated()) {
+      return false;
+    }
+    return true;
+  }
+
+  private isPublicAuthRequest(url: string): boolean {
+    const path = url.split('?')[0];
+    return CSRF_EXEMPT_PATHS.some((suffix) => path.endsWith(suffix));
   }
 
   private readReturnUrl(): string | null {

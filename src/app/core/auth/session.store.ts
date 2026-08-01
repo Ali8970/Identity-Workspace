@@ -161,4 +161,12 @@ export class SessionStore {
     this.userSignal.set(null);
     this.companiesSignal.set([]);
   }
+
+  /** Drop local session state without calling the logout API (e.g. after a 401). */
+  markAnonymous(): void {
+    this.clear();
+    this.csrf.invalidate();
+    this.flow.clear();
+    this.stageSignal.set(SessionStage.Anonymous);
+  }
 }

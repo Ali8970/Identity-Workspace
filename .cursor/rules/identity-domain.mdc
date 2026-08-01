@@ -21,7 +21,7 @@ alwaysApply: true
 ## Selection stage
 - Picker rows ONLY from `LoginResponse.availableCompanies` — never rebuild from `/me/companies`
 - Keep `intentId` in AuthFlowStore across selection (API does not echo it)
-- Selection allow-list only; other APIs → 401 Auth.NotAuthenticated (route to picker, not login)
+- Selection allow-list only; other APIs → 401 → local logout → `/login`
 
 ## SSO / redirects
 - Sibling apps hand off via opaque `?intentId=` only
@@ -33,7 +33,7 @@ alwaysApply: true
 ## Authz
 - Permissions gate **actions/nav links**, never routes — backend 403 is truth
 - `/roles` is read-only viewer in v1
-- Coded 401 = business denial (stay); uncoded 401 = session loss → re-auth
+- Authenticated API 401 → local logout → `/login` (public auth failures stay + banner; `Auth.SessionExpired` → `/session-expired`)
 - `login-intent` may return HTTP 200 with `isValid: false` — treat as failure
 
 ## Registration
