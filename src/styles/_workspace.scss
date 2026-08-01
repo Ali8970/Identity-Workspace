@@ -55,6 +55,7 @@
 .workspace-chip {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.35rem;
   min-height: 2rem;
   padding: 0.25rem 0.7rem;
@@ -64,6 +65,7 @@
   color: var(--text);
   font-size: 0.82rem;
   font-weight: 650;
+  line-height: 1;
 
   svg {
     width: 0.95rem;
@@ -526,15 +528,17 @@
 
 .workspace-member__owner {
   display: inline-flex;
-  margin-top: 0.15rem;
-  padding: 0.1rem 0.4rem;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  padding: 0.25rem 0.7rem;
   border-radius: 999px;
   background: color-mix(in srgb, var(--warning) 14%, white);
   color: color-mix(in srgb, var(--warning) 85%, black);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
+  font-size: 0.82rem;
+  font-weight: 650;
+  line-height: 1;
+  text-transform: none;
 }
 
 .workspace-role-list {
@@ -545,12 +549,16 @@
 
 .workspace-role-pill {
   display: inline-flex;
-  padding: 0.18rem 0.5rem;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  padding: 0.25rem 0.7rem;
   border-radius: 999px;
   background: var(--primary-soft);
   color: var(--primary);
-  font-size: 0.74rem;
+  font-size: 0.82rem;
   font-weight: 650;
+  line-height: 1;
 }
 
 .workspace-role-pill--empty {
@@ -1273,6 +1281,7 @@
 .workspace-company-row__meta {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.35rem;
   margin-top: 0.3rem;
 }
