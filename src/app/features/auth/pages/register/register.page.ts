@@ -83,7 +83,6 @@ import { RegisterService } from '../../services/register.service';
                   id="register-ar"
                   class="auth-field__input"
                   type="text"
-                  dir="auto"
                   autocomplete="organization"
                   [placeholder]="'auth.register.arabicNamePlaceholder' | translate"
                   [formField]="registerForm.arabicCompanyName"

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FormField, form, required, submit } from '@angular/forms/signals';
@@ -37,10 +37,7 @@ import { OnboardingService } from '../../services/onboarding.service';
             <span class="auth-stepper__label">{{ 'onboarding.stepCompany' | translate }}</span>
           </li>
           <li class="auth-stepper__divider" aria-hidden="true"></li>
-          <li
-            class="auth-stepper__item"
-            [class.auth-stepper__item--active]="step() === 'package'"
-          >
+          <li class="auth-stepper__item" [class.auth-stepper__item--active]="step() === 'package'">
             <span class="auth-stepper__marker" aria-hidden="true">2</span>
             <span class="auth-stepper__label">{{ 'onboarding.stepPackage' | translate }}</span>
           </li>
@@ -75,8 +72,8 @@ import { OnboardingService } from '../../services/onboarding.service';
                   id="onboarding-ar"
                   class="auth-field__input"
                   type="text"
-                  dir="rtl"
-                  lang="ar"
+                  [attr.dir]="uiDir()"
+                  [attr.lang]="language.current()"
                   autocomplete="organization"
                   [placeholder]="'onboarding.arabicNamePlaceholder' | translate"
                   [formField]="companyForm.arabicCompanyName"
@@ -99,6 +96,8 @@ import { OnboardingService } from '../../services/onboarding.service';
                   id="onboarding-en"
                   class="auth-field__input"
                   type="text"
+                  [attr.dir]="uiDir()"
+                  [attr.lang]="language.current()"
                   autocomplete="organization"
                   [placeholder]="'onboarding.englishNamePlaceholder' | translate"
                   [formField]="companyForm.englishCompanyName"
@@ -156,7 +155,9 @@ import { OnboardingService } from '../../services/onboarding.service';
                     <span class="auth-package-card__desc">
                       {{ label(pkg.descriptionAr ?? '', pkg.descriptionEn ?? '') }}
                     </span>
-                    <span class="auth-package-card__badge">{{ 'onboarding.trialBadge' | translate }}</span>
+                    <span class="auth-package-card__badge">{{
+                      'onboarding.trialBadge' | translate
+                    }}</span>
                   </span>
                   <span class="auth-package-card__check" aria-hidden="true">
                     @if (selectedPackage() === pkg.id) {
@@ -170,7 +171,9 @@ import { OnboardingService } from '../../services/onboarding.service';
             </div>
           }
 
-          <p class="auth-form__info auth-form__info--inline">{{ 'onboarding.startTrialHint' | translate }}</p>
+          <p class="auth-form__info auth-form__info--inline">
+            {{ 'onboarding.startTrialHint' | translate }}
+          </p>
 
           <button
             class="ui-btn ui-btn--primary auth-form__submit"
@@ -203,8 +206,10 @@ import { OnboardingService } from '../../services/onboarding.service';
 })
 export class OnboardingPage {
   private readonly onboardingService = inject(OnboardingService);
-  private readonly language = inject(LanguageService);
+  protected readonly language = inject(LanguageService);
   private readonly router = inject(Router);
+
+  protected readonly uiDir = computed(() => (this.language.current() === 'ar' ? 'rtl' : 'ltr'));
 
   protected readonly step = signal<'company' | 'package'>(
     inject(Router).url.includes('/package') ? 'package' : 'company',

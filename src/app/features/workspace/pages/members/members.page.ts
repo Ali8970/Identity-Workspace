@@ -3,10 +3,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { FormField, email, form, minLength, required, submit } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
 import { LanguageService } from '../../../../core/i18n/language.service';
-import {
-  MultiSelect,
-  MultiSelectOption,
-} from '../../../../shared/ui/multi-select/multi-select';
+import { MultiSelect, MultiSelectOption } from '../../../../shared/ui/multi-select/multi-select';
 import {
   AddMemberResult,
   MemberListItem,
@@ -76,7 +73,12 @@ import { FlatTeamOption, MembersService } from '../../services/members.service';
                   </label>
                   <div class="auth-field__control">
                     <span class="auth-field__icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.75"
+                      >
                         <path d="M4 6h16v12H4z" />
                         <path d="m4 7 8 6 8-6" />
                       </svg>
@@ -98,13 +100,24 @@ import { FlatTeamOption, MembersService } from '../../services/members.service';
                     <label class="auth-field__label" for="member-ar">
                       {{ 'members.nameAr' | translate }}
                     </label>
-                    <div class="auth-field__control auth-field__control--plain">
+                    <div class="auth-field__control">
+                      <span class="auth-field__icon" aria-hidden="true">
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.75"
+                        >
+                          <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" />
+                          <path d="M4 20a8 8 0 0 1 16 0" />
+                        </svg>
+                      </span>
                       <input
                         id="member-ar"
-                        class="auth-field__input auth-field__input--plain"
+                        class="auth-field__input"
                         type="text"
-                        dir="rtl"
-                        lang="ar"
+                        [attr.dir]="uiDir()"
+                        [attr.lang]="language.current()"
                         [placeholder]="'members.nameArPlaceholder' | translate"
                         [formField]="addForm.arabicName"
                       />
@@ -115,11 +128,24 @@ import { FlatTeamOption, MembersService } from '../../services/members.service';
                     <label class="auth-field__label" for="member-en">
                       {{ 'members.nameEn' | translate }}
                     </label>
-                    <div class="auth-field__control auth-field__control--plain">
+                    <div class="auth-field__control">
+                      <span class="auth-field__icon" aria-hidden="true">
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.75"
+                        >
+                          <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" />
+                          <path d="M4 20a8 8 0 0 1 16 0" />
+                        </svg>
+                      </span>
                       <input
                         id="member-en"
-                        class="auth-field__input auth-field__input--plain"
+                        class="auth-field__input"
                         type="text"
+                        [attr.dir]="uiDir()"
+                        [attr.lang]="language.current()"
                         [placeholder]="'members.nameEnPlaceholder' | translate"
                         [formField]="addForm.englishName"
                       />
@@ -252,7 +278,9 @@ import { FlatTeamOption, MembersService } from '../../services/members.service';
                             {{ statusLabel(row.tenantMembershipStatus) | translate }}
                           </span>
                         } @else {
-                          <span class="workspace-status-pill">{{ row.tenantMembershipStatus }}</span>
+                          <span class="workspace-status-pill">{{
+                            row.tenantMembershipStatus
+                          }}</span>
                         }
                       </td>
                       @if (canManage()) {
@@ -308,7 +336,13 @@ import { FlatTeamOption, MembersService } from '../../services/members.service';
               [attr.aria-label]="'members.editRolesCancel' | translate"
               (click)="closeEditRoles()"
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.75"
+                aria-hidden="true"
+              >
                 <path d="M6 6l12 12M18 6 6 18" />
               </svg>
             </button>
@@ -372,7 +406,10 @@ import { FlatTeamOption, MembersService } from '../../services/members.service';
 })
 export class MembersPage {
   private readonly membersService = inject(MembersService);
-  private readonly language = inject(LanguageService);
+  protected readonly language = inject(LanguageService);
+
+  /** Matches document dir from LanguageService — placeholders align with UI language. */
+  protected readonly uiDir = computed(() => (this.language.current() === 'ar' ? 'rtl' : 'ltr'));
 
   protected readonly members = signal<MemberListItem[]>([]);
   protected readonly roles = signal<RoleListItem[]>([]);
@@ -475,7 +512,10 @@ export class MembersPage {
       this.savingRoles.set(true);
       try {
         await firstValueFrom(
-          this.membersService.updateMemberRoles(member.tenantMembershipId, this.editModel().roleIds),
+          this.membersService.updateMemberRoles(
+            member.tenantMembershipId,
+            this.editModel().roleIds,
+          ),
         );
         this.savingRoles.set(false);
         this.closeEditRoles();
