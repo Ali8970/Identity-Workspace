@@ -97,7 +97,7 @@ export interface PermissionCatalogItem {
 /**
  * GET|PUT /memberships/{id}/roles — MemberRolesDto.
  * effectivePermissionsByApplication carries an entry for every role-owning
- * application (identity, crm, administration); one with no roles maps to [].
+ * application (account, crm, administration); one with no roles maps to [].
  */
 export interface MemberRolesDto {
   tenantMembershipId: string;

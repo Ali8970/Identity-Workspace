@@ -16,7 +16,7 @@ export class ApplicationsService {
 
   open(baseUrl: string | null | undefined): void {
     if (isNavigableRedirect(baseUrl)) {
-      // Keep Identity in history so Back from the sibling app returns here.
+      // Keep Account in history so Back from the sibling app returns here.
       this.sso.assign(baseUrl);
     }
   }

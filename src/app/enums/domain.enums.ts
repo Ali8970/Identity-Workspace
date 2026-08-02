@@ -46,7 +46,7 @@ export type TenantMemberAccessEmailType = 'WelcomeBack' | 'SetPassword';
 /** camelCase string codes on GET /me/companies when not selectable. */
 export type CompanyUnavailableReason = 'tenantMembershipSuspended' | 'tenantDisabled';
 
-export type ApplicationKey = 'identity' | 'crm' | 'hr' | 'administration';
+export type ApplicationKey = 'account' | 'crm' | 'hr' | 'administration';
 
 /** SPA-only session stage (not on the wire). */
 export enum SessionStage {

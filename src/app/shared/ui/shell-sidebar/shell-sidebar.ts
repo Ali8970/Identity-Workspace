@@ -18,7 +18,7 @@ import { ShellNavItem } from '../../layouts/shell-nav.model';
           <span class="shell-sidebar__mark" aria-hidden="true">B</span>
           <span class="shell-sidebar__brand-text">
             <span class="shell-sidebar__brand-name">Brooch</span>
-            <span class="shell-sidebar__brand-sub">Identity</span>
+            <span class="shell-sidebar__brand-sub">{{ 'auth.layout.product' | translate }}</span>
           </span>
         </a>
       </div>

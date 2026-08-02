@@ -1,4 +1,4 @@
-# Identity cycle — QA checklist
+# Account cycle — QA checklist
 
 Use with staging (`https://stg.api.brooch.sa`) from **https://dev.account.brooch.sa:4300**.
 
@@ -6,7 +6,7 @@ Use with staging (`https://stg.api.brooch.sa`) from **https://dev.account.brooch
 
 1. `requiresTenantSelection === true` → `/select-company`
 2. Else navigable `redirectUrl` → full-page navigate to that URL (e.g. CRM)
-3. Else stay in Identity → `GET /auth/me` → applications launcher
+3. Else stay in Account → `GET /auth/me` → applications launcher
 
 Mark each row: Pass / Fail / Blocked (note reason).
 
@@ -28,11 +28,11 @@ Mark each row: Pass / Fail / Blocked (note reason).
 
 | # | Journey | User action | API | Expected UI / outcome |
 |---|---|---|---|---|
-| 5 | `login-single-one-app` | Login (1 company, only CRM eligible) | `POST /auth/login` | `requiresTenantSelection: false`, `redirectUrl` = CRM → browser leaves Identity to CRM |
-| 6 | `login-single-multi-app` | Login (1 company, CRM + HR) | `POST /auth/login` then `GET /auth/me` | `redirectUrl: null` → stay on Identity applications launcher |
+| 5 | `login-single-one-app` | Login (1 company, only CRM eligible) | `POST /auth/login` | `requiresTenantSelection: false`, `redirectUrl` = CRM → browser leaves Account to CRM |
+| 6 | `login-single-multi-app` | Login (1 company, CRM + HR) | `POST /auth/login` then `GET /auth/me` | `redirectUrl: null` → stay on Account applications launcher |
 | 7 | `login-multi-tenant` | Login (2+ selectable companies) | `POST /auth/login` | `/select-company` (**wins even if** `redirectUrl` set) |
 | 7b | (after 7) | Pick a company | `POST /auth/select-membership` | Cookie becomes Active; then redirectUrl or launcher (same tree) |
-| 8 | `login-intent` | Open Identity `/login?intentId=…` (from CRM) → login | `POST /auth/login` (+ intent in body) | Eligible → `redirectUrl` to CRM deep link; intent consumed |
+| 8 | `login-intent` | Open Account `/login?intentId=…` (from CRM) → login | `POST /auth/login` (+ intent in body) | Eligible → `redirectUrl` to CRM deep link; intent consumed |
 | 9 | `intent-multi-tenant` | Intent login with 2+ companies | `POST /auth/login` → select → `POST /auth/select-membership` | Picker first; after pick → CRM `redirectUrl` |
 | 10 | `forgot-password` | `/forgot-password` any email | `POST /auth/forgot-password` | Same success always (anti-enumeration); reset mail only if known |
 | 11 | `reset-password` | Open reset link → new password | `POST /auth/forgot-password/complete` | Success → `/login` (no auto session) |
@@ -63,21 +63,21 @@ Mark each row: Pass / Fail / Blocked (note reason).
 | 22 | `app-denied-user` | Login with CRM intent; user has no CRM role | `POST /auth/login` | Same wire code `Auth.ApplicationAccessDenied` (reason differs server-side only) |
 | 23 | `intent-tenant-ineligible` | Intent + pick company that cannot open CRM | `POST /auth/select-membership` | Stay on picker; intent **not** consumed; can pick other company |
 | 24 | `permission-denied` | Members → Add without `identity.memberships.manage` | `POST /companies/.../members` | `403 Auth.PermissionDenied` + banner; stay on page |
-| 25 | `intent-expired` | Login with expired `intentId` | `POST /auth/login` | `Identity.LoginIntent.Expired`; scrub `intentId` from URL |
-| 26 | `intent-replayed` | Reuse already-completed intent | `POST /auth/login` | `Identity.LoginIntent.AlreadyCompleted` |
+| 25 | `intent-expired` | Login with expired `intentId` | `POST /auth/login` | `Account.LoginIntent.Expired`; scrub `intentId` from URL |
+| 26 | `intent-replayed` | Reuse already-completed intent | `POST /auth/login` | `Account.LoginIntent.AlreadyCompleted` |
 | 27 | `session-expired` | Expired cookie → any authenticated call | e.g. `GET /auth/me` | Navigate `/session-expired` |
 | 28 | `csrf-failure` | Unsafe POST missing/bad CSRF | e.g. `POST /auth/select-membership` | `Auth.AntiforgeryFailed` → re-prime CSRF + one retry |
 | 29 | `rate-limit` | Burst login / limited auth routes | `POST /auth/login` (etc.) | `429` + cooldown UI |
 
 ---
 
-## E. CRM ↔ Identity (permission / redirect) — end-to-end scripts
+## E. CRM ↔ Account (permission / redirect) — end-to-end scripts
 
 ### E1. SSO into CRM — user **has** CRM access
 
 | Step | Action | API / event | Expected |
 |---|---|---|---|
-| 1 | From CRM (or test): open Identity `/login?intentId=…` | — | Login shows intent banner |
+| 1 | From CRM (or test): open Account `/login?intentId=…` | — | Login shows intent banner |
 | 2 | Sign in | `POST /auth/login` | `redirectUrl` to CRM |
 | 3 | Browser follows redirect | — | Land in CRM with same cookie session |
 
@@ -86,7 +86,7 @@ Mark each row: Pass / Fail / Blocked (note reason).
 | Step | Action | API / event | Expected |
 |---|---|---|---|
 | 1 | `/login?intentId=` targeting CRM | — | Login |
-| 2 | Sign in | `POST /auth/login` → `403 Auth.ApplicationAccessDenied` | Stay on Identity; **no** CRM; banner/denied UX |
+| 2 | Sign in | `POST /auth/login` → `403 Auth.ApplicationAccessDenied` | Stay on Account; **no** CRM; banner/denied UX |
 | 3 | Sign in again without fixing billing/entitlement | same | Still denied — login does not unlock CRM |
 
 ### E3. SSO into CRM — user has no CRM role (`app-denied-user`)
@@ -104,19 +104,19 @@ Mark each row: Pass / Fail / Blocked (note reason).
 | 2 | Pick company **without** CRM access | `POST /auth/select-membership` → 403 | Stay on picker; Selection session kept; intent still redeemable |
 | 3 | Pick eligible company + same `intentId` | `POST /auth/select-membership` | Redirect to CRM |
 
-### E5. Already on Identity → open CRM launcher — no CRM role
+### E5. Already on Account → open CRM launcher — no CRM role
 
 | Step | Action | API / event | Expected |
 |---|---|---|---|
 | 1 | Login without intent (multi-app or launcher) | `POST /auth/login`, `GET /auth/me` | CRM may be missing from `availableApplications` or open fails |
-| 2 | If user forces CRM URL | CRM: `GET /auth/me` with `X-Brooch-Application: crm` → 403 | CRM redirects to Identity `/login?intentId=…` or `/access-denied` |
-| 3 | Login again on Identity | as E2/E3 | Still blocked until role/entitlement fixed |
+| 2 | If user forces CRM URL | CRM: `GET /auth/me` with `X-Brooch-Application: crm` → 403 | CRM redirects to Account `/login?intentId=…` or `/access-denied` |
+| 3 | Login again on Account | as E2/E3 | Still blocked until role/entitlement fixed |
 
 ### E6. Session lost while on CRM
 
 | Step | Action | API / event | Expected |
 |---|---|---|---|
-| 1 | Cookie expired / logout-all | CRM API 401 | CRM sends user to Identity `/login` or `/session-expired` |
+| 1 | Cookie expired / logout-all | CRM API 401 | CRM sends user to Account `/login` or `/session-expired` |
 | 2 | User signs in again | `POST /auth/login` | Fresh session; optional new intent from CRM |
 
 ---
@@ -138,7 +138,7 @@ Mark each row: Pass / Fail / Blocked (note reason).
 | B Sign-in | | |
 | C Session | | |
 | D Denials | | |
-| E CRM ↔ Identity | | |
+| E CRM ↔ Account | | |
 | CORS `https://dev.account.brooch.sa:4300` | | Must be allowlisted on staging |
 | Cookies `brooch_sid` over HTTPS | | |
 

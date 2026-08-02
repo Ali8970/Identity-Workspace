@@ -68,10 +68,19 @@ const MOBILE_BREAKPOINT = 860;
 
         <app-global-error-banner variant="shell" />
 
-        <main class="shell__main" id="main-content">
+        <main class="shell__main" id="main-content" [attr.aria-busy]="switching()">
           <router-outlet />
         </main>
       </div>
+
+      @if (switching()) {
+        <div class="shell-overlay" role="status" aria-live="polite" aria-busy="true">
+          <div class="shell-overlay__panel">
+            <span class="shell-overlay__spinner" aria-hidden="true"></span>
+            <span>{{ 'shell.switchingCompany' | translate }}</span>
+          </div>
+        </div>
+      }
     </div>
   `,
 })

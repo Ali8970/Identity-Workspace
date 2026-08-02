@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "Identity": {
+    "Account": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -70,10 +70,10 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "Identity:build:production"
+              "buildTarget": "Account:build:production"
             },
             "development": {
-              "buildTarget": "Identity:build:development"
+              "buildTarget": "Account:build:development"
             }
           },
           "defaultConfiguration": "development"

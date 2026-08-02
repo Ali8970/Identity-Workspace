@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Brooch Identity",
+    "name": "Brooch Account",
     "loading": "Loading…"
   },
   "auth": {
@@ -143,7 +143,7 @@
       "tryAnother": "Need a new company?"
     },
     "layout": {
-      "product": "Identity",
+      "product": "Account",
       "heroTitle": "One secure sign-in for your entire Brooch workspace",
       "heroLead": "Manage companies, teams, and access to every Brooch application from a single hub.",
       "featureSecurity": "Enterprise-grade session security",
@@ -168,6 +168,7 @@
     "logout": "Sign out",
     "language": "Language",
     "switchCompany": "Switch company",
+    "switchingCompany": "Switching company…",
     "workspace": "Workspace",
     "openSidebar": "Open navigation",
     "closeSidebar": "Close navigation"
@@ -240,13 +241,13 @@
     "groupCount": "{{count}} roles",
     "permissionCount": "{{count}} permissions",
     "loading": "Loading roles…",
-    "readOnlyHint": "Role editing is not available in Identity v1. Contact your administrator to change access.",
+    "readOnlyHint": "Role editing is not available in Account v1. Contact your administrator to change access.",
     "permissions": "Permissions",
     "noPermissions": "No permissions assigned",
     "emptyTitle": "No roles yet",
     "emptyBody": "This company has no roles configured. They will appear here once provisioned.",
     "apps": {
-      "identity": "Identity",
+      "account": "Account",
       "crm": "CRM",
       "hr": "HR"
     }
@@ -264,7 +265,7 @@
     "emptyTitle": "No permissions in catalog",
     "emptyBody": "The permission catalog is empty. Entries will appear here once configured.",
     "apps": {
-      "identity": "Identity",
+      "account": "Account",
       "crm": "CRM",
       "hr": "HR"
     },
@@ -317,7 +318,7 @@
     "noRoles": "You have no roles assigned in this company.",
     "noPermissions": "You have no permissions in this company.",
     "apps": {
-      "identity": "Identity",
+      "account": "Account",
       "crm": "CRM",
       "hr": "HR",
       "other": "Other"
@@ -329,7 +330,7 @@
     "subtitle": "Manage your profile, switch companies, and control active sessions.",
     "loading": "Loading account…",
     "profile": "Profile",
-    "profileLead": "Your Brooch identity details for this signed-in user.",
+    "profileLead": "Your Brooch account details for this signed-in user.",
     "email": "Email",
     "name": "Display name",
     "companies": "Companies",

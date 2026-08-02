@@ -33,12 +33,16 @@ import { MyCompanyDto } from '../../../models/auth.model';
       </div>
 
       <div class="shell-header__actions">
-        <label class="shell-header__company">
+        <label class="shell-header__company" [attr.aria-busy]="switching()">
           <span class="visually-hidden">{{ 'shell.switchCompany' | translate }}</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-            <path d="M4 21V8l8-4 8 4v13" />
-            <path d="M9 21V12h6v9" />
-          </svg>
+          @if (switching()) {
+            <span class="shell-header__company-spinner" aria-hidden="true"></span>
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+              <path d="M4 21V8l8-4 8 4v13" />
+              <path d="M9 21V12h6v9" />
+            </svg>
+          }
           @for (epoch of [selectEpoch()]; track epoch) {
             <select
               [value]="currentMembershipId()"
