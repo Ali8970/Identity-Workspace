@@ -15,12 +15,25 @@ function isExempt(url: string): boolean {
   return CSRF_EXEMPT_PATHS.some((path) => url.includes(path));
 }
 
+/**
+ * Recognises an antiforgery rejection in BOTH shapes it can arrive in.
+ *
+ * `errorInterceptor` is registered last, which makes it the innermost interceptor —
+ * so on failure it runs FIRST and rethrows a normalized `BroochError`, not the original
+ * `HttpErrorResponse`. Testing only for `instanceof HttpErrorResponse` therefore never
+ * matched in the real chain and the retry below was dead code.
+ * See csrf.interceptor.spec.ts, which pins both shapes.
+ */
 function isAntiforgeryFailure(error: unknown): boolean {
-  if (!(error instanceof HttpErrorResponse)) {
-    return false;
+  if (error instanceof HttpErrorResponse) {
+    const body = error.error as { code?: string } | null;
+    return error.status === 400 && body?.code === 'Auth.AntiforgeryFailed';
   }
-  const body = error.error as { code?: string } | null;
-  return error.status === 400 && body?.code === 'Auth.AntiforgeryFailed';
+  if (error && typeof error === 'object' && 'status' in error && 'code' in error) {
+    const normalized = error as { status: number; code: string | null };
+    return normalized.status === 400 && normalized.code === 'Auth.AntiforgeryFailed';
+  }
+  return false;
 }
 
 export const csrfInterceptor: HttpInterceptorFn = (req, next) => {
