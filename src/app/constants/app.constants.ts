@@ -5,7 +5,7 @@ export const HTTP_HEADERS = {
   correlationId: 'X-Correlation-Id',
 } as const;
 
-export const APP_KEY = 'identity' as const;
+export const APP_KEY = 'account' as const;
 
 export const STORAGE_KEYS = {
   intentId: 'brooch.auth.intentId',

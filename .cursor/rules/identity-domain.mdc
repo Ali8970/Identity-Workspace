@@ -1,22 +1,22 @@
 ---
-description: Brooch Identity auth/SSO domain contracts
+description: Brooch Account auth/SSO domain contracts
 globs: src/app/**/*.{ts,html}
 alwaysApply: true
 ---
 
-# Brooch Identity domain rules
+# Brooch Account domain rules
 
 ## Auth model
 - Cookie session `brooch_sid` (HttpOnly) — SPA never reads it
 - CSRF: `GET /api/v1/auth/csrf` returns raw `{ token }` (not ApiResponse); send `X-XSRF-TOKEN` on unsafe non-exempt POSTs
 - CSRF-exempt: login, set-password, forgot-password(+complete), login-intent, csrf, tenants/register
-- Every authenticated call: `X-Brooch-Application: identity` + `Accept-Language`
+- Every authenticated call: `X-Brooch-Application: account` + `Accept-Language`
 - Interceptor order: **application header → language → csrf → error**
 
 ## Login decision tree (exact order)
 1. `requiresTenantSelection === true` → `/select-company` (wins even if redirectUrl set)
 2. Navigable `redirectUrl` → full-page `location.assign` (not Angular router cross-origin)
-3. Else → stay in Identity, `GET /auth/me`, applications launcher
+3. Else → stay in Account, `GET /auth/me`, applications launcher
 
 ## Selection stage
 - Picker rows ONLY from `LoginResponse.availableCompanies` — never rebuild from `/me/companies`
@@ -43,7 +43,7 @@ alwaysApply: true
 ## API
 - Features call `*Api` services only — never invent endpoints
 - Dev SPA: `https://dev.account.brooch.sa:4300` (ssl + host); `apiBaseUrl` absolute to staging (`https://stg.api.brooch.sa/api/v1`)
-- No local API proxy — backend must CORS-allow the Identity origin (same pattern as CRM)
+- No local API proxy — backend must CORS-allow the Account origin (same pattern as CRM)
 
 ## Errors
 - HTTP errors are global — see `.cursor/rules/error-handling.mdc` (interceptor + banner; no component error UI)

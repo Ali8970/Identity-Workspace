@@ -10,7 +10,7 @@ export class SsoHandshakeService {
     window.location.replace(url);
   }
 
-  /** Open a sibling app from the workspace — keeps Identity in the history stack. */
+  /** Open a sibling app from the workspace — keeps Account in the history stack. */
   assign(url: string): void {
     window.location.assign(url);
   }

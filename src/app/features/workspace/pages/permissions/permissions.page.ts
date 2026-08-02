@@ -84,13 +84,8 @@ import { PermissionsService } from '../../services/permissions.service';
                     aria-hidden="true"
                   >
                     @switch (appGroup.applicationKey) {
-                      @case ('identity') {
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="1.75"
-                        >
+                      @case ('account') {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
                           <path d="M12 3 4 7v6c0 5 3.5 7.7 8 8 4.5-.3 8-3 8-8V7l-8-4Z" />
                         </svg>
                       }

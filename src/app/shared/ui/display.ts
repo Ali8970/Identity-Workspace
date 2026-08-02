@@ -5,8 +5,11 @@
  * arguments, so they are trivially testable and carry no injection context.
  */
 
-/** Application keys that have a dedicated icon / colour treatment in SCSS. */
-const STYLED_APPLICATION_KEYS = new Set(['identity', 'crm', 'hr']);
+/**
+ * Application keys that have a dedicated icon / colour treatment in SCSS.
+ * Must stay in step with the `&--<key>` modifiers in `_workspace.scss`.
+ */
+const STYLED_APPLICATION_KEYS = new Set(['account', 'crm', 'hr']);
 
 /**
  * BEM modifier for an application tile. Unknown applications (the catalogue is

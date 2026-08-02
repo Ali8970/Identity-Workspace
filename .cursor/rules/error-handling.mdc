@@ -39,7 +39,7 @@ alwaysApply: true
 ## Auth side-effects (ApiErrorHandler only)
 - `Auth.AntiforgeryFailed` → invalidate CSRF token
 - `Auth.ApplicationAccessDenied` + navigable `redirectUrl` → SSO redirect
-- `Identity.LoginIntent.*` → clear intent + scrub URL
+- `Account.LoginIntent.*` → clear intent + scrub URL
 - `Auth.SessionExpired` → mark anonymous → `/session-expired`
 - Authenticated API 401 (coded or not) → mark anonymous → `/login`
 - Public auth 401s (`/auth/login`, register, password flows) and `Auth.InvalidCredentials` → stay + banner

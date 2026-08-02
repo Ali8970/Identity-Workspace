@@ -1,6 +1,6 @@
-# Brooch Identity
+# Brooch Account
 
-Angular **22.0.8** SPA for Brooch SSO + tenant Identity workspace.
+Angular **22.0.8** SPA for Brooch SSO + tenant Account workspace.
 
 ## Stack
 
@@ -34,7 +34,7 @@ apiBaseUrl: 'https://stg.api.brooch.sa/api/v1'
 
 ## AI quality gates
 
-- `.cursor/rules/*` — Angular + Identity domain + i18n + SASS
+- `.cursor/rules/*` — Angular + Account domain + i18n + SASS
 - `.cursor/mcp.json` — Angular CLI MCP
 - `AGENTS.md` / `CLAUDE.md`
 - Journey acceptance: `docs/JOURNEY-MATRIX.md`

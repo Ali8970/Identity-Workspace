@@ -34,7 +34,7 @@ export function isApplicationAccessDenied(error: BroochError): boolean {
 }
 
 export function isLoginIntentFailure(error: BroochError): boolean {
-  return !!error.code?.startsWith('Identity.LoginIntent.');
+  return !!error.code?.startsWith('Account.LoginIntent.');
 }
 
 export function isNavigableRedirect(url: string | null | undefined): url is string {

@@ -2,11 +2,12 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "npm"
+    "packageManager": "npm",
+    "analytics": false
   },
   "newProjectRoot": "projects",
   "projects": {
-    "Identity": {
+    "brooch-account": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -70,10 +71,10 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "Identity:build:production"
+              "buildTarget": "brooch-account:build:production"
             },
             "development": {
-              "buildTarget": "Identity:build:development"
+              "buildTarget": "brooch-account:build:development"
             }
           },
           "defaultConfiguration": "development"

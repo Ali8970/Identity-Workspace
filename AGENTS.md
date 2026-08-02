@@ -55,7 +55,7 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Prefer the `@Service` decorator over `@Injectable({providedIn: 'root'})` for new singleton services (Angular v22+)
 - Use the `inject()` function instead of constructor injection
 
-## Brooch Identity project
+## Brooch Account project
 
 - SPA only (no SSR), zoneless, Signal Forms, SASS, ngx-translate AR/EN
 - Real API via `https://stg.api.brooch.sa` from `https://dev.account.brooch.sa:4300` (ssl) — see `.cursor/rules/identity-domain.mdc`

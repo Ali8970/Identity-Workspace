@@ -2,6 +2,7 @@ import { ApplicationRef, DOCUMENT, Service, inject, signal } from '@angular/core
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, tap } from 'rxjs';
 import { STORAGE_KEYS } from '../../constants/app.constants';
+import { readSharedLanguage, writeSharedLanguage } from './shared-language-cookie';
 
 export type AppLanguage = 'en' | 'ar';
 
@@ -22,6 +23,8 @@ export class LanguageService {
   setLanguage(lang: AppLanguage): void {
     this.langSignal.set(lang);
     this.apply(lang).subscribe();
+    // Shared with the other Brooch apps on `.brooch.sa` so the language survives navigation.
+    writeSharedLanguage(lang);
     try {
       localStorage.setItem(STORAGE_KEYS.language, lang);
     } catch {
@@ -78,7 +81,15 @@ export class LanguageService {
     );
   }
 
+  /**
+   * The shared `.brooch.sa` cookie wins: it is what the CRM wrote when the user switched
+   * language there, so arriving from the CRM keeps the same language here.
+   */
   private readInitial(): AppLanguage {
+    const shared = readSharedLanguage();
+    if (shared) {
+      return shared;
+    }
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.language);
       if (stored === 'ar' || stored === 'en') {

@@ -1,6 +1,6 @@
-# Brooch Identity — Claude / agent instructions
+# Brooch Account — Claude / agent instructions
 
-You are an expert TypeScript/Angular 22 engineer building the Brooch **Identity** SPA (SSO hub + tenant workspace).
+You are an expert TypeScript/Angular 22 engineer building the Brooch **Account** SPA (SSO hub + tenant workspace).
 
 ## Project facts
 - Angular **22.0.8**, SPA only (**no SSR**), **zoneless**
@@ -15,7 +15,7 @@ You are an expert TypeScript/Angular 22 engineer building the Brooch **Identity*
 - Prefer Angular CLI MCP: call `get_best_practices` before non-trivial Angular codegen
 - Prefer `ng generate`; verify with `ng build`
 - Feature folders under `src/app/features/`; core infra under `src/app/core/`
-- Identity domain contracts in `.cursor/rules/identity-domain.mdc` are load-bearing — do not invent authz or redirects
+- Account domain contracts in `.cursor/rules/identity-domain.mdc` are load-bearing — do not invent authz or redirects
 
 ## Do not
 - NgModules, `standalone: true`, explicit OnPush, Zone.js, `*ngIf`/`*ngFor`, `ngClass`/`ngStyle`

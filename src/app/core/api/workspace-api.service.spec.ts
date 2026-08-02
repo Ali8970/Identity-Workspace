@@ -109,7 +109,7 @@ describe('workspace API normalisation', () => {
           {
             id: 'r1',
             tenantId: 't1',
-            applicationKey: 'identity',
+            applicationKey: 'account',
             code: 'ADMIN',
             nameAr: 'مدير',
             nameEn: 'Admin',
@@ -133,7 +133,7 @@ describe('workspace API normalisation', () => {
           {
             id: 'r1',
             tenantId: 't1',
-            applicationKey: 'identity',
+            applicationKey: 'account',
             code: 'ADMIN',
             nameAr: 'مدير',
             nameEn: 'Admin',

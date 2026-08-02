@@ -364,6 +364,16 @@
   }
 }
 
+.shell-header__company-spinner {
+  flex: 0 0 1rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  border: 2px solid var(--line);
+  border-top-color: var(--primary);
+  animation: shell-spin 680ms linear infinite;
+}
+
 .shell-header__lang {
   display: inline-flex;
   padding: 0.2rem;
@@ -427,12 +437,53 @@
   text-overflow: ellipsis;
 }
 
+/* Company-switch overlay */
+.shell-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background: rgba(21, 32, 51, 0.42);
+  backdrop-filter: blur(2px);
+  animation: shell-fade-in 160ms ease both;
+}
+
+.shell-overlay__panel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 1rem 1.4rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.shell-overlay__spinner {
+  flex: 0 0 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  border: 3px solid var(--line);
+  border-top-color: var(--primary);
+  animation: shell-spin 680ms linear infinite;
+}
+
 @keyframes shell-fade-in {
   from {
     opacity: 0;
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes shell-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
