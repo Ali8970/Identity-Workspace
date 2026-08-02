@@ -1,8 +1,9 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FormField, form, required, submit } from '@angular/forms/signals';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, of } from 'rxjs';
 import { LanguageService } from '../../../../core/i18n/language.service';
 import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
 import { PackageDto } from '../../models/onboarding-feature.model';
@@ -151,9 +152,9 @@ import { OnboardingService } from '../../services/onboarding.service';
                     </svg>
                   </span>
                   <span class="auth-package-card__body">
-                    <span class="auth-package-card__name">{{ label(pkg.nameAr, pkg.nameEn) }}</span>
+                    <span class="auth-package-card__name">{{ language.pick(pkg.nameAr, pkg.nameEn) }}</span>
                     <span class="auth-package-card__desc">
-                      {{ label(pkg.descriptionAr ?? '', pkg.descriptionEn ?? '') }}
+                      {{ language.pick(pkg.descriptionAr ?? '', pkg.descriptionEn ?? '') }}
                     </span>
                     <span class="auth-package-card__badge">{{
                       'onboarding.trialBadge' | translate
@@ -212,22 +213,46 @@ export class OnboardingPage {
   protected readonly uiDir = computed(() => (this.language.current() === 'ar' ? 'rtl' : 'ltr'));
 
   protected readonly step = signal<'company' | 'package'>(
-    inject(Router).url.includes('/package') ? 'package' : 'company',
+    this.router.url.includes('/package') ? 'package' : 'company',
   );
-  protected readonly packages = signal<PackageDto[]>([]);
-  protected readonly selectedPackage = signal<string | null>(null);
+  private readonly tenant = rxResource({
+    stream: () => this.onboardingService.loadTenant(),
+  });
+
+  /** Only the package step needs the catalogue — the company step must not fetch it. */
+  private readonly packageList = rxResource({
+    params: () => this.step(),
+    stream: ({ params }) =>
+      params === 'package' ? this.onboardingService.loadPackages() : of([] as PackageDto[]),
+    defaultValue: [] as PackageDto[],
+  });
+
+  protected readonly packages = this.packageList.value;
+  protected readonly loading = computed(
+    () => this.tenant.isLoading() || this.packageList.isLoading(),
+  );
+
   protected readonly busy = signal(false);
-  protected readonly loading = signal(true);
   protected readonly redirecting = signal(false);
-  protected readonly companyModel = signal({ arabicCompanyName: '', englishCompanyName: '' });
+
+  /**
+   * Seeded from the loaded tenant but user-writable — `linkedSignal` re-seeds if the
+   * tenant reloads while leaving edits in place until then.
+   */
+  protected readonly companyModel = linkedSignal(() => ({
+    arabicCompanyName: this.tenant.value()?.companyNameAr ?? '',
+    englishCompanyName: this.tenant.value()?.companyNameEn ?? '',
+  }));
+
+  /** Defaults to the first package once the catalogue arrives; user choice wins after. */
+  protected readonly selectedPackage = linkedSignal<string | null>(
+    () => this.packageList.value()[0]?.id ?? null,
+  );
+
   protected readonly companyForm = form(this.companyModel, (schema) => {
     required(schema.arabicCompanyName);
     required(schema.englishCompanyName);
   });
-
-  constructor() {
-    void this.bootstrap();
-  }
 
   /** Reset outbound UI if the browser restores this page (bfcache / Back). */
   protected onPageShow(): void {
@@ -235,30 +260,9 @@ export class OnboardingPage {
     this.busy.set(false);
   }
 
-  protected label(ar: string, en: string): string {
-    return this.language.current() === 'ar' ? ar || en : en || ar;
-  }
 
   protected selectPackage(packageId: string): void {
     this.selectedPackage.set(packageId);
-  }
-
-  private async bootstrap(): Promise<void> {
-    this.loading.set(true);
-    try {
-      const tenant = await firstValueFrom(this.onboardingService.loadTenant());
-      this.companyModel.set({
-        arabicCompanyName: tenant.companyNameAr ?? '',
-        englishCompanyName: tenant.companyNameEn ?? '',
-      });
-      if (this.step() === 'package') {
-        const packages = await firstValueFrom(this.onboardingService.loadPackages());
-        this.packages.set(packages);
-        this.selectedPackage.set(packages[0]?.id ?? null);
-      }
-    } finally {
-      this.loading.set(false);
-    }
   }
 
   protected saveCompany(event: Event): void {
@@ -285,7 +289,10 @@ export class OnboardingPage {
     this.redirecting.set(true);
     try {
       await firstValueFrom(this.onboardingService.startFreeTrial(packageId));
-      window.location.assign('/login?onboarded=1');
+      // Full reload so the session bootstraps fresh and picks up the now-Active tenant.
+      // Land on the workspace, not /login: the session is still valid, so guestGuard
+      // would bounce straight past /login and the success banner would never render.
+      window.location.assign('/applications?onboarded=1');
     } catch {
       this.busy.set(false);
       this.redirecting.set(false);

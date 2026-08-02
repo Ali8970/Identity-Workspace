@@ -1,4 +1,4 @@
-import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { ApiErrorHandler } from '../error/api-error-handler.service';
@@ -17,10 +17,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: unknown) => {
-      const normalized = normalizeError(
-        error instanceof HttpErrorResponse ? error : error,
-        language.current(),
-      );
+      const normalized = normalizeError(error, language.current());
 
       apiErrorHandler.handle(normalized, {
         url: req.url,

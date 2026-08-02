@@ -21,7 +21,6 @@
       "emailInvalid": "Enter a valid email address.",
       "passwordRequired": "Password is required.",
       "redirecting": "Redirecting you securely…",
-      "justOnboarded": "Company activated. Sign in to continue.",
       "selectionRestart": "Please sign in again to choose a company.",
       "intentBanner": "You are signing in to open another Brooch application.",
       "retryIn": "Try again in {{seconds}}s"
@@ -165,7 +164,7 @@
     "teams": "Teams",
     "myAccess": "My access",
     "account": "Account",
-    "logout": "Sign out",
+    "logout": "Sign out all devices",
     "language": "Language",
     "switchCompany": "Switch company",
     "workspace": "Workspace",
@@ -181,6 +180,7 @@
     "current": "Current app",
     "unavailable": "Not available",
     "appCount": "{{count}} apps",
+    "justOnboarded": "Company activated. Welcome to your workspace.",
     "emptyTitle": "No applications yet",
     "emptyBody": "You do not have access to any Brooch applications in this company. Contact your administrator if you need access.",
     "ssoHint": "Opening an app uses your existing Brooch session — you will not need to sign in again."
@@ -248,7 +248,8 @@
     "apps": {
       "identity": "Identity",
       "crm": "CRM",
-      "hr": "HR"
+      "hr": "HR",
+      "administration": "Administration"
     }
   },
   "permissions": {
@@ -266,12 +267,19 @@
     "apps": {
       "identity": "Identity",
       "crm": "CRM",
-      "hr": "HR"
+      "hr": "HR",
+      "administration": "Administration"
     },
     "groups": {
       "users": "Users",
       "roles": "Roles",
-      "applications": "Applications"
+      "applications": "Applications",
+      "memberships": "Memberships",
+      "teams": "Teams",
+      "permissions": "Permissions",
+      "tenant": "Company",
+      "subscriptions": "Subscriptions",
+      "packages": "Packages"
     }
   },
   "teams": {
@@ -320,6 +328,8 @@
       "identity": "Identity",
       "crm": "CRM",
       "hr": "HR",
+      "administration": "Administration",
+      "tenant": "Company",
       "other": "Other"
     }
   },
@@ -378,9 +388,12 @@
   "common": {
     "backToLogin": "Back to sign in",
     "required": "Required",
-    "error": "Something went wrong"
+    "error": "Something went wrong",
+    "loadFailed": "This list could not be loaded.",
+    "retry": "Try again"
   },
   "ui": {
+    "skipToContent": "Skip to content",
     "multiSelect": {
       "placeholder": "Select…",
       "search": "Search…",

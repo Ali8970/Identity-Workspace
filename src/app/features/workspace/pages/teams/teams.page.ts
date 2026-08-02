@@ -1,9 +1,12 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { FormField, form, required, submit } from '@angular/forms/signals';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
+import { SessionStore } from '../../../../core/auth/session.store';
 import { LanguageService } from '../../../../core/i18n/language.service';
+import { FocusTrap } from '../../../../shared/ui/focus-trap/focus-trap';
 import { TeamMembershipDdlItem, TeamNode } from '../../models/workspace-feature.model';
 import { TeamsService } from '../../services/teams.service';
 
@@ -13,7 +16,7 @@ interface AssignManagerFormValue {
 
 @Component({
   selector: 'app-teams-page',
-  imports: [TranslatePipe, NgTemplateOutlet, FormField],
+  imports: [TranslatePipe, NgTemplateOutlet, FormField, FocusTrap],
   template: `
     <div class="workspace-page">
       <header class="workspace-page__head">
@@ -45,6 +48,13 @@ interface AssignManagerFormValue {
           <span class="workspace-loading__spinner" aria-hidden="true"></span>
           <span>{{ 'teams.loading' | translate }}</span>
         </div>
+      } @else if (loadFailed()) {
+        <section class="workspace-empty" role="status">
+          <p class="workspace-empty__body">{{ 'common.loadFailed' | translate }}</p>
+          <button type="button" class="ui-btn ui-btn--ghost" (click)="reload()">
+            {{ 'common.retry' | translate }}
+          </button>
+        </section>
       } @else {
         @if (teams().length === 0) {
           <section class="workspace-empty" role="status">
@@ -79,7 +89,13 @@ interface AssignManagerFormValue {
     </div>
 
     <ng-template #teamBranch let-node let-depth="depth">
-      <li class="workspace-team-node" role="treeitem" [attr.aria-level]="depth + 1">
+      <li
+        class="workspace-team-node"
+        role="treeitem"
+        [attr.aria-level]="depth + 1"
+        [attr.aria-selected]="false"
+        [attr.aria-expanded]="node.children.length > 0 ? true : null"
+      >
         <div class="workspace-team-node__card">
           <span
             class="workspace-team-node__icon"
@@ -147,6 +163,8 @@ interface AssignManagerFormValue {
           role="dialog"
           aria-modal="true"
           aria-labelledby="assign-manager-title"
+          appFocusTrap
+          (dismiss)="closeAssignManager()"
         >
           <header class="workspace-dialog__head">
             <div>
@@ -228,10 +246,21 @@ interface AssignManagerFormValue {
 })
 export class TeamsPage {
   private readonly teamsService = inject(TeamsService);
+  private readonly session = inject(SessionStore);
   private readonly language = inject(LanguageService);
 
-  protected readonly teams = signal<TeamNode[]>([]);
-  protected readonly loading = signal(true);
+  private readonly tree = rxResource({
+    // Keyed on the active company so a company switch re-fetches automatically.
+    params: () => this.session.currentTenant()?.tenantMembershipId,
+    stream: () => this.teamsService.loadTree(),
+    defaultValue: [] as TeamNode[],
+  });
+
+  protected readonly teams = this.tree.value;
+  protected readonly loading = this.tree.isLoading;
+  /** The error interceptor already raised the banner; this only offers the retry. */
+  protected readonly loadFailed = computed(() => this.tree.status() === 'error');
+
   protected readonly assignTeam = signal<TeamNode | null>(null);
   protected readonly memberOptions = signal<TeamMembershipDdlItem[]>([]);
   protected readonly membersLoading = signal(false);
@@ -248,15 +277,12 @@ export class TeamsPage {
   protected readonly teamCount = computed(() => this.countTeams(this.teams()));
   protected readonly canManage = computed(() => this.teamsService.canManageTeams());
 
-  constructor() {
-    void this.load();
+  protected reload(): void {
+    this.tree.reload();
   }
 
   protected memberLabel(member: TeamMembershipDdlItem): string {
-    const lang = this.language.current();
-    return lang === 'ar'
-      ? member.title.ar || member.title.en
-      : member.title.en || member.title.ar;
+    return this.language.pick(member.title.ar, member.title.en);
   }
 
   protected async openAssignManager(team: TeamNode): Promise<void> {
@@ -306,7 +332,7 @@ export class TeamsPage {
         await firstValueFrom(this.teamsService.assignManager(team.id, managerTenantMembershipId));
         this.saving.set(false);
         this.closeAssignManager();
-        await this.load();
+        this.tree.reload();
       } catch {
         this.saving.set(false);
       }
@@ -314,15 +340,6 @@ export class TeamsPage {
   }
 
   private countTeams(nodes: TeamNode[]): number {
-    return nodes.reduce((total, node) => total + 1 + this.countTeams(node.children ?? []), 0);
-  }
-
-  private async load(): Promise<void> {
-    this.loading.set(true);
-    try {
-      this.teams.set(await firstValueFrom(this.teamsService.loadTree()));
-    } finally {
-      this.loading.set(false);
-    }
+    return nodes.reduce((total, node) => total + 1 + this.countTeams(node.children), 0);
   }
 }

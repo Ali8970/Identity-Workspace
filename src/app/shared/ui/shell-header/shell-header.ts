@@ -1,4 +1,4 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, ElementRef, computed, effect, input, output, viewChild } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MyCompanyDto } from '../../../models/auth.model';
 
@@ -39,19 +39,18 @@ import { MyCompanyDto } from '../../../models/auth.model';
             <path d="M4 21V8l8-4 8 4v13" />
             <path d="M9 21V12h6v9" />
           </svg>
-          @for (epoch of [selectEpoch()]; track epoch) {
-            <select
-              [value]="currentMembershipId()"
-              (change)="onCompanyChange($any($event.target).value)"
-              [disabled]="switching() || companies().length < 2"
-            >
-              @for (company of companies(); track company.tenantMembershipId) {
-                <option [value]="company.tenantMembershipId" [disabled]="!company.isSelectable">
-                  {{ companyLabel(company) }}
-                </option>
-              }
-            </select>
-          }
+          <select
+            #companySelect
+            [value]="currentMembershipId()"
+            (change)="onCompanyChange($any($event.target).value)"
+            [disabled]="switching() || companies().length < 2"
+          >
+            @for (company of companies(); track company.tenantMembershipId) {
+              <option [value]="company.tenantMembershipId" [disabled]="!company.isSelectable">
+                {{ companyLabel(company) }}
+              </option>
+            }
+          </select>
         </label>
 
         <div class="shell-header__lang" role="group" [attr.aria-label]="'shell.language' | translate">
@@ -106,13 +105,27 @@ export class ShellHeader {
   readonly currentLanguage = input<'en' | 'ar'>('en');
   readonly switching = input(false);
   readonly loggingOut = input(false);
-  /** Bump to remount the native select (e.g. after a failed switch). */
-  readonly selectEpoch = input(0);
 
   readonly toggleSidebar = output<void>();
   readonly switchCompany = output<string>();
   readonly languageChange = output<'en' | 'ar'>();
   readonly logout = output<void>();
+
+  private readonly companySelect = viewChild<ElementRef<HTMLSelectElement>>('companySelect');
+
+  constructor() {
+    // A native <select> keeps whatever the user picked, even when the switch failed and
+    // the session never moved. Re-assert the session's company whenever it changes or a
+    // switch settles, so the control can never disagree with the real current company.
+    effect(() => {
+      const current = this.currentMembershipId();
+      this.switching();
+      const element = this.companySelect()?.nativeElement;
+      if (element && element.value !== current) {
+        element.value = current;
+      }
+    });
+  }
 
   protected readonly sidebarExpanded = computed(
     () => this.mobileNavOpen() || !this.sidebarCollapsed(),

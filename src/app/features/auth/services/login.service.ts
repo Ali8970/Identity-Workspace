@@ -11,8 +11,6 @@ export class LoginService {
   private readonly session = inject(SessionStore);
   private readonly flow = inject(AuthFlowStore);
 
-  readonly flowStore = this.flow;
-
   readQueryState(): LoginQueryState {
     const params = new URLSearchParams(window.location.search);
     const intent = params.get('intentId');
@@ -26,7 +24,6 @@ export class LoginService {
     return {
       intentId: intent,
       returnUrl: isSafeReturnUrl(returnUrl) ? returnUrl : null,
-      justOnboarded: params.get('onboarded') === '1',
       selectionRestartRequired: params.get('selectionRestartRequired') === '1',
     };
   }

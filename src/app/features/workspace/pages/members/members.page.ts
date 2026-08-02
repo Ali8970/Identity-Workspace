@@ -1,19 +1,24 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FormField, email, form, minLength, required, submit } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
+import { SessionStore } from '../../../../core/auth/session.store';
 import { LanguageService } from '../../../../core/i18n/language.service';
+import { nameInitials } from '../../../../shared/ui/display';
+import { FocusTrap } from '../../../../shared/ui/focus-trap/focus-trap';
 import { MultiSelect, MultiSelectOption } from '../../../../shared/ui/multi-select/multi-select';
 import {
   AddMemberResult,
   MemberListItem,
   RoleListItem,
+  TeamNode,
 } from '../../models/workspace-feature.model';
 import { FlatTeamOption, MembersService } from '../../services/members.service';
 
 @Component({
   selector: 'app-members-page',
-  imports: [TranslatePipe, FormField, MultiSelect],
+  imports: [TranslatePipe, FormField, MultiSelect, FocusTrap],
   template: `
     <div class="workspace-page">
       <header class="workspace-page__head">
@@ -37,6 +42,13 @@ import { FlatTeamOption, MembersService } from '../../services/members.service';
           <span class="workspace-loading__spinner" aria-hidden="true"></span>
           <span>{{ 'members.loading' | translate }}</span>
         </div>
+      } @else if (loadFailed()) {
+        <section class="workspace-empty" role="status">
+          <p class="workspace-empty__body">{{ 'common.loadFailed' | translate }}</p>
+          <button type="button" class="ui-btn ui-btn--ghost" (click)="reload()">
+            {{ 'common.retry' | translate }}
+          </button>
+        </section>
       } @else {
         @if (inviteResult(); as result) {
           <div class="workspace-status workspace-status--success" role="status">
@@ -155,10 +167,12 @@ import { FlatTeamOption, MembersService } from '../../services/members.service';
 
                 <div class="workspace-form__row">
                   <div class="auth-field">
-                    <label class="auth-field__label" id="member-roles-label">
+                    <!-- Not a <label>: app-multi-select is a composite widget with no
+                         native control, so it is named via aria-labelledby instead. -->
+                    <span class="auth-field__label" id="member-roles-label">
                       {{ 'members.roles' | translate }}
                       <span class="auth-field__required" aria-hidden="true">*</span>
-                    </label>
+                    </span>
                     <app-multi-select
                       [options]="roleSelectOptions()"
                       [value]="model().roleIds"
@@ -179,9 +193,9 @@ import { FlatTeamOption, MembersService } from '../../services/members.service';
                   </div>
 
                   <div class="auth-field">
-                    <label class="auth-field__label" id="member-teams-label">
+                    <span class="auth-field__label" id="member-teams-label">
                       {{ 'members.teams' | translate }}
-                    </label>
+                    </span>
                     <app-multi-select
                       [options]="teamSelectOptions()"
                       [value]="model().teamIds"
@@ -246,7 +260,7 @@ import { FlatTeamOption, MembersService } from '../../services/members.service';
                           </span>
                           <span class="workspace-member__info">
                             <span class="workspace-member__name">
-                              {{ label(row.arabicName, row.englishName) }}
+                              {{ language.pick(row.arabicName, row.englishName) }}
                             </span>
                             @if (row.isOwner) {
                               <span class="workspace-member__owner">
@@ -266,7 +280,7 @@ import { FlatTeamOption, MembersService } from '../../services/members.service';
                           } @else {
                             @for (role of row.roles; track role.roleId) {
                               <span class="workspace-role-pill">
-                                {{ label(role.nameAr, role.nameEn) }}
+                                {{ language.pick(role.nameAr, role.nameEn) }}
                               </span>
                             }
                           }
@@ -317,6 +331,8 @@ import { FlatTeamOption, MembersService } from '../../services/members.service';
           role="dialog"
           aria-modal="true"
           aria-labelledby="edit-member-roles-title"
+          appFocusTrap
+          (dismiss)="closeEditRoles()"
         >
           <header class="workspace-dialog__head">
             <div>
@@ -326,7 +342,7 @@ import { FlatTeamOption, MembersService } from '../../services/members.service';
               <p class="workspace-dialog__lead">
                 {{
                   'members.editRolesLead'
-                    | translate: { name: label(member.arabicName, member.englishName) }
+                    | translate: { name: language.pick(member.arabicName, member.englishName) }
                 }}
               </p>
             </div>
@@ -351,10 +367,10 @@ import { FlatTeamOption, MembersService } from '../../services/members.service';
           <div class="workspace-dialog__body">
             <form class="workspace-form" (submit)="saveRoles($event)" novalidate>
               <div class="auth-field">
-                <label class="auth-field__label" id="edit-member-roles-label">
+                <span class="auth-field__label" id="edit-member-roles-label">
                   {{ 'members.roles' | translate }}
                   <span class="auth-field__required" aria-hidden="true">*</span>
-                </label>
+                </span>
                 <app-multi-select
                   [options]="roleSelectOptions()"
                   [value]="editModel().roleIds"
@@ -406,16 +422,34 @@ import { FlatTeamOption, MembersService } from '../../services/members.service';
 })
 export class MembersPage {
   private readonly membersService = inject(MembersService);
+  private readonly session = inject(SessionStore);
   protected readonly language = inject(LanguageService);
 
   /** Matches document dir from LanguageService — placeholders align with UI language. */
   protected readonly uiDir = computed(() => (this.language.current() === 'ar' ? 'rtl' : 'ltr'));
 
-  protected readonly members = signal<MemberListItem[]>([]);
-  protected readonly roles = signal<RoleListItem[]>([]);
-  protected readonly teamOptions = signal<FlatTeamOption[]>([]);
+  private readonly directory = rxResource({
+    // Keyed on the active company: switching companies re-fetches automatically,
+    // so no route remount is needed to refresh tenant-scoped lists.
+    params: () => this.session.currentTenant()?.tenantMembershipId,
+    stream: () => this.membersService.loadMembersRolesAndTeams(),
+    defaultValue: { members: [], roles: [], teams: [] } as {
+      members: MemberListItem[];
+      roles: RoleListItem[];
+      teams: TeamNode[];
+    },
+  });
+
+  protected readonly members = computed(() => this.directory.value().members);
+  protected readonly roles = computed(() => this.directory.value().roles);
+  protected readonly teamOptions = computed<FlatTeamOption[]>(() =>
+    this.membersService.flattenTeams(this.directory.value().teams),
+  );
+  protected readonly loading = this.directory.isLoading;
+  /** The error interceptor already raised the banner; this only offers the retry. */
+  protected readonly loadFailed = computed(() => this.directory.status() === 'error');
+
   protected readonly busy = signal(false);
-  protected readonly loading = signal(true);
   protected readonly inviteResult = signal<AddMemberResult | null>(null);
   protected readonly editingMember = signal<MemberListItem | null>(null);
   protected readonly savingRoles = signal(false);
@@ -445,7 +479,7 @@ export class MembersPage {
   protected readonly roleSelectOptions = computed<MultiSelectOption[]>(() =>
     this.roles().map((role) => ({
       value: role.id,
-      label: this.label(role.nameAr, role.nameEn),
+      label: this.language.pick(role.nameAr, role.nameEn),
       meta: role.applicationKey,
     })),
   );
@@ -458,13 +492,10 @@ export class MembersPage {
     })),
   );
 
-  constructor() {
-    void this.load();
+  protected reload(): void {
+    this.directory.reload();
   }
 
-  protected label(ar: string, en: string): string {
-    return this.language.current() === 'ar' ? ar || en : en || ar;
-  }
 
   protected setRoleIds(roleIds: string[]): void {
     this.model.update((current) => ({ ...current, roleIds }));
@@ -519,7 +550,7 @@ export class MembersPage {
         );
         this.savingRoles.set(false);
         this.closeEditRoles();
-        await this.load();
+        this.directory.reload();
       } catch {
         this.savingRoles.set(false);
       }
@@ -527,15 +558,7 @@ export class MembersPage {
   }
 
   protected initials(row: MemberListItem): string {
-    const name = this.label(row.arabicName, row.englishName).trim();
-    const parts = name.split(/\s+/).filter(Boolean);
-    if (parts.length === 0) {
-      return row.email.slice(0, 2).toUpperCase();
-    }
-    if (parts.length === 1) {
-      return parts[0].slice(0, 2).toUpperCase();
-    }
-    return `${parts[0][0] ?? ''}${parts[1][0] ?? ''}`.toUpperCase();
+    return nameInitials(this.language.pick(row.arabicName, row.englishName), row.email);
   }
 
   protected statusLabel(status: string): string {
@@ -561,20 +584,6 @@ export class MembersPage {
     return 'workspace-status-pill';
   }
 
-  private async load(): Promise<void> {
-    this.loading.set(true);
-    try {
-      const { members, roles, teams } = await firstValueFrom(
-        this.membersService.loadMembersRolesAndTeams(),
-      );
-      this.members.set(members);
-      this.roles.set(roles);
-      this.teamOptions.set(this.membersService.flattenTeams(teams));
-    } finally {
-      this.loading.set(false);
-    }
-  }
-
   protected onAdd(event: Event): void {
     event.preventDefault();
     void submit(this.addForm, async () => {
@@ -590,7 +599,7 @@ export class MembersPage {
           roleIds: [],
           teamIds: [],
         });
-        await this.load();
+        this.directory.reload();
       } finally {
         this.busy.set(false);
       }

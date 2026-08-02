@@ -99,10 +99,10 @@ import { GlobalErrorService } from '../../../core/error/global-error.service';
   `,
 })
 export class GlobalErrorBanner {
+  protected readonly errors = inject(GlobalErrorService);
+
   /** `auth` = inside login/register card; `shell` = workspace header area; `fixed` = viewport toast */
   readonly variant = input<'auth' | 'shell' | 'fixed'>('fixed');
-
-  protected readonly errors = inject(GlobalErrorService);
 
   protected dismiss(): void {
     this.errors.dismiss();

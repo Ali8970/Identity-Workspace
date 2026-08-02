@@ -1,8 +1,11 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
+import { SessionStore } from '../../../../core/auth/session.store';
 import { LanguageService } from '../../../../core/i18n/language.service';
 import { MyCompanyDto } from '../../../../models/auth.model';
+import { nameInitials } from '../../../../shared/ui/display';
 import { SessionDto } from '../../models/workspace-feature.model';
 import { AccountService } from '../../services/account.service';
 
@@ -37,6 +40,13 @@ import { AccountService } from '../../services/account.service';
           <span class="workspace-loading__spinner" aria-hidden="true"></span>
           <span>{{ 'account.loading' | translate }}</span>
         </div>
+      } @else if (loadFailed()) {
+        <section class="workspace-empty" role="status">
+          <p class="workspace-empty__body">{{ 'common.loadFailed' | translate }}</p>
+          <button type="button" class="ui-btn ui-btn--ghost" (click)="reload()">
+            {{ 'common.retry' | translate }}
+          </button>
+        </section>
       } @else {
         <div class="workspace-account-stack">
           <section class="workspace-panel" aria-labelledby="account-profile-heading">
@@ -60,7 +70,7 @@ import { AccountService } from '../../services/account.service';
                       <div class="workspace-dl__row">
                         <dt class="workspace-dl__label">{{ 'account.name' | translate }}</dt>
                         <dd class="workspace-dl__value">
-                          {{ label(me.user.nameAr, me.user.nameEn) }}
+                          {{ language.pick(me.user.nameAr, me.user.nameEn) }}
                         </dd>
                       </div>
                     </dl>
@@ -91,7 +101,7 @@ import { AccountService } from '../../services/account.service';
                     >
                       <div class="workspace-company-row__body">
                         <strong class="workspace-company-row__name">
-                          {{ label(company.companyNameAr, company.companyNameEn) }}
+                          {{ language.pick(company.companyNameAr, company.companyNameEn) }}
                         </strong>
                         <div class="workspace-company-row__meta">
                           @if (company.isCurrent) {
@@ -195,38 +205,37 @@ import { AccountService } from '../../services/account.service';
 })
 export class AccountPage {
   private readonly accountService = inject(AccountService);
-  protected readonly session = this.accountService.sessionStore;
-  private readonly language = inject(LanguageService);
+  protected readonly language = inject(LanguageService);
+  /** Injected directly rather than reached through AccountService. */
+  protected readonly session = inject(SessionStore);
 
-  protected readonly companies = signal<MyCompanyDto[]>([]);
-  protected readonly sessions = signal<SessionDto[]>([]);
-  protected readonly loading = signal(true);
+  private readonly accountData = rxResource({
+    // Keyed on the active company: `isCurrent` on the company rows changes with it.
+    params: () => this.session.currentTenant()?.tenantMembershipId,
+    stream: () => this.accountService.loadAccountData(),
+    defaultValue: { companies: [], sessions: [] } as {
+      companies: MyCompanyDto[];
+      sessions: SessionDto[];
+    },
+  });
+
+  protected readonly companies = computed(() => this.accountData.value().companies);
+  protected readonly sessions = computed(() => this.accountData.value().sessions);
+  protected readonly loading = this.accountData.isLoading;
+  /** The error interceptor already raised the banner; this only offers the retry. */
+  protected readonly loadFailed = computed(() => this.accountData.status() === 'error');
+
   protected readonly busy = signal(false);
   protected readonly switching = signal(false);
 
   protected readonly userEmail = computed(() => this.session.current()?.user.email ?? '');
   protected readonly userInitial = computed(() => {
     const me = this.session.current()?.user;
-    if (!me) {
-      return '';
-    }
-    const name = this.language.current() === 'ar' ? me.nameAr || me.nameEn : me.nameEn || me.nameAr;
-    const parts = name.trim().split(/\s+/).filter(Boolean);
-    if (parts.length === 0) {
-      return me.email.slice(0, 2).toUpperCase();
-    }
-    if (parts.length === 1) {
-      return parts[0].slice(0, 2).toUpperCase();
-    }
-    return `${parts[0][0] ?? ''}${parts[1][0] ?? ''}`.toUpperCase();
+    return me ? nameInitials(this.language.pick(me.nameAr, me.nameEn), me.email) : '';
   });
 
-  constructor() {
-    void this.load();
-  }
-
-  protected label(ar: string, en: string): string {
-    return this.language.current() === 'ar' ? ar || en : en || ar;
+  protected reload(): void {
+    this.accountData.reload();
   }
 
   protected isKnownSessionStage(stage: string): boolean {
@@ -248,22 +257,11 @@ export class AccountPage {
     return 'workspace-status-pill';
   }
 
-  private async load(): Promise<void> {
-    this.loading.set(true);
-    try {
-      const { companies, sessions } = await firstValueFrom(this.accountService.loadAccountData());
-      this.companies.set(companies);
-      this.sessions.set(sessions);
-    } finally {
-      this.loading.set(false);
-    }
-  }
-
   protected async switchTo(tenantMembershipId: string): Promise<void> {
     this.switching.set(true);
     try {
       await firstValueFrom(this.accountService.switchCompany(tenantMembershipId));
-      await this.load();
+      this.accountData.reload();
     } finally {
       this.switching.set(false);
     }

@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FormField, email, form, required, submit } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
+import { AuthFlowStore } from '../../../../core/auth/auth-flow.store';
 import { SessionStore } from '../../../../core/auth/session.store';
 import { SsoHandshakeService } from '../../../../core/auth/sso-handshake.service';
 import { isNavigableRedirect } from '../../../../core/error/error.model';
@@ -35,17 +36,6 @@ import { LoginService } from '../../services/login.service';
             </svg>
           </span>
           <span class="auth-status__body">{{ 'auth.login.intentBanner' | translate }}</span>
-        </div>
-      }
-      @if (justOnboarded()) {
-        <div class="auth-status auth-status--success" role="status">
-          <span class="auth-status__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-              <path d="m9 12 2 2 4-4" />
-              <circle cx="12" cy="12" r="9" />
-            </svg>
-          </span>
-          <span class="auth-status__body">{{ 'auth.login.justOnboarded' | translate }}</span>
         </div>
       }
       @if (selectionRestartRequired()) {
@@ -187,11 +177,12 @@ import { LoginService } from '../../services/login.service';
 })
 export class LoginPage {
   private readonly loginService = inject(LoginService);
-  protected readonly flow = this.loginService.flowStore;
   protected readonly globalErrors = inject(GlobalErrorService);
   private readonly sso = inject(SsoHandshakeService);
   private readonly session = inject(SessionStore);
   private readonly router = inject(Router);
+  /** Injected directly rather than reached through LoginService. */
+  protected readonly flow = inject(AuthFlowStore);
 
   protected readonly model = signal({ email: '', password: '' });
   protected readonly loginForm = form(this.model, (schema) => {
@@ -201,7 +192,6 @@ export class LoginPage {
   });
 
   protected readonly busy = signal(false);
-  protected readonly justOnboarded = signal(false);
   protected readonly selectionRestartRequired = signal(false);
   protected readonly redirecting = signal(false);
   protected readonly showPassword = signal(false);
@@ -219,7 +209,6 @@ export class LoginPage {
   constructor() {
     const query = this.loginService.readQueryState();
     this.returnUrl.set(query.returnUrl);
-    this.justOnboarded.set(query.justOnboarded);
     this.selectionRestartRequired.set(query.selectionRestartRequired);
   }
 

@@ -64,6 +64,19 @@ export class MultiSelect {
   protected readonly panelMaxHeight = signal(280);
   protected readonly panelPlacement = signal<'below' | 'above'>('below');
 
+  /** The `<ul role="listbox">` that `aria-controls` / `aria-activedescendant` point at. */
+  protected readonly listboxId = computed(() => `${this.panelId()}-listbox`);
+
+  /**
+   * Id of the arrow-highlighted option, or null when nothing is active.
+   * Set on the focused filter input so a screen reader announces the option as the
+   * user arrows through the list — without this, keyboard navigation is silent.
+   */
+  protected readonly activeOptionId = computed(() => {
+    const index = this.activeIndex();
+    return index >= 0 && index < this.filteredOptions().length ? this.optionId(index) : null;
+  });
+
   protected readonly selectedSet = computed(() => new Set(this.value()));
 
   protected readonly selectedOptions = computed(() => {
@@ -339,6 +352,10 @@ export class MultiSelect {
         this.toggleOption(options[index]);
       }
     }
+  }
+
+  protected optionId(index: number): string {
+    return `${this.panelId()}-opt-${index}`;
   }
 
   protected optionIndent(depth = 0): string {

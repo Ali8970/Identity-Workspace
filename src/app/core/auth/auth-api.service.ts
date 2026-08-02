@@ -3,6 +3,7 @@ import { Service, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { API_ROUTES } from '../../constants/api-routes';
 import { ApiResponse } from '../../models/api-response.model';
+import { unwrapData } from '../api/unwrap';
 import {
   CompleteForgotPasswordRequest,
   CreateIntentResultDto,
@@ -19,13 +20,6 @@ import {
   SetPasswordResponse,
 } from '../../models/auth.model';
 
-function unwrap<T>(response: ApiResponse<T>): T {
-  if (response.data === undefined) {
-    throw new Error(response.message || 'Empty API response');
-  }
-  return response.data;
-}
-
 @Service()
 export class AuthApi {
   private readonly http = inject(HttpClient);
@@ -37,7 +31,7 @@ export class AuthApi {
   login(request: LoginRequest): Observable<LoginResponse> {
     return this.http
       .post<ApiResponse<LoginResponse>>(API_ROUTES.login, request, { withCredentials: true })
-      .pipe(map(unwrap));
+      .pipe(unwrapData());
   }
 
   selectMembership(request: SelectMembershipRequest): Observable<SelectMembershipResponse> {
@@ -45,7 +39,7 @@ export class AuthApi {
       .post<ApiResponse<SelectMembershipResponse>>(API_ROUTES.selectMembership, request, {
         withCredentials: true,
       })
-      .pipe(map(unwrap));
+      .pipe(unwrapData());
   }
 
   setPassword(request: SetPasswordRequest): Observable<SetPasswordResponse> {
@@ -53,7 +47,7 @@ export class AuthApi {
       .post<ApiResponse<SetPasswordResponse>>(API_ROUTES.setPassword, request, {
         withCredentials: true,
       })
-      .pipe(map(unwrap));
+      .pipe(unwrapData());
   }
 
   forgotPassword(request: ForgotPasswordRequest): Observable<void> {
@@ -87,7 +81,7 @@ export class AuthApi {
       .post<ApiResponse<CreateIntentResultDto>>(API_ROUTES.loginIntent, request, {
         withCredentials: true,
       })
-      .pipe(map(unwrap));
+      .pipe(unwrapData());
   }
 
   registerTenant(request: RegisterTenantRequest): Observable<RegisterTenantResult> {
@@ -95,6 +89,6 @@ export class AuthApi {
       .post<ApiResponse<RegisterTenantResult>>(API_ROUTES.registerTenant, request, {
         withCredentials: true,
       })
-      .pipe(map(unwrap));
+      .pipe(unwrapData());
   }
 }

@@ -1,4 +1,4 @@
-import { HttpContext, HttpContextToken, HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { HttpContextToken, HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, switchMap, throwError } from 'rxjs';
 import { CSRF_EXEMPT_PATHS } from '../../constants/api-routes';
@@ -45,7 +45,9 @@ export const csrfInterceptor: HttpInterceptorFn = (req, next) => {
           switchMap((fresh) =>
             next(
               req.clone({
-                context: new HttpContext().set(CSRF_RETRIED, true),
+                // Carry the caller's context forward — a fresh HttpContext would drop
+                // whatever they set on the original request (e.g. SILENT_ERROR).
+                context: req.context.set(CSRF_RETRIED, true),
                 setHeaders: fresh ? { [HTTP_HEADERS.csrf]: fresh } : {},
               }),
             ),

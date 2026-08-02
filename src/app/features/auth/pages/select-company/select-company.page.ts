@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
+import { AuthFlowStore } from '../../../../core/auth/auth-flow.store';
 import { SsoHandshakeService } from '../../../../core/auth/sso-handshake.service';
 import { isNavigableRedirect } from '../../../../core/error/error.model';
 import { LanguageService } from '../../../../core/i18n/language.service';
@@ -72,7 +73,7 @@ import { SelectCompanyService } from '../../services/select-company.service';
 
               <span class="auth-company-card__body">
                 <strong class="auth-company-card__name">
-                  {{ label(company.companyNameAr, company.companyNameEn) }}
+                  {{ language.pick(company.companyNameAr, company.companyNameEn) }}
                 </strong>
                 <span class="auth-company-card__badges">
                   @if (company.isOwner) {
@@ -122,19 +123,18 @@ import { SelectCompanyService } from '../../services/select-company.service';
 })
 export class SelectCompanyPage {
   private readonly selectCompanyService = inject(SelectCompanyService);
-  protected readonly flow = this.selectCompanyService.flow;
   private readonly sso = inject(SsoHandshakeService);
   private readonly router = inject(Router);
-  private readonly language = inject(LanguageService);
+  protected readonly language = inject(LanguageService);
+  /** Injected directly rather than reached through SelectCompanyService. */
+  protected readonly flow = inject(AuthFlowStore);
 
-  protected readonly companies = this.flow.availableCompanies;
+  /** Login-response list, falling back to GET /me/companies after a reload. */
+  protected readonly companies = this.selectCompanyService.companies;
   protected readonly busy = signal(false);
   protected readonly selectingId = signal<string | null>(null);
   protected readonly redirecting = signal(false);
 
-  protected label(ar: string, en: string): string {
-    return this.language.current() === 'ar' ? ar || en : en || ar;
-  }
 
   protected onPageShow(): void {
     this.redirecting.set(false);

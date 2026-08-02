@@ -43,7 +43,7 @@ alwaysApply: true
 - `Auth.SessionExpired` → mark anonymous → `/session-expired`
 - Authenticated API 401 (coded or not) → mark anonymous → `/login`
 - Public auth 401s (`/auth/login`, register, password flows) and `Auth.InvalidCredentials` → stay + banner
-- Bootstrap probes (`/auth/me`, `/auth/companies`, `/auth/csrf`) → silent (no banner)
+- Bootstrap probes (`/me`, `/me/companies`, `/auth/csrf`) → silent (no banner), matched on the exact path
 
 ## i18n
 - Display `message.en` / `message.ar` from ProblemDetails via `normalizeError`

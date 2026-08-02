@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, TranslatePipe],
   template: `
-    <a class="app-skip-link" href="#main-content">Skip to content</a>
+    <a class="app-skip-link" href="#main-content">{{ 'ui.skipToContent' | translate }}</a>
     <router-outlet />
   `,
 })

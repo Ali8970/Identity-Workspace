@@ -215,32 +215,3 @@ export interface UpdateTenantProfileRequest {
   phone?: string | null;
 }
 
-/** @deprecated use AddMemberRequest */
-export type AddTenantMemberRequest = AddMemberRequest;
-
-/** @deprecated use AddMemberResult */
-export type AddTenantMemberResponse = AddMemberResult;
-
-/** @deprecated use MemberListItem */
-export type TenantMemberDto = MemberListItem;
-
-/** @deprecated use PermissionCatalogItem */
-export type PermissionDto = PermissionCatalogItem;
-
-/** @deprecated use TenantDto */
-export type TenantProfileDto = TenantDto;
-
-/** @deprecated use MyAccessResponse — the API has no flat permission array. */
-export type MyAccessDto = import('./auth.model').MyAccessResponse;
-
-/** @deprecated use SessionDto — sessions are addressed by sessionRef. */
-export type SessionRowDto = import('./auth.model').SessionDto;
-
-export interface TeamDto {
-  id: string;
-  nameAr: string;
-  nameEn: string;
-  parentTeamId: string | null;
-  managerMembershipId: string | null;
-  memberCount: number;
-}

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { API_ROUTES, CSRF_EXEMPT_PATHS } from '../../constants/api-routes';
 import { AuthFlowStore } from '../auth/auth-flow.store';
@@ -20,7 +20,7 @@ export interface ApiErrorRequestContext {
   silent: boolean;
 }
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class ApiErrorHandler {
   private readonly globalError = inject(GlobalErrorService);
   private readonly csrf = inject(CsrfService);
@@ -32,7 +32,7 @@ export class ApiErrorHandler {
   handle(error: BroochError, request: ApiErrorRequestContext): void {
     this.applySideEffects(error, request);
 
-    if (request.silent || this.shouldSuppressDisplay(error, request)) {
+    if (request.silent || this.shouldSuppressDisplay(request)) {
       return;
     }
 
@@ -82,7 +82,7 @@ export class ApiErrorHandler {
    * Matched on the exact path — `/me` as a substring would also catch
    * `/memberships`.
    */
-  private shouldSuppressDisplay(error: BroochError, request: ApiErrorRequestContext): boolean {
+  private shouldSuppressDisplay(request: ApiErrorRequestContext): boolean {
     const path = request.url.split('?')[0].replace(/\/$/, '');
     return (
       path === API_ROUTES.me || path === API_ROUTES.myCompanies || path === API_ROUTES.csrf

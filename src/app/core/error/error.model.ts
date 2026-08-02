@@ -22,7 +22,11 @@ export function isValidationError(error: BroochError): boolean {
 }
 
 export function isRateLimited(error: BroochError): boolean {
-  return error.status === 429 || error.code === 'Request.RateLimitExceeded' || error.code === 'Auth.RateLimited';
+  return (
+    error.status === 429 ||
+    error.code === 'Request.RateLimitExceeded' ||
+    error.code === 'Auth.RateLimited'
+  );
 }
 
 export function isApplicationAccessDenied(error: BroochError): boolean {

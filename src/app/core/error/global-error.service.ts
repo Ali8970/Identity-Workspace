@@ -1,9 +1,9 @@
-import { ApplicationRef, Injectable, computed, inject, signal } from '@angular/core';
+import { ApplicationRef, Service, computed, inject, signal } from '@angular/core';
 import { BroochError } from './error.model';
 
 const AUTO_DISMISS_MS = 5_000;
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class GlobalErrorService {
   private readonly appRef = inject(ApplicationRef);
   private readonly errorSignal = signal<BroochError | null>(null);

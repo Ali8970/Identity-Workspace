@@ -9,7 +9,13 @@ alwaysApply: true
 - Use ngx-translate for all user-facing strings — no hardcoded UI copy
 - Keys: `feature.section.key` (e.g. `auth.login.title`)
 - Map API ProblemDetails `message.en` / `message.ar` (or messageKey) via translate
-- Bilingual DTOs: display with `LocalizedNamePipe` (`nameAr` / `nameEn`)
+- Bilingual DTOs: display with `LanguageService.pick(ar, en)` (`nameAr` / `nameEn`, `arabicName` / `englishName`, `title.ar` / `title.en`).
+  NOT a pipe: a pure pipe memoises on its arguments so it would not re-run on a language
+  switch, and impure pipes run every CD cycle. Called from a template, `pick()` reads the
+  language signal inside a reactive consumer and tracks correctly.
+- Runtime-built keys (`permissions.apps.<applicationKey>`, `permissions.groups.<resource>`,
+  `myAccess.apps.<module>`) must go through `LanguageService.labelOr(key, fallback)` so an
+  API value with no catalogue entry degrades to something readable instead of a raw key
 - `LanguageService` sets `document.documentElement.lang` and `dir` (`rtl` for `ar`, `ltr` for `en`)
 - Send `Accept-Language` on every HTTP request
 - SCSS: prefer logical properties; add `[dir='rtl']` overrides only when needed

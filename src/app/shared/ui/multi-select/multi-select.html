@@ -1,11 +1,16 @@
 <div class="ui-ms__field">
+  <!--
+    The trigger is a button, not the combobox: the ARIA combobox is the filter input
+    inside the panel, because that is where focus lands once the panel opens and
+    therefore the only element whose aria-activedescendant a screen reader will follow.
+  -->
   <div
     #trigger
     class="ui-ms__trigger"
-    role="combobox"
+    role="button"
     tabindex="0"
     [attr.aria-expanded]="open()"
-    [attr.aria-controls]="panelId()"
+    [attr.aria-controls]="listboxId()"
     [attr.aria-disabled]="disabled()"
     [attr.aria-labelledby]="labelledBy() || null"
     aria-haspopup="listbox"
@@ -74,8 +79,7 @@
     [class.ui-ms__panel--above]="panelPlacement() === 'above'"
     [class.ui-ms__panel--ready]="panelReady()"
     [id]="panelId()"
-    role="listbox"
-    [attr.aria-multiselectable]="true"
+    tabindex="-1"
     [style.top.px]="panelTop()"
     [style.left.px]="panelLeft()"
     [style.width.px]="panelWidth()"
@@ -93,6 +97,12 @@
           type="search"
           class="ui-ms__filter-input"
           autocomplete="off"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded="true"
+          [attr.aria-controls]="listboxId()"
+          [attr.aria-labelledby]="labelledBy() || null"
+          [attr.aria-activedescendant]="activeOptionId()"
           [placeholder]="filterPlaceholder() || ('ui.multiSelect.search' | translate)"
           [value]="filterQuery()"
           (input)="onFilterInput($event)"
@@ -119,14 +129,25 @@
       </div>
     }
 
-    <ul class="ui-ms__list" role="presentation">
+    <ul
+      class="ui-ms__list"
+      [id]="listboxId()"
+      role="listbox"
+      [attr.aria-multiselectable]="true"
+      [attr.aria-labelledby]="labelledBy() || null"
+    >
       @if (filteredOptions().length === 0) {
-        <li class="ui-ms__empty" role="option" aria-disabled="true">
+        <li class="ui-ms__empty" role="presentation">
           {{ emptyMessage() || ('ui.multiSelect.noResults' | translate) }}
         </li>
       } @else {
         @for (option of filteredOptions(); track option.value; let i = $index) {
-          <li role="option" [attr.aria-selected]="isSelected(option.value)">
+          <li
+            role="option"
+            [id]="optionId(i)"
+            [attr.aria-selected]="isSelected(option.value)"
+            [attr.aria-disabled]="option.disabled ? true : null"
+          >
             <button
               type="button"
               class="ui-ms__option"

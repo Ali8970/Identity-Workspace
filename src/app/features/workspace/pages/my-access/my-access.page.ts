@@ -1,6 +1,6 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
-import { firstValueFrom } from 'rxjs';
 import { SessionStore } from '../../../../core/auth/session.store';
 import { LanguageService } from '../../../../core/i18n/language.service';
 import { MyAccessService } from '../../services/my-access.service';
@@ -50,6 +50,13 @@ import { MyAccessService } from '../../services/my-access.service';
           <span class="workspace-loading__spinner" aria-hidden="true"></span>
           <span>{{ 'myAccess.loading' | translate }}</span>
         </div>
+      } @else if (loadFailed()) {
+        <section class="workspace-empty" role="status">
+          <p class="workspace-empty__body">{{ 'common.loadFailed' | translate }}</p>
+          <button type="button" class="ui-btn ui-btn--ghost" (click)="reload()">
+            {{ 'common.retry' | translate }}
+          </button>
+        </section>
       } @else {
         <div class="workspace-access-grid">
           <section class="workspace-panel" aria-labelledby="my-access-roles-heading">
@@ -74,7 +81,7 @@ import { MyAccessService } from '../../services/my-access.service';
                       </span>
                       <span class="workspace-access-role__body">
                         <strong class="workspace-access-role__name">
-                          {{ label(role.nameAr, role.nameEn) }}
+                          {{ language.pick(role.nameAr, role.nameEn) }}
                         </strong>
                         <span class="workspace-access-role__code">{{ role.code }}</span>
                       </span>
@@ -109,7 +116,7 @@ import { MyAccessService } from '../../services/my-access.service';
                         class="workspace-access-perm-group__title"
                         [id]="'my-access-app-' + group.applicationKey"
                       >
-                        {{ appLabelKey(group.applicationKey) | translate }}
+                        {{ appLabel(group.applicationKey) }}
                       </h3>
                       <span class="workspace-chip workspace-chip--muted">
                         {{ 'myAccess.groupCount' | translate: { count: group.items.length } }}
@@ -133,22 +140,33 @@ import { MyAccessService } from '../../services/my-access.service';
 export class MyAccessPage {
   private readonly myAccessService = inject(MyAccessService);
   private readonly session = inject(SessionStore);
-  private readonly language = inject(LanguageService);
+  protected readonly language = inject(LanguageService);
 
-  protected readonly roles = signal<{ id: string; code: string; nameAr: string; nameEn: string }[]>(
-    [],
+  private readonly access = rxResource({
+    // Keyed on the active company so a company switch re-fetches automatically.
+    params: () => this.session.currentTenant()?.tenantMembershipId,
+    stream: () => this.myAccessService.loadAccess(),
+  });
+
+  protected readonly loading = this.access.isLoading;
+  /** The error interceptor already raised the banner; this only offers the retry. */
+  protected readonly loadFailed = computed(() => this.access.status() === 'error');
+
+  protected readonly roles = computed(() => this.access.value()?.roles ?? []);
+
+  /**
+   * /me/access carries permissions per role, not as a flat list — the union across
+   * roles is what summary.permissionsCount counts.
+   */
+  protected readonly permissions = computed(() =>
+    [...new Set(this.roles().flatMap((role) => role.permissionKeys ?? []))].sort((left, right) =>
+      left.localeCompare(right),
+    ),
   );
-  protected readonly permissions = signal<string[]>([]);
-  protected readonly loading = signal(true);
 
   protected readonly tenantName = computed(() => {
     const tenant = this.session.currentTenant();
-    if (!tenant) {
-      return '';
-    }
-    return this.language.current() === 'ar'
-      ? tenant.nameAr || tenant.nameEn
-      : tenant.nameEn || tenant.nameAr;
+    return tenant ? this.language.pick(tenant.nameAr, tenant.nameEn) : '';
   });
 
   protected readonly permissionGroups = computed(() => {
@@ -170,33 +188,16 @@ export class MyAccessPage {
       }));
   });
 
-  constructor() {
-    void this.load();
+  protected reload(): void {
+    this.access.reload();
   }
 
-  protected label(ar: string, en: string): string {
-    return this.language.current() === 'ar' ? ar || en : en || ar;
-  }
-
-  protected appLabelKey(applicationKey: string): string {
-    return `myAccess.apps.${applicationKey}`;
-  }
-
-  private async load(): Promise<void> {
-    this.loading.set(true);
-    try {
-      const access = await firstValueFrom(this.myAccessService.loadAccess());
-      const roles = access.roles ?? [];
-      this.roles.set(roles);
-      // /me/access carries permissions per role, not as a flat list — the union
-      // across roles is what summary.permissionsCount counts.
-      this.permissions.set(
-        [...new Set(roles.flatMap((role) => role.permissionKeys ?? []))].sort((left, right) =>
-          left.localeCompare(right),
-        ),
-      );
-    } finally {
-      this.loading.set(false);
-    }
+  /**
+   * Grouping key is the permission MODULE (first segment of module.resource.action),
+   * e.g. `tenant` for `tenant.teams.read` — not an applicationKey. Falls back to the
+   * raw module when the catalogue has no label for it.
+   */
+  protected appLabel(module: string): string {
+    return this.language.labelOr(`myAccess.apps.${module}`, module);
   }
 }

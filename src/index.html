@@ -6,6 +6,21 @@
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <script>
+      // Apply the stored language before first paint so Arabic users never see an
+      // LTR flash while LanguageService bootstraps. Key mirrors STORAGE_KEYS.language.
+      (function () {
+        try {
+          var lang = localStorage.getItem('brooch.lang');
+          if (lang === 'ar' || lang === 'en') {
+            document.documentElement.lang = lang;
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+          }
+        } catch (e) {
+          /* storage blocked — LanguageService still applies it after bootstrap */
+        }
+      })();
+    </script>
   </head>
   <body>
     <app-root></app-root>

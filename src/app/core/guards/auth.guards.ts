@@ -68,23 +68,27 @@ function resolveAuth(
  * Redirects with replaceUrl so Back never re-surfaces a usable login form.
  * Reuses the bootstrapped /me payload (no location.replace) so the shell is fully hydrated.
  */
-export const guestGuard: CanActivateFn = () => {
+export const guestGuard: CanActivateFn = (route) => {
   const session = inject(SessionStore);
   const router = inject(Router);
+  // Read returnUrl from the route being activated, not window.location — during an
+  // in-app navigation the address bar still holds the PREVIOUS url.
+  const returnUrl = route.queryParamMap.get('returnUrl');
 
   if (needsSessionPayload(session)) {
-    return session.bootstrap().pipe(map((stage) => resolveGuest(stage, router)));
+    return session.bootstrap().pipe(map((stage) => resolveGuest(stage, router, returnUrl)));
   }
 
-  return resolveGuest(session.stage(), router);
+  return resolveGuest(session.stage(), router, returnUrl);
 };
 
 function resolveGuest(
   stage: SessionStage,
   router: Router,
+  returnUrl: string | null,
 ): boolean | RedirectCommand {
   if (stage === SessionStage.Active) {
-    return new RedirectCommand(guestHomeUrlTree(router), { replaceUrl: true });
+    return new RedirectCommand(guestHomeUrlTree(router, returnUrl), { replaceUrl: true });
   }
   if (stage === SessionStage.Selection) {
     return new RedirectCommand(router.createUrlTree(['/select-company']), {
@@ -94,9 +98,7 @@ function resolveGuest(
   return true;
 }
 
-function guestHomeUrlTree(router: Router) {
-  const params = new URLSearchParams(window.location.search);
-  const returnUrl = params.get('returnUrl');
+function guestHomeUrlTree(router: Router, returnUrl: string | null) {
   if (isSafeReturnUrl(returnUrl)) {
     return router.parseUrl(returnUrl);
   }
@@ -169,19 +171,34 @@ export const tenantSelectionGuard: CanActivateFn = () => {
   const session = inject(SessionStore);
   const router = inject(Router);
 
-  if (flow.hasCompanies() || session.isSelection()) {
-    if (!flow.hasCompanies()) {
-      return new RedirectCommand(
-        router.createUrlTree(['/login'], {
-          queryParams: {
-            selectionRestartRequired: '1',
-            ...(flow.intentId() ? { intentId: flow.intentId() } : {}),
-          },
-        }),
-        { replaceUrl: true },
-      );
-    }
+  if (needsSessionPayload(session)) {
+    return session.bootstrap().pipe(map(() => resolveTenantSelection(session, flow, router)));
+  }
+
+  return resolveTenantSelection(session, flow, router);
+};
+
+function resolveTenantSelection(
+  session: SessionStore,
+  flow: AuthFlowStore,
+  router: Router,
+): boolean | RedirectCommand {
+  // Normal path: the login response populated the picker.
+  if (flow.hasCompanies()) {
     return true;
+  }
+
+  // Reload / deep link: AuthFlowStore is in-memory and therefore empty, but the cookie
+  // session is still mid-selection. Admit the page — SelectCompanyPage rebuilds the list
+  // from GET /me/companies. Redirecting to /login here would only bounce back, because
+  // guestGuard sends a Selection-stage visitor straight to /select-company.
+  if (session.isSelection()) {
+    return true;
+  }
+
+  // Already bound to a company — there is nothing to select.
+  if (session.isActive()) {
+    return new RedirectCommand(router.createUrlTree(['/']), { replaceUrl: true });
   }
 
   return new RedirectCommand(
@@ -193,7 +210,7 @@ export const tenantSelectionGuard: CanActivateFn = () => {
     }),
     { replaceUrl: true },
   );
-};
+}
 
 export const onboardingGuard: CanActivateFn = () => {
   const session = inject(SessionStore);

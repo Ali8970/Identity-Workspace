@@ -59,7 +59,6 @@ const MOBILE_BREAKPOINT = 860;
           [currentLanguage]="language.current()"
           [switching]="switching()"
           [loggingOut]="loggingOut()"
-          [selectEpoch]="companySelectEpoch()"
           (toggleSidebar)="toggleSidebar()"
           (switchCompany)="onSwitch($event)"
           (languageChange)="setLanguage($event)"
@@ -85,7 +84,6 @@ export class ShellLayout {
 
   protected readonly loggingOut = signal(false);
   protected readonly switching = signal(false);
-  protected readonly companySelectEpoch = signal(0);
   protected readonly sidebarCollapsed = signal(this.readSidebarPreference());
   protected readonly mobileNavOpen = signal(false);
   protected readonly isMobile = signal(this.queryIsMobile());
@@ -100,7 +98,7 @@ export class ShellLayout {
     if (!tenant) {
       return '';
     }
-    return this.label(tenant.nameAr, tenant.nameEn);
+    return this.language.pick(tenant.nameAr, tenant.nameEn);
   });
 
   protected readonly userName = computed(() => {
@@ -108,7 +106,7 @@ export class ShellLayout {
     if (!user) {
       return '';
     }
-    return this.label(user.nameAr, user.nameEn);
+    return this.language.pick(user.nameAr, user.nameEn);
   });
 
   protected readonly userEmail = computed(() => this.session.current()?.user.email ?? '');
@@ -183,9 +181,6 @@ export class ShellLayout {
     return this.session.hasPermission(PERMISSIONS.teamsRead);
   }
 
-  protected label(ar: string, en: string): string {
-    return this.language.current() === 'ar' ? ar || en : en || ar;
-  }
 
   protected toggleSidebar(): void {
     if (this.isMobile()) {
@@ -226,22 +221,12 @@ export class ShellLayout {
     }
     this.switching.set(true);
     try {
+      // Workspace page data is keyed on the active company, so refreshing the session
+      // re-fetches every tenant-scoped list on its own — no route remount needed.
       await firstValueFrom(this.session.switchCompany(tenantMembershipId));
-      // Remount the active workspace page so tenant-scoped lists reload.
-      await this.reloadActiveRoute();
-    } catch {
-      // Native <select> keeps the chosen option even when the API fails — remount it.
-      this.companySelectEpoch.update((epoch) => epoch + 1);
     } finally {
       this.switching.set(false);
     }
-  }
-
-  private async reloadActiveRoute(): Promise<void> {
-    const url = this.router.url;
-    const bounce = url === '/' || url.startsWith('/applications') ? '/account' : '/applications';
-    await this.router.navigateByUrl(bounce, { skipLocationChange: true });
-    await this.router.navigateByUrl(url);
   }
 
   protected async logout(): Promise<void> {

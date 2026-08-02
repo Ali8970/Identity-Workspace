@@ -1,10 +1,6 @@
 /** Wire enums — PascalCase strings (JsonStringEnumConverter). */
 
-export type BroochUserStatus =
-  | 'Active'
-  | 'Inactive'
-  | 'Suspended'
-  | 'PendingActivation';
+export type BroochUserStatus = 'Active' | 'Inactive' | 'Suspended' | 'PendingActivation';
 
 export type TenantMembershipStatus = 'Active' | 'Suspended' | 'Removed';
 

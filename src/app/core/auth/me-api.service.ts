@@ -3,6 +3,7 @@ import { Service, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { API_ROUTES } from '../../constants/api-routes';
 import { ApiResponse } from '../../models/api-response.model';
+import { unwrapData } from '../api/unwrap';
 import {
   CurrentUserResponse,
   MyAccessResponse,
@@ -11,13 +12,6 @@ import {
   SessionDto,
   UpdateProfileRequest,
 } from '../../models/auth.model';
-
-function unwrap<T>(response: ApiResponse<T>): T {
-  if (response.data === undefined) {
-    throw new Error(response.message || 'Empty API response');
-  }
-  return response.data;
-}
 
 @Service()
 export class MeApi {
@@ -31,20 +25,20 @@ export class MeApi {
   me(): Observable<CurrentUserResponse> {
     return this.http
       .get<ApiResponse<CurrentUserResponse>>(API_ROUTES.me, { withCredentials: true })
-      .pipe(map(unwrap));
+      .pipe(unwrapData());
   }
 
   profile(): Observable<ProfileDto> {
     return this.http
       .get<ApiResponse<ProfileDto>>(API_ROUTES.myProfile, { withCredentials: true })
-      .pipe(map(unwrap));
+      .pipe(unwrapData());
   }
 
   /** Returns the freshly re-read profile — the handler re-runs GetProfileQuery. */
   updateProfile(request: UpdateProfileRequest): Observable<ProfileDto> {
     return this.http
       .put<ApiResponse<ProfileDto>>(API_ROUTES.myProfile, request, { withCredentials: true })
-      .pipe(map(unwrap));
+      .pipe(unwrapData());
   }
 
   /** includeUnavailable defaults to true server-side; pass false to drop non-selectable rows. */
@@ -58,20 +52,20 @@ export class MeApi {
         withCredentials: true,
         params,
       })
-      .pipe(map(unwrap));
+      .pipe(unwrapData());
   }
 
   /** Active-stage only: roles across every application in the current company. */
   access(): Observable<MyAccessResponse> {
     return this.http
       .get<ApiResponse<MyAccessResponse>>(API_ROUTES.myAccess, { withCredentials: true })
-      .pipe(map(unwrap));
+      .pipe(unwrapData());
   }
 
   sessions(): Observable<SessionDto[]> {
     return this.http
       .get<ApiResponse<SessionDto[]>>(API_ROUTES.mySessions, { withCredentials: true })
-      .pipe(map(unwrap));
+      .pipe(unwrapData());
   }
 
   /** Signs one device out, addressed by the opaque fingerprint from sessions(). */

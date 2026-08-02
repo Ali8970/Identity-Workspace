@@ -4,6 +4,7 @@ import { Observable, map } from 'rxjs';
 import { API_ROUTES } from '../../constants/api-routes';
 import { TenantMembershipStatus } from '../../enums/domain.enums';
 import { ApiResponse } from '../../models/api-response.model';
+import { unwrapData } from './unwrap';
 import {
   AddMemberRequest,
   AddMemberResult,
@@ -38,13 +39,6 @@ export type {
   TenantDto,
 } from '../../models/workspace.model';
 
-function unwrap<T>(response: ApiResponse<T>): T {
-  if (response.data === undefined) {
-    throw new Error(response.message || 'Empty API response');
-  }
-  return response.data;
-}
-
 /** Drops undefined entries so we never send `?search=undefined`. */
 function toParams(values: Record<string, string | boolean | undefined>): HttpParams | undefined {
   let params = new HttpParams();
@@ -78,7 +72,7 @@ export class MembersApi {
         withCredentials: true,
         params: toParams({ search: filters.search, status: filters.status }),
       })
-      .pipe(map(unwrap));
+      .pipe(unwrapData());
   }
 
   /** 201 on success. Creates the account when the email is new, else reuses it. */
@@ -87,7 +81,7 @@ export class MembersApi {
       .post<ApiResponse<AddMemberResult>>(API_ROUTES.memberships, request, {
         withCredentials: true,
       })
-      .pipe(map(unwrap));
+      .pipe(unwrapData());
   }
 
   /** Replaces the member's whole role set; at least one role is required. */
@@ -98,7 +92,7 @@ export class MembersApi {
         { roleIds },
         { withCredentials: true },
       )
-      .pipe(map(unwrap));
+      .pipe(unwrapData());
   }
 
   roles(tenantMembershipId: string): Observable<MemberRolesDto> {
@@ -106,7 +100,7 @@ export class MembersApi {
       .get<ApiResponse<MemberRolesDto>>(API_ROUTES.membershipRoles(tenantMembershipId), {
         withCredentials: true,
       })
-      .pipe(map(unwrap));
+      .pipe(unwrapData());
   }
 }
 
@@ -121,7 +115,14 @@ export class RolesApi {
         withCredentials: true,
         params: toParams({ applicationKey }),
       })
-      .pipe(map(unwrap));
+      .pipe(
+        unwrapData(),
+        // `permissionKeys` is declared non-nullable, so make that true here rather than
+        // defending against null in every consumer.
+        map((roles) =>
+          roles.map((role) => ({ ...role, permissionKeys: role.permissionKeys ?? [] })),
+        ),
+      );
   }
 }
 
@@ -136,8 +137,20 @@ export class PermissionsApi {
         withCredentials: true,
         params: toParams({ applicationKey }),
       })
-      .pipe(map(unwrap));
+      .pipe(unwrapData());
   }
+}
+
+/**
+ * `TeamNode.children` is declared non-nullable but the API omits it on leaf nodes.
+ * Normalising once here keeps every consumer (tree rendering, flatten, count) on the
+ * same contract instead of each guessing whether it has to defend against null.
+ */
+function normalizeTeamNodes(nodes: TeamNode[] | null | undefined): TeamNode[] {
+  return (nodes ?? []).map((node) => ({
+    ...node,
+    children: normalizeTeamNodes(node.children),
+  }));
 }
 
 @Service()
@@ -147,7 +160,7 @@ export class TeamsApi {
   tree(): Observable<TeamNode[]> {
     return this.http
       .get<ApiResponse<TeamNode[] | null>>(API_ROUTES.teamsTree, { withCredentials: true })
-      .pipe(map((response) => response.data ?? []));
+      .pipe(map((response) => normalizeTeamNodes(response.data)));
   }
 
   membershipsDdl(teamId: string): Observable<TeamMembershipDdlItem[]> {
@@ -163,7 +176,7 @@ export class TeamsApi {
       .put<ApiResponse<TeamDetailDto>>(API_ROUTES.teamManager(teamId), request, {
         withCredentials: true,
       })
-      .pipe(map(unwrap));
+      .pipe(unwrapData());
   }
 }
 
@@ -175,7 +188,7 @@ export class TenantApi {
     return this.http
       .get<ApiResponse<TenantMeResponseWire>>(API_ROUTES.tenant, { withCredentials: true })
       .pipe(
-        map(unwrap),
+        unwrapData(),
         map((tenant) => ({
           // GET /tenant is the only route that may serialise the id as { value }.
           tenantId: readTenantId(tenant.tenantId),
@@ -199,7 +212,7 @@ export class TenantApi {
     return this.http
       .get<ApiResponse<PagedResult<PackageDto>>>(API_ROUTES.packages, { withCredentials: true })
       .pipe(
-        map(unwrap),
+        unwrapData(),
         map((page) => page.items ?? []),
       );
   }
@@ -207,6 +220,6 @@ export class TenantApi {
   startFreeTrial(packageId: string): Observable<unknown> {
     return this.http
       .post<ApiResponse<unknown>>(API_ROUTES.freeTrial, { packageId }, { withCredentials: true })
-      .pipe(map(unwrap));
+      .pipe(unwrapData());
   }
 }

@@ -10,8 +10,6 @@ export class AccountService {
   private readonly meApi = inject(MeApi);
   private readonly session = inject(SessionStore);
 
-  readonly sessionStore = this.session;
-
   loadAccountData(): Observable<{ companies: MyCompanyDto[]; sessions: SessionDto[] }> {
     return forkJoin({
       companies: this.meApi.companies(),

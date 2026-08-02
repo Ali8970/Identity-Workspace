@@ -57,8 +57,10 @@ export class MembersService {
   inviteMember(form: AddMemberFormValue): Observable<AddMemberResult> {
     const request: AddMemberRequest = {
       email: form.email.trim(),
-      arabicName: form.arabicName.trim(),
-      englishName: form.englishName.trim(),
+      // The DTO types these as nullable — send null, not '', so an omitted name is
+      // omitted rather than stored as an empty string (matches RegisterService).
+      arabicName: form.arabicName.trim() || null,
+      englishName: form.englishName.trim() || null,
       roleIds: form.roleIds,
       teamIds: form.teamIds,
     };

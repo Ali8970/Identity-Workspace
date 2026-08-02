@@ -26,7 +26,6 @@ export interface ResetPasswordFormValue {
 export interface LoginQueryState {
   intentId: string | null;
   returnUrl: string | null;
-  justOnboarded: boolean;
   selectionRestartRequired: boolean;
 }
 

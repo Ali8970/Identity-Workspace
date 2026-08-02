@@ -1,7 +1,9 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
-import { firstValueFrom } from 'rxjs';
+import { SessionStore } from '../../../../core/auth/session.store';
 import { LanguageService } from '../../../../core/i18n/language.service';
+import { applicationModifier } from '../../../../shared/ui/display';
 import { RoleListItem } from '../../models/workspace-feature.model';
 import { RolesService } from '../../services/roles.service';
 
@@ -27,7 +29,13 @@ import { RolesService } from '../../services/roles.service';
       </header>
 
       <aside class="workspace-note">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+          aria-hidden="true"
+        >
           <rect x="5" y="11" width="14" height="10" rx="2" />
           <path d="M8 11V8a4 4 0 0 1 8 0v3" />
         </svg>
@@ -39,6 +47,13 @@ import { RolesService } from '../../services/roles.service';
           <span class="workspace-loading__spinner" aria-hidden="true"></span>
           <span>{{ 'roles.loading' | translate }}</span>
         </div>
+      } @else if (loadFailed()) {
+        <section class="workspace-empty" role="status">
+          <p class="workspace-empty__body">{{ 'common.loadFailed' | translate }}</p>
+          <button type="button" class="ui-btn ui-btn--ghost" (click)="reload()">
+            {{ 'common.retry' | translate }}
+          </button>
+        </section>
       } @else {
         @if (roles().length === 0) {
           <section class="workspace-empty" role="status">
@@ -54,35 +69,60 @@ import { RolesService } from '../../services/roles.service';
           </section>
         } @else {
           @for (group of groupedRoles(); track group.applicationKey) {
-            <section class="workspace-app-group" [attr.aria-labelledby]="'roles-app-' + group.applicationKey">
+            <section
+              class="workspace-app-group"
+              [attr.aria-labelledby]="'roles-app-' + group.applicationKey"
+            >
               <header class="workspace-app-group__head">
                 <h2 class="workspace-app-group__title" [id]="'roles-app-' + group.applicationKey">
                   <span
                     class="workspace-app-group__icon"
-                    [class]="'workspace-app-group__icon--' + appModifier(group.applicationKey)"
+                    [class]="
+                      'workspace-app-group__icon--' + applicationModifier(group.applicationKey)
+                    "
                     aria-hidden="true"
                   >
                     @switch (group.applicationKey) {
                       @case ('identity') {
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.75"
+                        >
                           <path d="M12 3 4 7v6c0 5 3.5 7.7 8 8 4.5-.3 8-3 8-8V7l-8-4Z" />
                         </svg>
                       }
                       @case ('crm') {
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.75"
+                        >
                           <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
                           <circle cx="9" cy="7" r="3.5" />
                           <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
                         </svg>
                       }
                       @case ('hr') {
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.75"
+                        >
                           <rect x="3" y="7" width="18" height="13" rx="2" />
                           <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                         </svg>
                       }
                       @default {
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.75"
+                        >
                           <rect x="3" y="3" width="7" height="7" rx="1.5" />
                           <rect x="14" y="3" width="7" height="7" rx="1.5" />
                           <rect x="3" y="14" width="7" height="7" rx="1.5" />
@@ -91,7 +131,7 @@ import { RolesService } from '../../services/roles.service';
                       }
                     }
                   </span>
-                  {{ appLabelKey(group.applicationKey) | translate }}
+                  {{ appLabel(group.applicationKey) }}
                 </h2>
                 <span class="workspace-chip workspace-chip--muted">
                   {{ 'roles.groupCount' | translate: { count: group.roles.length } }}
@@ -103,7 +143,7 @@ import { RolesService } from '../../services/roles.service';
                   <article class="workspace-role-card" role="listitem">
                     <div class="workspace-role-card__head">
                       <h3 class="workspace-role-card__name">
-                        {{ label(role.nameAr, role.nameEn) }}
+                        {{ language.pick(role.nameAr, role.nameEn) }}
                       </h3>
                       <p class="workspace-role-card__code">{{ role.code }}</p>
                     </div>
@@ -114,19 +154,18 @@ import { RolesService } from '../../services/roles.service';
                       </p>
                       <span class="workspace-chip workspace-chip--muted">
                         {{
-                          'roles.permissionCount'
-                            | translate: { count: role.permissionKeys?.length ?? 0 }
+                          'roles.permissionCount' | translate: { count: role.permissionKeys.length }
                         }}
                       </span>
                     </div>
 
                     <ul class="workspace-perm-list">
-                      @if ((role.permissionKeys?.length ?? 0) === 0) {
+                      @if (role.permissionKeys.length === 0) {
                         <li class="workspace-perm-item workspace-perm-item--empty">
                           {{ 'roles.noPermissions' | translate }}
                         </li>
                       } @else {
-                        @for (key of role.permissionKeys ?? []; track key) {
+                        @for (key of role.permissionKeys; track key) {
                           <li class="workspace-perm-item">{{ key }}</li>
                         }
                       }
@@ -143,10 +182,23 @@ import { RolesService } from '../../services/roles.service';
 })
 export class RolesPage {
   private readonly rolesService = inject(RolesService);
-  private readonly language = inject(LanguageService);
+  private readonly session = inject(SessionStore);
+  protected readonly language = inject(LanguageService);
 
-  protected readonly roles = signal<RoleListItem[]>([]);
-  protected readonly loading = signal(true);
+  /** Exposed for the template — BEM modifier for the app tile. */
+  protected readonly applicationModifier = applicationModifier;
+
+  private readonly roleList = rxResource({
+    // Keyed on the active company so a company switch re-fetches automatically.
+    params: () => this.session.currentTenant()?.tenantMembershipId,
+    stream: () => this.rolesService.listForCurrentTenant(),
+    defaultValue: [] as RoleListItem[],
+  });
+
+  protected readonly roles = this.roleList.value;
+  protected readonly loading = this.roleList.isLoading;
+  /** The error interceptor already raised the banner; this only offers the retry. */
+  protected readonly loadFailed = computed(() => this.roleList.status() === 'error');
 
   protected readonly groupedRoles = computed(() => {
     const groups = new Map<string, RoleListItem[]>();
@@ -160,31 +212,12 @@ export class RolesPage {
       .map(([applicationKey, roles]) => ({ applicationKey, roles }));
   });
 
-  constructor() {
-    void this.load();
+  protected reload(): void {
+    this.roleList.reload();
   }
 
-  protected label(ar: string, en: string): string {
-    return this.language.current() === 'ar' ? ar || en : en || ar;
-  }
-
-  protected appLabelKey(applicationKey: string): string {
-    return `roles.apps.${applicationKey}`;
-  }
-
-  protected appModifier(applicationKey: string): string {
-    if (applicationKey === 'identity' || applicationKey === 'crm' || applicationKey === 'hr') {
-      return applicationKey;
-    }
-    return 'default';
-  }
-
-  private async load(): Promise<void> {
-    this.loading.set(true);
-    try {
-      this.roles.set(await firstValueFrom(this.rolesService.listForCurrentTenant()));
-    } finally {
-      this.loading.set(false);
-    }
+  /** Falls back to the raw applicationKey when the catalogue has no label for it. */
+  protected appLabel(applicationKey: string): string {
+    return this.language.labelOr(`roles.apps.${applicationKey}`, applicationKey);
   }
 }
