@@ -15,10 +15,11 @@ import {
   TeamNode,
 } from '../../models/workspace-feature.model';
 import { FlatTeamOption, MembersService } from '../../services/members.service';
+import { MembersSkeleton } from './members.skeleton';
 
 @Component({
   selector: 'app-members-page',
-  imports: [TranslatePipe, FormField, MultiSelect, FocusTrap],
+  imports: [TranslatePipe, FormField, MultiSelect, FocusTrap, MembersSkeleton],
   template: `
     <div class="workspace-page">
       <header class="workspace-page__head">
@@ -38,10 +39,7 @@ import { FlatTeamOption, MembersService } from '../../services/members.service';
       </header>
 
       @if (loading()) {
-        <div class="workspace-loading" role="status" aria-live="polite">
-          <span class="workspace-loading__spinner" aria-hidden="true"></span>
-          <span>{{ 'members.loading' | translate }}</span>
-        </div>
+        <app-members-skeleton [label]="'members.loading' | translate" />
       } @else if (loadFailed()) {
         <section class="workspace-empty" role="status">
           <p class="workspace-empty__body">{{ 'common.loadFailed' | translate }}</p>

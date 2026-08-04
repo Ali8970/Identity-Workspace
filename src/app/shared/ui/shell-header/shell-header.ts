@@ -36,7 +36,7 @@ import { MyCompanyDto } from '../../../models/auth.model';
         <label class="shell-header__company" [attr.aria-busy]="switching()">
           <span class="visually-hidden">{{ 'shell.switchCompany' | translate }}</span>
           @if (switching()) {
-            <span class="shell-header__company-spinner" aria-hidden="true"></span>
+            <span class="ui-spinner" aria-hidden="true"></span>
           } @else {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
               <path d="M4 21V8l8-4 8 4v13" />
@@ -86,12 +86,17 @@ import { MyCompanyDto } from '../../../models/auth.model';
           class="shell-header__icon-btn shell-header__icon-btn--danger"
           (click)="logout.emit()"
           [disabled]="loggingOut()"
-          [attr.aria-label]="'shell.logout' | translate"
+          [attr.aria-busy]="loggingOut()"
+          [attr.aria-label]="(loggingOut() ? 'shell.signingOut' : 'shell.logout') | translate"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-            <path d="M10 17l-1 1H5a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1h4l1 1" />
-            <path d="M14 12H8M18 8l3 4-3 4" />
-          </svg>
+          @if (loggingOut()) {
+            <span class="ui-spinner ui-spinner--current" aria-hidden="true"></span>
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+              <path d="M10 17l-1 1H5a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1h4l1 1" />
+              <path d="M14 12H8M18 8l3 4-3 4" />
+            </svg>
+          }
         </button>
       </div>
     </header>

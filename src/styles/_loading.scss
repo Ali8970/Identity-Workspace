@@ -1,0 +1,349 @@
+/* ==========================================================================
+   Loading system — one palette, one animation, shared by every page.
+   Skeletons reuse the real layout classes (panels, grids, tables) and only
+   swap the content for placeholder bars, so shapes always match the design.
+   ========================================================================== */
+
+:root {
+  --skeleton-base: #e4eaf2;
+  --skeleton-base-strong: #d8e0ec;
+  --skeleton-sheen: rgba(255, 255, 255, 0.78);
+  --skeleton-radius: 10px;
+  --skeleton-speed: 1.5s;
+}
+
+/* --------------------------------------------------------------------------
+   Placeholder bar
+   -------------------------------------------------------------------------- */
+
+.ui-skeleton {
+  position: relative;
+  display: block;
+  flex: none;
+  width: 100%;
+  height: 0.7rem;
+  overflow: hidden;
+  border-radius: var(--skeleton-radius);
+  background: var(--skeleton-base);
+}
+
+.ui-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, var(--skeleton-sheen) 50%, transparent 100%);
+  transform: translateX(-100%);
+  animation: ui-skeleton-sheen var(--skeleton-speed) ease-in-out infinite;
+}
+
+/* The sweep follows the reading direction so RTL never looks reversed. */
+[dir='rtl'] .ui-skeleton::after {
+  animation-name: ui-skeleton-sheen-rtl;
+}
+
+@keyframes ui-skeleton-sheen {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes ui-skeleton-sheen-rtl {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.ui-skeleton--text {
+  height: 0.7rem;
+}
+
+.ui-skeleton--title {
+  width: 40%;
+  height: 1.05rem;
+  background: var(--skeleton-base-strong);
+}
+
+.ui-skeleton--lead {
+  width: 65%;
+  height: 0.8rem;
+}
+
+.ui-skeleton--chip {
+  width: 7rem;
+  height: 1.75rem;
+  border-radius: 999px;
+}
+
+.ui-skeleton--pill {
+  width: 4.5rem;
+  height: 1.2rem;
+  border-radius: 999px;
+}
+
+.ui-skeleton--avatar {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  background: var(--skeleton-base-strong);
+}
+
+.ui-skeleton--icon {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: var(--radius-sm);
+  background: var(--skeleton-base-strong);
+}
+
+.ui-skeleton--button {
+  width: 8rem;
+  height: 2.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--skeleton-base-strong);
+}
+
+.ui-skeleton--input {
+  height: 2.85rem;
+  border-radius: var(--radius-sm);
+}
+
+.ui-skeleton--block {
+  height: 100%;
+  border-radius: var(--radius);
+}
+
+/* --------------------------------------------------------------------------
+   Composition helpers
+   -------------------------------------------------------------------------- */
+
+/* Page-level skeleton hosts sit inside `.workspace-page`, matching its rhythm. */
+.ui-skeleton-stack {
+  display: grid;
+  gap: 1.35rem;
+  animation: fade-up 240ms ease both;
+}
+
+/* Auth cards are narrower than workspace sections and sit closer together. */
+.ui-skeleton-stack--tight {
+  gap: 1rem;
+}
+
+.ui-skeleton-lines {
+  display: grid;
+  gap: 0.5rem;
+}
+
+/* Placeholders that copy an interactive card must not look or behave clickable. */
+.auth-company-card--placeholder,
+.auth-package-card--placeholder {
+  cursor: default;
+  pointer-events: none;
+}
+
+.ui-skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.ui-skeleton-col {
+  display: grid;
+  gap: 0.45rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.ui-skeleton-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.ui-skeleton-panel .workspace-panel__head {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.ui-skeleton-panel .workspace-panel__body {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.ui-skeleton-table {
+  th,
+  td {
+    vertical-align: middle;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Global loading bar — every API call, non-blocking
+   -------------------------------------------------------------------------- */
+
+.ui-loading-bar {
+  position: fixed;
+  top: 0;
+  inset-inline: 0;
+  z-index: 200;
+  height: 3px;
+  overflow: hidden;
+  background: var(--primary-soft);
+  animation: ui-loading-bar-in 160ms ease both;
+}
+
+.ui-loading-bar__fill {
+  display: block;
+  width: 40%;
+  height: 100%;
+  border-radius: 0 999px 999px 0;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-hover) 60%, var(--info) 100%);
+  animation: ui-loading-bar-slide 1.15s ease-in-out infinite;
+}
+
+@keyframes ui-loading-bar-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ui-loading-bar-slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+[dir='rtl'] .ui-loading-bar__fill {
+  animation-name: ui-loading-bar-slide-rtl;
+}
+
+@keyframes ui-loading-bar-slide-rtl {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(-250%);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Blocking overlay — logout, company switch, SSO hand-off
+   -------------------------------------------------------------------------- */
+
+.ui-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  background: rgba(21, 32, 51, 0.42);
+  backdrop-filter: blur(2px);
+  animation: ui-overlay-in 160ms ease both;
+}
+
+.ui-overlay__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1.5rem 2rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Inline spinner for controls that stay in place while busy. */
+.ui-spinner {
+  flex: 0 0 1rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  border: 2px solid var(--line);
+  border-top-color: var(--primary);
+  animation: ui-spin 680ms linear infinite;
+}
+
+/* On coloured controls (danger buttons, etc.) the spinner follows the text colour. */
+.ui-spinner--current {
+  border-color: color-mix(in srgb, currentColor 25%, transparent);
+  border-top-color: currentColor;
+}
+
+.ui-overlay__spinner {
+  flex: 0 0 2rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 3px solid var(--line);
+  border-top-color: var(--primary);
+  animation: ui-spin 680ms linear infinite;
+}
+
+@keyframes ui-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ui-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion — keep the affordance, drop the movement
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-skeleton::after {
+    animation: ui-skeleton-pulse 1.8s ease-in-out infinite;
+    transform: none;
+    background: var(--skeleton-sheen);
+    opacity: 0.35;
+  }
+
+  .ui-skeleton-stack,
+  .ui-loading-bar,
+  .ui-overlay {
+    animation: none;
+  }
+
+  .ui-loading-bar__fill {
+    width: 100%;
+    animation: ui-skeleton-pulse 1.4s ease-in-out infinite;
+  }
+
+  .ui-overlay__spinner {
+    animation-duration: 1.6s;
+  }
+}
+
+@keyframes ui-skeleton-pulse {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

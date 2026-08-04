@@ -10,11 +10,12 @@ import { isNavigableRedirect } from '../../../../core/error/error.model';
 import { GlobalErrorService } from '../../../../core/error/global-error.service';
 import { redirectAwayIfAuthenticated } from '../../../../core/guards/auth.guards';
 import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
+import { BusyOverlay } from '../../../../shared/ui/busy-overlay/busy-overlay';
 import { LoginService } from '../../services/login.service';
 
 @Component({
   selector: 'app-login-page',
-  imports: [TranslatePipe, RouterLink, FormField, AuthLayout],
+  imports: [TranslatePipe, RouterLink, FormField, AuthLayout, BusyOverlay],
   host: {
     '(window:pageshow)': 'onPageShow($event)',
   },
@@ -166,12 +167,7 @@ import { LoginService } from '../../services/login.service';
     </app-auth-layout>
 
     @if (redirecting()) {
-      <div class="auth-overlay" role="status" aria-live="polite" aria-busy="true">
-        <div class="auth-overlay__panel">
-          <span class="auth-overlay__spinner" aria-hidden="true"></span>
-          <span>{{ 'auth.login.redirecting' | translate }}</span>
-        </div>
-      </div>
+      <app-busy-overlay messageKey="auth.login.redirecting" />
     }
   `,
 })

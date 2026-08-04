@@ -215,19 +215,24 @@ function resolveTenantSelection(
 export const onboardingGuard: CanActivateFn = () => {
   const session = inject(SessionStore);
   const router = inject(Router);
-  const company = session.currentCompany();
-  if (company?.tenantStatus === 'Onboarding') {
+  if (session.isOnboarding()) {
     return router.createUrlTree(['/onboarding/company']);
   }
   return true;
 };
 
+/**
+ * Keeps a tenant that already subscribed out of the wizard — re-entering it would let the
+ * owner start a second free trial. `onboardingCompleted` wins over the cached company row,
+ * which still reads `Onboarding` until the next /me (e.g. Back out of CRM into the wizard).
+ * Redirects with replaceUrl so the wizard url leaves the history stack behind it.
+ */
 export const onboardingCompleteGuard: CanActivateFn = () => {
   const session = inject(SessionStore);
   const router = inject(Router);
   const company = session.currentCompany();
-  if (company && company.tenantStatus !== 'Onboarding') {
-    return router.createUrlTree(['/applications']);
+  if (session.onboardingCompleted() || (company && company.tenantStatus !== 'Onboarding')) {
+    return new RedirectCommand(router.createUrlTree(['/applications']), { replaceUrl: true });
   }
   return true;
 };

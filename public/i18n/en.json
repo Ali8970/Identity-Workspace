@@ -170,7 +170,8 @@
     "switchingCompany": "Switching company…",
     "workspace": "Workspace",
     "openSidebar": "Open navigation",
-    "closeSidebar": "Close navigation"
+    "closeSidebar": "Close navigation",
+    "signingOut": "Signing out…"
   },
   "applications": {
     "title": "Applications",
@@ -184,7 +185,8 @@
     "justOnboarded": "Company activated. Welcome to your workspace.",
     "emptyTitle": "No applications yet",
     "emptyBody": "You do not have access to any Brooch applications in this company. Contact your administrator if you need access.",
-    "ssoHint": "Opening an app uses your existing Brooch session — you will not need to sign in again."
+    "ssoHint": "Opening an app uses your existing Brooch session — you will not need to sign in again.",
+    "loading": "Loading your applications…"
   },
   "members": {
     "title": "Members",
@@ -406,7 +408,8 @@
       "more": "+{{count}}",
       "selectedCount": "{{count}} / {{total}} selected",
       "noResults": "No matches found"
-    }
+    },
+    "loading": "Loading…"
   },
   "errors": {
     "dismiss": "Dismiss error",

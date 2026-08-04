@@ -1,22 +1,26 @@
-import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
+import { Component, computed, effect, inject, linkedSignal, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FormField, form, required, submit } from '@angular/forms/signals';
 import { firstValueFrom, of } from 'rxjs';
+import { SessionStore } from '../../../../core/auth/session.store';
+import { hasSubscription } from '../../../../enums/domain.enums';
 import { LanguageService } from '../../../../core/i18n/language.service';
 import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
+import { BusyOverlay } from '../../../../shared/ui/busy-overlay/busy-overlay';
 import { PackageDto } from '../../models/onboarding-feature.model';
 import { OnboardingService } from '../../services/onboarding.service';
+import { OnboardingSkeleton } from './onboarding.skeleton';
 
 @Component({
   selector: 'app-onboarding-page',
-  imports: [TranslatePipe, FormField, AuthLayout, RouterLink],
+  imports: [TranslatePipe, FormField, AuthLayout, RouterLink, BusyOverlay, OnboardingSkeleton],
   host: {
     class: 'auth-page-host',
     '[class.auth-page-host--wide]': "step() === 'package'",
-    '(window:pageshow)': 'onPageShow()',
-    '(window:focus)': 'onPageShow()',
+    '(window:pageshow)': 'onPageShow($event)',
+    '(window:focus)': 'onPageShow($event)',
   },
   template: `
     <app-auth-layout>
@@ -46,10 +50,10 @@ import { OnboardingService } from '../../services/onboarding.service';
       </nav>
 
       @if (loading()) {
-        <div class="auth-form__loading" role="status" aria-live="polite">
-          <span class="auth-overlay__spinner" aria-hidden="true"></span>
-          <span>{{ 'onboarding.loading' | translate }}</span>
-        </div>
+        <app-onboarding-skeleton
+          [step]="step()"
+          [label]="'onboarding.loading' | translate"
+        />
       } @else if (step() === 'company') {
         <form class="auth-form auth-form--register" (submit)="saveCompany($event)" novalidate>
           <section class="auth-form__section" aria-labelledby="onboarding-company-heading">
@@ -196,18 +200,14 @@ import { OnboardingService } from '../../services/onboarding.service';
     </app-auth-layout>
 
     @if (redirecting()) {
-      <div class="auth-overlay" role="status" aria-live="polite" aria-busy="true">
-        <div class="auth-overlay__panel">
-          <span class="auth-overlay__spinner" aria-hidden="true"></span>
-          <span>{{ 'onboarding.redirecting' | translate }}</span>
-        </div>
-      </div>
+      <app-busy-overlay messageKey="onboarding.redirecting" />
     }
   `,
 })
 export class OnboardingPage {
   private readonly onboardingService = inject(OnboardingService);
   protected readonly language = inject(LanguageService);
+  private readonly session = inject(SessionStore);
   private readonly router = inject(Router);
 
   protected readonly uiDir = computed(() => (this.language.current() === 'ar' ? 'rtl' : 'ltr'));
@@ -254,12 +254,43 @@ export class OnboardingPage {
     required(schema.englishCompanyName);
   });
 
-  /** Reset outbound UI if the browser restores this page (bfcache / Back). */
-  protected onPageShow(): void {
-    this.redirecting.set(false);
-    this.busy.set(false);
+  constructor() {
+    // GET /tenant is the authority on whether the package step is already done — it also
+    // catches a trial started in another tab. Leaving here covers both wizard steps.
+    effect(() => {
+      const tenant = this.tenant.value();
+      const subscribed =
+        tenant?.onboardingCompleted === true || hasSubscription(tenant?.onboardingState);
+      if (subscribed) {
+        this.leaveWizard();
+      }
+    });
   }
 
+  /**
+   * Reset outbound UI if the browser restores this page (bfcache / Back).
+   * A bfcache restore runs no route guard at all, so this is the only place that can stop a
+   * subscribed owner from seeing the package list again after Back out of CRM.
+   */
+  protected onPageShow(event: Event): void {
+    this.redirecting.set(false);
+    this.busy.set(false);
+
+    if (this.session.onboardingCompleted()) {
+      this.leaveWizard();
+      return;
+    }
+    // Restored from bfcache: in-memory state is as stale as the frozen DOM — re-read the tenant
+    // and let the effect above decide. `focus` events carry no `persisted` flag and are ignored.
+    if ((event as PageTransitionEvent).persisted) {
+      this.tenant.reload();
+    }
+  }
+
+  private leaveWizard(): void {
+    this.session.markOnboardingComplete();
+    void this.router.navigate(['/applications'], { replaceUrl: true });
+  }
 
   protected selectPackage(packageId: string): void {
     this.selectedPackage.set(packageId);
@@ -282,17 +313,21 @@ export class OnboardingPage {
 
   protected async startTrial(): Promise<void> {
     const packageId = this.selectedPackage();
-    if (!packageId) {
+    // One subscription per tenant — never re-post the trial from a restored page.
+    if (!packageId || this.busy() || this.session.onboardingCompleted()) {
       return;
     }
     this.busy.set(true);
     this.redirecting.set(true);
     try {
       await firstValueFrom(this.onboardingService.startFreeTrial(packageId));
+      // Guards read this before the next /me lands, so Back into the wizard bounces out.
+      this.session.markOnboardingComplete();
       // Full reload so the session bootstraps fresh and picks up the now-Active tenant.
       // Land on the workspace, not /login: the session is still valid, so guestGuard
       // would bounce straight past /login and the success banner would never render.
-      window.location.assign('/applications?onboarded=1');
+      // `replace`, not `assign`: the package step must not stay on the history stack.
+      window.location.replace('/applications?onboarded=1');
     } catch {
       this.busy.set(false);
       this.redirecting.set(false);

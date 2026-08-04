@@ -6,10 +6,11 @@ import { LanguageService } from '../../../../core/i18n/language.service';
 import { applicationModifier } from '../../../../shared/ui/display';
 import { RoleListItem } from '../../models/workspace-feature.model';
 import { RolesService } from '../../services/roles.service';
+import { RolesSkeleton } from './roles.skeleton';
 
 @Component({
   selector: 'app-roles-page',
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, RolesSkeleton],
   template: `
     <div class="workspace-page">
       <header class="workspace-page__head">
@@ -43,10 +44,7 @@ import { RolesService } from '../../services/roles.service';
       </aside>
 
       @if (loading()) {
-        <div class="workspace-loading" role="status" aria-live="polite">
-          <span class="workspace-loading__spinner" aria-hidden="true"></span>
-          <span>{{ 'roles.loading' | translate }}</span>
-        </div>
+        <app-roles-skeleton [label]="'roles.loading' | translate" />
       } @else if (loadFailed()) {
         <section class="workspace-empty" role="status">
           <p class="workspace-empty__body">{{ 'common.loadFailed' | translate }}</p>

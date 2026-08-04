@@ -60,3 +60,13 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - SPA only (no SSR), zoneless, Signal Forms, SASS, ngx-translate AR/EN
 - Real API via `https://stg.api.brooch.sa` from `https://dev.account.brooch.sa:4300` (ssl) — see `.cursor/rules/identity-domain.mdc`
 - Also read `CLAUDE.md` and `.cursor/rules/*`
+
+### Loading states
+
+Three layers, do not invent a fourth:
+
+1. **Global bar** — `loadingInterceptor` counts every `/api/` call into `HttpActivityService`; `<app-loading-bar>` in `App` renders it. Opt a request out with the `SKIP_LOADING` HttpContext token. Never add a page-level "is anything loading" flag.
+2. **Skeletons** — first paint of page data. One `<page>.skeleton.ts` per page, colocated, extending `SkeletonHost` and built from `<app-skeleton>` + the blocks in `shared/ui/skeleton/`. Reuse the page's real layout classes so the placeholder matches the design; only the content becomes bars. Palette and shimmer live in `styles/_loading.scss` — never restyle a skeleton locally.
+3. **Blocking overlay** — `<app-busy-overlay messageKey="…">` for actions that invalidate the page (logout, company switch, SSO hand-off). When the action ends in a full-page navigation, leave the overlay up rather than clearing it in a `finally`.
+
+Inline `aria-busy` + `.ui-spinner` still belongs on individual busy controls.

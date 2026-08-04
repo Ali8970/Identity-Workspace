@@ -7,11 +7,12 @@ import { SsoHandshakeService } from '../../../../core/auth/sso-handshake.service
 import { isNavigableRedirect } from '../../../../core/error/error.model';
 import { LanguageService } from '../../../../core/i18n/language.service';
 import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
+import { BusyOverlay } from '../../../../shared/ui/busy-overlay/busy-overlay';
 import { SelectCompanyService } from '../../services/select-company.service';
 
 @Component({
   selector: 'app-select-company-page',
-  imports: [TranslatePipe, RouterLink, AuthLayout],
+  imports: [TranslatePipe, RouterLink, AuthLayout, BusyOverlay],
   host: {
     class: 'auth-page-host auth-page-host--wide',
     '(window:pageshow)': 'onPageShow()',
@@ -112,12 +113,7 @@ import { SelectCompanyService } from '../../services/select-company.service';
     </app-auth-layout>
 
     @if (redirecting()) {
-      <div class="auth-overlay" role="status" aria-live="polite" aria-busy="true">
-        <div class="auth-overlay__panel">
-          <span class="auth-overlay__spinner" aria-hidden="true"></span>
-          <span>{{ 'auth.selectCompany.redirecting' | translate }}</span>
-        </div>
-      </div>
+      <app-busy-overlay messageKey="auth.selectCompany.redirecting" />
     }
   `,
 })
@@ -129,7 +125,10 @@ export class SelectCompanyPage {
   /** Injected directly rather than reached through SelectCompanyService. */
   protected readonly flow = inject(AuthFlowStore);
 
-  /** Login-response list, falling back to GET /me/companies after a reload. */
+  /**
+   * Login-response list, falling back to GET /me/companies after a reload. Both are
+   * already resolved before this route activates, so there is no loading state to show.
+   */
   protected readonly companies = this.selectCompanyService.companies;
   protected readonly busy = signal(false);
   protected readonly selectingId = signal<string | null>(null);

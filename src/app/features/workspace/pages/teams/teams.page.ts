@@ -9,6 +9,7 @@ import { LanguageService } from '../../../../core/i18n/language.service';
 import { FocusTrap } from '../../../../shared/ui/focus-trap/focus-trap';
 import { TeamMembershipDdlItem, TeamNode } from '../../models/workspace-feature.model';
 import { TeamsService } from '../../services/teams.service';
+import { TeamsSkeleton } from './teams.skeleton';
 
 interface AssignManagerFormValue {
   managerTenantMembershipId: string;
@@ -16,7 +17,7 @@ interface AssignManagerFormValue {
 
 @Component({
   selector: 'app-teams-page',
-  imports: [TranslatePipe, NgTemplateOutlet, FormField, FocusTrap],
+  imports: [TranslatePipe, NgTemplateOutlet, FormField, FocusTrap, TeamsSkeleton],
   template: `
     <div class="workspace-page">
       <header class="workspace-page__head">
@@ -44,10 +45,7 @@ interface AssignManagerFormValue {
       </aside>
 
       @if (loading()) {
-        <div class="workspace-loading" role="status" aria-live="polite">
-          <span class="workspace-loading__spinner" aria-hidden="true"></span>
-          <span>{{ 'teams.loading' | translate }}</span>
-        </div>
+        <app-teams-skeleton [label]="'teams.loading' | translate" />
       } @else if (loadFailed()) {
         <section class="workspace-empty" role="status">
           <p class="workspace-empty__body">{{ 'common.loadFailed' | translate }}</p>

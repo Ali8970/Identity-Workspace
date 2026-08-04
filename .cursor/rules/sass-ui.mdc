@@ -11,3 +11,5 @@ alwaysApply: true
 - Shared primitives under `src/app/shared/ui/` only
 - Prefer native `<button>`, `<input>`, `<a>` with attribute-selector components when wrapping
 - Keep components small; auth layout vs shell layout are separate
+- Loading visuals (skeletons, global bar, overlay, spinner) live in `src/styles/_loading.scss` — one palette, one shimmer; never restyle them per page
+- Skeletons reuse the real layout classes of the section they stand in for

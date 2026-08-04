@@ -27,14 +27,18 @@ class FakeSessionStore {
   readonly stageSignal = signal<SessionStage>(SessionStage.Unknown);
   readonly currentSignal = signal<unknown>(null);
   readonly companySignal = signal<{ tenantStatus: string } | null>(null);
+  readonly onboardingCompletedSignal = signal(false);
   bootstrapCalls = 0;
 
   readonly stage = this.stageSignal.asReadonly();
   readonly current = this.currentSignal.asReadonly();
   readonly currentCompany = this.companySignal.asReadonly();
+  readonly onboardingCompleted = this.onboardingCompletedSignal.asReadonly();
 
   isActive = () => this.stageSignal() === SessionStage.Active;
   isSelection = () => this.stageSignal() === SessionStage.Selection;
+  isOnboarding = () =>
+    !this.onboardingCompletedSignal() && this.companySignal()?.tenantStatus === 'Onboarding';
 
   /** Mimics the real store: /me resolves the stage and populates the payload. */
   bootstrapResult: SessionStage | null = null;
@@ -245,6 +249,20 @@ describe('auth guards', () => {
     it('onboardingCompleteGuard admits a tenant that is still onboarding', () => {
       session.companySignal.set({ tenantStatus: 'Onboarding' });
       expect(resultUrl(runGuard(onboardingCompleteGuard as never), router)).toBe(true);
+    });
+
+    // Regression: Back out of CRM re-entered the wizard on the cached /me/companies row and
+    // let the owner start a second free trial.
+    it('onboardingCompleteGuard bounces once the trial started, before /me catches up', () => {
+      session.companySignal.set({ tenantStatus: 'Onboarding' });
+      session.onboardingCompletedSignal.set(true);
+      expect(resultUrl(runGuard(onboardingCompleteGuard as never), router)).toBe('/applications');
+    });
+
+    it('onboardingGuard keeps a just-subscribed tenant in the workspace', () => {
+      session.companySignal.set({ tenantStatus: 'Onboarding' });
+      session.onboardingCompletedSignal.set(true);
+      expect(resultUrl(runGuard(onboardingGuard as never), router)).toBe(true);
     });
   });
 });

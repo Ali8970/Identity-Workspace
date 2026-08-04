@@ -28,11 +28,18 @@ export class SessionStore {
   private readonly userSignal = signal<CurrentUserResponse | null>(null);
   private readonly companiesSignal = signal<MyCompanyDto[]>([]);
   private readonly bootstrappingSignal = signal(false);
+  private readonly onboardingCompletedSignal = signal(false);
 
   readonly stage = this.stageSignal.asReadonly();
   readonly current = this.userSignal.asReadonly();
   readonly companies = this.companiesSignal.asReadonly();
   readonly bootstrapping = this.bootstrappingSignal.asReadonly();
+  /**
+   * Set the moment onboarding finishes, before /me/companies is re-read. The cached
+   * company row keeps saying `Onboarding` until then, so guards would otherwise re-admit
+   * the wizard on a history restore (Back from CRM, bfcache) and let a second trial start.
+   */
+  readonly onboardingCompleted = this.onboardingCompletedSignal.asReadonly();
 
   readonly isAuthenticated = computed(
     () =>
@@ -52,8 +59,18 @@ export class SessionStore {
       null,
   );
 
+  /** True while the current company still has to walk the onboarding wizard. */
+  readonly isOnboarding = computed(
+    () => !this.onboardingCompletedSignal() && this.currentCompany()?.tenantStatus === 'Onboarding',
+  );
+
   hasPermission(permission: string): boolean {
     return this.permissions().includes(permission);
+  }
+
+  /** Records that the tenant now has a subscription — see `onboardingCompleted`. */
+  markOnboardingComplete(): void {
+    this.onboardingCompletedSignal.set(true);
   }
 
   bootstrap(): Observable<SessionStage> {
@@ -123,6 +140,8 @@ export class SessionStore {
       tap(() => {
         this.csrf.invalidate();
         this.flow.clearTenantSelection();
+        // The flag describes the company we are leaving; the new one may still be onboarding.
+        this.onboardingCompletedSignal.set(false);
         this.stageSignal.set(SessionStage.Active);
       }),
       switchMap((response) => this.csrf.prime().pipe(map(() => response))),
@@ -160,6 +179,7 @@ export class SessionStore {
   clear(): void {
     this.userSignal.set(null);
     this.companiesSignal.set([]);
+    this.onboardingCompletedSignal.set(false);
   }
 
   /** Drop local session state without calling the logout API (e.g. after a 401). */

@@ -5,10 +5,11 @@ import { LanguageService } from '../../../../core/i18n/language.service';
 import { applicationModifier } from '../../../../shared/ui/display';
 import { PermissionCatalogItem } from '../../models/workspace-feature.model';
 import { PermissionsService } from '../../services/permissions.service';
+import { PermissionsSkeleton } from './permissions.skeleton';
 
 @Component({
   selector: 'app-permissions-page',
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, PermissionsSkeleton],
   template: `
     <div class="workspace-page">
       <header class="workspace-page__head">
@@ -42,10 +43,7 @@ import { PermissionsService } from '../../services/permissions.service';
       </aside>
 
       @if (loading()) {
-        <div class="workspace-loading" role="status" aria-live="polite">
-          <span class="workspace-loading__spinner" aria-hidden="true"></span>
-          <span>{{ 'permissions.loading' | translate }}</span>
-        </div>
+        <app-permissions-skeleton [label]="'permissions.loading' | translate" />
       } @else if (loadFailed()) {
         <section class="workspace-empty" role="status">
           <p class="workspace-empty__body">{{ 'common.loadFailed' | translate }}</p>

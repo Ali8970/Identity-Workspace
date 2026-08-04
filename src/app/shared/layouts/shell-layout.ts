@@ -7,6 +7,7 @@ import { filter, firstValueFrom } from 'rxjs';
 import { PERMISSIONS } from '../../constants/app.constants';
 import { SessionStore } from '../../core/auth/session.store';
 import { LanguageService } from '../../core/i18n/language.service';
+import { BusyOverlay } from '../ui/busy-overlay/busy-overlay';
 import { GlobalErrorBanner } from '../ui/global-error-banner/global-error-banner';
 import { ShellHeader } from '../ui/shell-header/shell-header';
 import { ShellSidebar } from '../ui/shell-sidebar/shell-sidebar';
@@ -17,7 +18,14 @@ const MOBILE_BREAKPOINT = 860;
 
 @Component({
   selector: 'app-shell-layout',
-  imports: [RouterOutlet, TranslatePipe, ShellSidebar, ShellHeader, GlobalErrorBanner],
+  imports: [
+    RouterOutlet,
+    TranslatePipe,
+    ShellSidebar,
+    ShellHeader,
+    GlobalErrorBanner,
+    BusyOverlay,
+  ],
   host: {
     class: 'shell-host',
     '(document:keydown.escape)': 'onEscape()',
@@ -67,18 +75,13 @@ const MOBILE_BREAKPOINT = 860;
 
         <app-global-error-banner variant="shell" />
 
-        <main class="shell__main" id="main-content" [attr.aria-busy]="switching()">
+        <main class="shell__main" id="main-content" [attr.aria-busy]="blocked()">
           <router-outlet />
         </main>
       </div>
 
-      @if (switching()) {
-        <div class="shell-overlay" role="status" aria-live="polite" aria-busy="true">
-          <div class="shell-overlay__panel">
-            <span class="shell-overlay__spinner" aria-hidden="true"></span>
-            <span>{{ 'shell.switchingCompany' | translate }}</span>
-          </div>
-        </div>
+      @if (blockingMessageKey(); as messageKey) {
+        <app-busy-overlay [messageKey]="messageKey" />
       }
     </div>
   `,
@@ -96,6 +99,15 @@ export class ShellLayout {
   protected readonly sidebarCollapsed = signal(this.readSidebarPreference());
   protected readonly mobileNavOpen = signal(false);
   protected readonly isMobile = signal(this.queryIsMobile());
+
+  /** Both actions rebuild the session, so the workspace is unusable until they settle. */
+  protected readonly blockingMessageKey = computed(() => {
+    if (this.loggingOut()) {
+      return 'shell.signingOut';
+    }
+    return this.switching() ? 'shell.switchingCompany' : null;
+  });
+  protected readonly blocked = computed(() => this.blockingMessageKey() !== null);
 
   protected readonly companies = computed(() => this.session.companies());
   protected readonly currentMembershipId = computed(
@@ -239,11 +251,16 @@ export class ShellLayout {
   }
 
   protected async logout(): Promise<void> {
+    if (this.loggingOut()) {
+      return;
+    }
     this.loggingOut.set(true);
     try {
       await firstValueFrom(this.session.logoutAll());
+      // Overlay deliberately stays up — the browser is already leaving for /login,
+      // and clearing it here would flash the workspace mid-navigation.
       window.location.assign('/login');
-    } finally {
+    } catch {
       this.loggingOut.set(false);
     }
   }

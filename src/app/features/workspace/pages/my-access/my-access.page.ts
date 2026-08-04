@@ -4,10 +4,11 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { SessionStore } from '../../../../core/auth/session.store';
 import { LanguageService } from '../../../../core/i18n/language.service';
 import { MyAccessService } from '../../services/my-access.service';
+import { MyAccessSkeleton } from './my-access.skeleton';
 
 @Component({
   selector: 'app-my-access-page',
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, MyAccessSkeleton],
   template: `
     <div class="workspace-page">
       <header class="workspace-page__head">
@@ -46,10 +47,7 @@ import { MyAccessService } from '../../services/my-access.service';
       </aside>
 
       @if (loading()) {
-        <div class="workspace-loading" role="status" aria-live="polite">
-          <span class="workspace-loading__spinner" aria-hidden="true"></span>
-          <span>{{ 'myAccess.loading' | translate }}</span>
-        </div>
+        <app-my-access-skeleton [label]="'myAccess.loading' | translate" />
       } @else if (loadFailed()) {
         <section class="workspace-empty" role="status">
           <p class="workspace-empty__body">{{ 'common.loadFailed' | translate }}</p>

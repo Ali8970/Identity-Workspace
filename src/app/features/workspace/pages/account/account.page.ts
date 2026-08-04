@@ -1,17 +1,19 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
-import { firstValueFrom } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { SessionStore } from '../../../../core/auth/session.store';
 import { LanguageService } from '../../../../core/i18n/language.service';
 import { MyCompanyDto } from '../../../../models/auth.model';
+import { BusyOverlay } from '../../../../shared/ui/busy-overlay/busy-overlay';
 import { nameInitials } from '../../../../shared/ui/display';
 import { SessionDto } from '../../models/workspace-feature.model';
 import { AccountService } from '../../services/account.service';
+import { AccountSkeleton } from './account.skeleton';
 
 @Component({
   selector: 'app-account-page',
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, AccountSkeleton, BusyOverlay],
   template: `
     <div class="workspace-page">
       <header class="workspace-page__head">
@@ -36,10 +38,7 @@ import { AccountService } from '../../services/account.service';
       </header>
 
       @if (loading()) {
-        <div class="workspace-loading" role="status" aria-live="polite">
-          <span class="workspace-loading__spinner" aria-hidden="true"></span>
-          <span>{{ 'account.loading' | translate }}</span>
-        </div>
+        <app-account-skeleton [label]="'account.loading' | translate" />
       } @else if (loadFailed()) {
         <section class="workspace-empty" role="status">
           <p class="workspace-empty__body">{{ 'common.loadFailed' | translate }}</p>
@@ -201,6 +200,10 @@ import { AccountService } from '../../services/account.service';
         </div>
       }
     </div>
+
+    @if (blockingMessageKey(); as messageKey) {
+      <app-busy-overlay [messageKey]="messageKey" />
+    }
   `,
 })
 export class AccountPage {
@@ -227,6 +230,14 @@ export class AccountPage {
 
   protected readonly busy = signal(false);
   protected readonly switching = signal(false);
+
+  /** Sign-out and company switch both invalidate the page, so they block it. */
+  protected readonly blockingMessageKey = computed(() => {
+    if (this.busy()) {
+      return 'shell.signingOut';
+    }
+    return this.switching() ? 'shell.switchingCompany' : null;
+  });
 
   protected readonly userEmail = computed(() => this.session.current()?.user.email ?? '');
   protected readonly userInitial = computed(() => {
@@ -268,21 +279,26 @@ export class AccountPage {
   }
 
   protected async logout(): Promise<void> {
-    this.busy.set(true);
-    try {
-      await firstValueFrom(this.accountService.logout());
-      window.location.assign('/login');
-    } finally {
-      this.busy.set(false);
-    }
+    await this.signOut(() => this.accountService.logout());
   }
 
   protected async logoutAll(): Promise<void> {
+    await this.signOut(() => this.accountService.logoutAll());
+  }
+
+  /**
+   * The overlay is deliberately left up on success: the browser is already leaving
+   * for /login, and clearing it would flash the account page mid-navigation.
+   */
+  private async signOut(request: () => Observable<unknown>): Promise<void> {
+    if (this.busy()) {
+      return;
+    }
     this.busy.set(true);
     try {
-      await firstValueFrom(this.accountService.logoutAll());
+      await firstValueFrom(request());
       window.location.assign('/login');
-    } finally {
+    } catch {
       this.busy.set(false);
     }
   }

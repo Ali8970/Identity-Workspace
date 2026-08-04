@@ -6,10 +6,11 @@ import { applicationModifier } from '../../../../shared/ui/display';
 import { SessionStore } from '../../../../core/auth/session.store';
 import { AvailableApplicationDto } from '../../../../models/auth.model';
 import { ApplicationsService } from '../../services/applications.service';
+import { ApplicationsSkeleton } from './applications.skeleton';
 
 @Component({
   selector: 'app-applications-page',
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, ApplicationsSkeleton],
   host: {
     '(window:pageshow)': 'onPageShow()',
     '(window:focus)': 'onPageShow()',
@@ -61,7 +62,9 @@ import { ApplicationsService } from '../../services/applications.service';
         </div>
       }
 
-      @if (apps().length === 0) {
+      @if (loading()) {
+        <app-applications-skeleton [label]="'applications.loading' | translate" />
+      } @else if (apps().length === 0) {
         <section class="workspace-empty" role="status">
           <div class="workspace-empty__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
@@ -229,6 +232,8 @@ export class ApplicationsPage {
   );
 
   protected readonly apps = computed(() => this.applicationsService.availableApplications());
+  /** The tile list comes from the session, so it is only pending while that re-hydrates. */
+  protected readonly loading = this.session.bootstrapping;
   protected readonly launching = signal<string | null>(null);
   protected readonly tenantName = computed(() => {
     const tenant = this.session.currentTenant();

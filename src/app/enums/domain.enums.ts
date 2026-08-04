@@ -61,6 +61,15 @@ export const ONBOARDING_ORDER: TenantOnboardingState[] = [
   'Completed',
 ];
 
+/**
+ * True once the tenant owns a subscription, i.e. the package step is already done.
+ * An unrecognised state answers false so a wire change can never lock a real onboarding out.
+ */
+export function hasSubscription(state: TenantOnboardingState | string | null | undefined): boolean {
+  const index = ONBOARDING_ORDER.indexOf(state as TenantOnboardingState);
+  return index >= 0 && index >= ONBOARDING_ORDER.indexOf('SubscriptionActive');
+}
+
 export const REMEDIATION_BY_REASON: Record<EligibilityReason, RemediationAction> = {
   Eligible: 'None',
   UnknownApplication: 'ContactPlatformAdmin',

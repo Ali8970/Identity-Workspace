@@ -18,6 +18,7 @@ import { applicationHeaderInterceptor } from './core/interceptors/application-he
 import { csrfInterceptor } from './core/interceptors/csrf.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { languageInterceptor } from './core/interceptors/language.interceptor';
+import { loadingInterceptor } from './core/interceptors/loading.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -26,6 +27,8 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(
       withInterceptors([
+        // Outermost, so the bar covers the whole request including retries below.
+        loadingInterceptor,
         applicationHeaderInterceptor,
         languageInterceptor,
         csrfInterceptor,
