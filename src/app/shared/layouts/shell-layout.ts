@@ -264,10 +264,13 @@ export class ShellLayout {
     }
     this.loggingOut.set(true);
     try {
+      // Wait for the cookie to clear, then soft-navigate. A full reload would re-run
+      // APP_INITIALIZER (GET /me) before the login form paints — same as the 401 path,
+      // which already uses router.navigate after markAnonymous().
       await firstValueFrom(this.session.logoutAll());
-      // Overlay deliberately stays up — the browser is already leaving for /login,
-      // and clearing it here would flash the workspace mid-navigation.
-      window.location.assign('/login');
+      // replaceUrl so Back does not revive a workspace route that would only bounce
+      // to /login again. Overlay stays up until ShellLayout is destroyed.
+      await this.router.navigate(['/login'], { replaceUrl: true });
     } catch {
       this.loggingOut.set(false);
     }

@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, firstValueFrom } from 'rxjs';
 import { SessionStore } from '../../../../core/auth/session.store';
@@ -208,6 +209,7 @@ import { AccountSkeleton } from './account.skeleton';
 })
 export class AccountPage {
   private readonly accountService = inject(AccountService);
+  private readonly router = inject(Router);
   protected readonly language = inject(LanguageService);
   /** Injected directly rather than reached through AccountService. */
   protected readonly session = inject(SessionStore);
@@ -287,8 +289,8 @@ export class AccountPage {
   }
 
   /**
-   * The overlay is deliberately left up on success: the browser is already leaving
-   * for /login, and clearing it would flash the account page mid-navigation.
+   * Wait for the logout API (cookie clear), then soft-navigate with replaceUrl.
+   * Overlay stays up until this page is destroyed — same pattern as shell logout.
    */
   private async signOut(request: () => Observable<unknown>): Promise<void> {
     if (this.busy()) {
@@ -297,7 +299,7 @@ export class AccountPage {
     this.busy.set(true);
     try {
       await firstValueFrom(request());
-      window.location.assign('/login');
+      await this.router.navigate(['/login'], { replaceUrl: true });
     } catch {
       this.busy.set(false);
     }
