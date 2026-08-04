@@ -110,8 +110,16 @@ export class ShellLayout {
   protected readonly blocked = computed(() => this.blockingMessageKey() !== null);
 
   protected readonly companies = computed(() => this.session.companies());
+  /**
+   * Prefer the row /me/companies flags as current: it is the same string the options are
+   * keyed on, so the select can always match it. /me's own id is only a fallback for the
+   * window where the company list has not arrived yet.
+   */
   protected readonly currentMembershipId = computed(
-    () => this.session.currentTenant()?.tenantMembershipId ?? '',
+    () =>
+      this.session.currentCompany()?.tenantMembershipId ??
+      this.session.currentTenant()?.tenantMembershipId ??
+      '',
   );
 
   protected readonly tenantName = computed(() => {

@@ -5,24 +5,172 @@
     <title>Brooch Account</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Sign in to Brooch Account — one secure identity for your companies, teams, and every Brooch application."
+    />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+
+    <!--
+      The session probe (GET /me) is the first thing the app initializer does and it is
+      cross-origin, so without this it pays DNS + TCP + TLS before the request even starts.
+      Warming the connection while the HTML parses takes that handshake off the boot path.
+    -->
+    <link rel="preconnect" href="https://stg.api.brooch.sa" crossorigin />
+  </head>
+  <body>
+    <!--
+      Pre-boot app shell — the auth hero, painted before Angular loads.
+
+      Angular clears the host element's children when it bootstraps, so this is a throwaway
+      first paint. It exists because this is an SPA with no SSR: without it the first pixel
+      waits on main.js + /i18n/<lang>.json + the cross-origin /me probe, which is what put
+      LCP at 2.7s. The hero title here is the LCP element.
+
+      It must stay *static* markup: the production build inlines critical CSS by scanning
+      this file for used selectors, so markup injected by script would paint unstyled.
+
+      The structure mirrors the hero half of `shared/ui/auth-layout/auth-layout.ts` exactly
+      — same classes, same nesting, same strings — so when Angular takes over nothing moves
+      and CLS stays 0. `npm run check:app-shell` fails if the two drift.
+    -->
+    <app-root
+      ><div class="auth-page">
+        <aside class="auth-page__hero" aria-hidden="true">
+          <div class="auth-page__hero-inner">
+            <div class="auth-page__logo">
+              <span class="auth-page__mark">B</span>
+              <div>
+                <p class="auth-page__logo-name">Brooch</p>
+                <p class="auth-page__logo-sub" data-shell="product">Account</p>
+              </div>
+            </div>
+
+            <h2 class="auth-page__hero-title" data-shell="heroTitle">
+              One secure sign-in for your entire Brooch workspace
+            </h2>
+            <p class="auth-page__hero-lead" data-shell="heroLead">
+              Manage companies, teams, and access to every Brooch application from a single hub.
+            </p>
+
+            <ul class="auth-page__features">
+              <li data-shell="featureSecurity">
+                <span class="auth-page__feature-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <path d="M12 3 4 7v6c0 5 3.5 7.7 8 8 4.5-.3 8-3 8-8V7l-8-4Z" />
+                  </svg> </span
+                >Enterprise-grade session security
+              </li>
+              <li data-shell="featureApps">
+                <span class="auth-page__feature-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                    <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                    <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                    <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                  </svg> </span
+                >Launch CRM and sibling apps instantly
+              </li>
+              <li data-shell="featureTeams">
+                <span class="auth-page__feature-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <circle cx="12" cy="8" r="3.5" />
+                    <path d="M5 20c1.2-3.2 3.8-5 7-5s5.8 1.8 7 5" />
+                  </svg> </span
+                >Unified members, roles, and permissions
+              </li>
+            </ul>
+          </div>
+        </aside>
+
+        <main class="auth-page__main" id="main-content"></main></div
+    ></app-root>
+
     <script>
-      // Apply the stored language before first paint so Arabic users never see an
-      // LTR flash while LanguageService bootstraps. Key mirrors STORAGE_KEYS.language.
+      // Runs during parse, before the first paint, so whatever it decides is what the user
+      // sees first. Two jobs: resolve the language (the shell above is written in English),
+      // and drop the shell on routes that do not use AuthLayout.
       (function () {
-        try {
-          var lang = localStorage.getItem('brooch.lang');
-          if (lang === 'ar' || lang === 'en') {
-            document.documentElement.lang = lang;
-            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+        // Mirrors LanguageService.readInitial(): the shared `.brooch.sa` cookie wins over
+        // localStorage, so arriving from the CRM keeps that app's language (and RTL).
+        function readLang() {
+          try {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+              var separator = cookies[i].indexOf('=');
+              if (separator < 0) continue;
+              if (cookies[i].slice(0, separator).trim() !== 'brooch.lang') continue;
+              var value = decodeURIComponent(cookies[i].slice(separator + 1).trim());
+              if (value === 'ar' || value === 'en') return value;
+            }
+          } catch (e) {
+            /* cookies blocked — fall through to the local preference */
           }
-        } catch (e) {
-          /* storage blocked — LanguageService still applies it after bootstrap */
+          try {
+            var stored = localStorage.getItem('brooch.lang');
+            if (stored === 'ar' || stored === 'en') return stored;
+          } catch (e) {
+            /* storage blocked — LanguageService still applies it after bootstrap */
+          }
+          return 'en';
+        }
+
+        var lang = readLang();
+        document.documentElement.lang = lang;
+        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+        var root = document.querySelector('app-root');
+
+        // Routes that render through AuthLayout. Anywhere else (the workspace shell) uses
+        // different chrome, so painting this hero there would only flash the wrong screen.
+        var AUTH_PATHS = [
+          '/login',
+          '/register',
+          '/forgot-password',
+          '/reset-password',
+          '/set-password',
+          '/select-company',
+          '/session-expired',
+          '/access-denied',
+          '/denied',
+          '/onboarding',
+        ];
+        var path = location.pathname.replace(/\/+$/, '') || '/';
+        var isAuthRoute = AUTH_PATHS.some(function (candidate) {
+          return path === candidate || path.indexOf(candidate + '/') === 0;
+        });
+        if (!isAuthRoute) {
+          root.textContent = '';
+          return;
+        }
+
+        if (lang !== 'ar') return;
+
+        // Only the Arabic copy is duplicated here — English is the markup above.
+        var AR = {
+          product: 'الحساب',
+          heroTitle: 'تسجيل دخول واحد آمن لمساحة بروش بالكامل',
+          heroLead: 'أدر الشركات والفرق والصلاحيات لكل تطبيقات بروش من مركز واحد.',
+          featureSecurity: 'أمان جلسات على مستوى المؤسسات',
+          featureApps: 'تشغيل CRM والتطبيقات فوراً',
+          featureTeams: 'أعضاء وأدوار وصلاحيات موحّدة',
+        };
+
+        var targets = root.querySelectorAll('[data-shell]');
+        for (var t = 0; t < targets.length; t++) {
+          var element = targets[t];
+          var translated = AR[element.getAttribute('data-shell')];
+          if (!translated) continue;
+          // Feature rows keep their icon: replace the trailing text node, not the element,
+          // so the DOM still matches what AuthLayout renders.
+          var last = element.lastChild;
+          if (last && last.nodeType === 3) {
+            last.nodeValue = translated;
+          } else {
+            element.textContent = translated;
+          }
         }
       })();
     </script>
-  </head>
-  <body>
-    <app-root></app-root>
   </body>
 </html>

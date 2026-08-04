@@ -10,7 +10,8 @@
     "build:stg": "ng build --configuration development",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "check:app-shell": "node scripts/check-app-shell.mjs"
   },
   "private": true,
   "packageManager": "npm@11.6.1",

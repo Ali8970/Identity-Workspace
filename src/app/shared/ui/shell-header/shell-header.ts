@@ -1,4 +1,12 @@
-import { Component, ElementRef, computed, effect, input, output, viewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  afterRenderEffect,
+  computed,
+  input,
+  output,
+  viewChild,
+} from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MyCompanyDto } from '../../../models/auth.model';
 
@@ -45,12 +53,15 @@ import { MyCompanyDto } from '../../../models/auth.model';
           }
           <select
             #companySelect
-            [value]="currentMembershipId()"
             (change)="onCompanyChange($any($event.target).value)"
             [disabled]="switching() || companies().length < 2"
           >
             @for (company of companies(); track company.tenantMembershipId) {
-              <option [value]="company.tenantMembershipId" [disabled]="!company.isSelectable">
+              <option
+                [value]="company.tenantMembershipId"
+                [selected]="company.tenantMembershipId === currentMembershipId()"
+                [disabled]="!company.isSelectable"
+              >
                 {{ companyLabel(company) }}
               </option>
             }
@@ -124,10 +135,14 @@ export class ShellHeader {
 
   constructor() {
     // A native <select> keeps whatever the user picked, even when the switch failed and
-    // the session never moved. Re-assert the session's company whenever it changes or a
-    // switch settles, so the control can never disagree with the real current company.
-    effect(() => {
+    // the session never moved, and it self-selects its first option whenever it is rendered
+    // with nothing selected. Re-assert the session's company after every render that touches
+    // the list, the current company or a settling switch, so the control can never disagree
+    // with the real current company. Must run after render: a plain effect fires before the
+    // @for has produced the options, and assigning a value no option carries is a no-op.
+    afterRenderEffect(() => {
       const current = this.currentMembershipId();
+      this.companies();
       this.switching();
       const element = this.companySelect()?.nativeElement;
       if (element && element.value !== current) {

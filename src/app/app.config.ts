@@ -9,7 +9,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { NavigationEnd, provideRouter, Router } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
-import { filter, switchMap } from 'rxjs';
+import { filter, forkJoin } from 'rxjs';
 import { routes } from './app.routes';
 import { SessionStore } from './core/auth/session.store';
 import { GlobalErrorService } from './core/error/global-error.service';
@@ -56,7 +56,16 @@ export const appConfig: ApplicationConfig = {
         globalErrors.clear();
       });
 
-      return language.init().pipe(switchMap(() => session.bootstrap()));
+      // Nothing renders until this completes, so the two requests it makes are the boot
+      // critical path. They are independent — translations come from /i18n (same-origin),
+      // the session probe is a cross-origin GET /me — but chaining them made boot cost
+      // both round trips instead of the slower one. /me dominates (CORS preflight + a
+      // ~140ms request), so running them together gets the /i18n fetch for free.
+      //
+      // Safe to parallelise because the Accept-Language header on /me comes from
+      // LanguageService.current(), a signal seeded from the cookie in the constructor —
+      // not from the translations this is loading.
+      return forkJoin([language.init(), session.bootstrap()]);
     }),
   ],
 };
