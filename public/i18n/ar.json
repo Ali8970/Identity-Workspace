@@ -171,7 +171,16 @@
     "workspace": "مساحة العمل",
     "openSidebar": "فتح القائمة",
     "closeSidebar": "إغلاق القائمة",
-    "signingOut": "جارٍ تسجيل الخروج…"
+    "signingOut": "جارٍ تسجيل الخروج…",
+    "themeLight": "التبديل إلى المظهر الفاتح",
+    "themeDark": "التبديل إلى المظهر الداكن",
+    "companyMenu": "تبديل الشركة",
+    "closeCompanyMenu": "إغلاق قائمة الشركات",
+    "findCompany": "ابحث عن شركة",
+    "noCompanyMatch": "لا توجد شركة مطابقة للبحث.",
+    "roleOwner": "أنت مالك",
+    "roleMember": "أنت عضو",
+    "companyUnavailable": "غير متاحة"
   },
   "applications": {
     "title": "التطبيقات",
@@ -233,7 +242,18 @@
       "Active": "نشط",
       "Suspended": "موقوف",
       "Removed": "محذوف"
-    }
+    },
+    "search": "ابحث بالاسم أو البريد",
+    "filterAllRoles": "كل الأدوار",
+    "filterAllStatuses": "كل الحالات",
+    "filterRoleLabel": "تصفية حسب الدور",
+    "filterStatusLabel": "تصفية حسب الحالة",
+    "showing": "عرض {{shown}} من {{total}}",
+    "noResults": "لا يوجد أعضاء مطابقون للتصفية",
+    "noResultsBody": "{{count}} عضواً مخفيون بسبب البحث والتصفية.",
+    "clearFilters": "مسح التصفية",
+    "inviteCancel": "إلغاء",
+    "submitting": "جارٍ إرسال الدعوة…"
   },
   "roles": {
     "title": "الأدوار",

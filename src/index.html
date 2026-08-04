@@ -83,6 +83,14 @@
           </div>
         </aside>
 
+        <div class="auth-page__strip" aria-hidden="true">
+          <span class="auth-page__mark">B</span>
+          <div>
+            <p class="auth-page__strip-name">Brooch</p>
+            <p class="auth-page__strip-sub" data-shell="product">Account</p>
+          </div>
+        </div>
+
         <main class="auth-page__main" id="main-content"></main></div
     ></app-root>
 
@@ -91,6 +99,19 @@
       // sees first. Two jobs: resolve the language (the shell above is written in English),
       // and drop the shell on routes that do not use AuthLayout.
       (function () {
+        // Mirrors ThemeService.readInitial(). Runs before the first paint because the
+        // token layer only reaches dark via `prefers-color-scheme` or this attribute —
+        // stamping it after bootstrap would flash a white ground at a dark-mode user.
+        // No stored preference means `system`, which the media query already handles.
+        try {
+          var storedTheme = localStorage.getItem('brooch.theme');
+          if (storedTheme === 'light' || storedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', storedTheme);
+          }
+        } catch (e) {
+          /* storage blocked — the OS preference still applies */
+        }
+
         // Mirrors LanguageService.readInitial(): the shared `.brooch.sa` cookie wins over
         // localStorage, so arriving from the CRM keeps that app's language (and RTL).
         function readLang() {

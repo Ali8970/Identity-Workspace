@@ -171,7 +171,16 @@
     "workspace": "Workspace",
     "openSidebar": "Open navigation",
     "closeSidebar": "Close navigation",
-    "signingOut": "Signing out…"
+    "signingOut": "Signing out…",
+    "themeLight": "Switch to light theme",
+    "themeDark": "Switch to dark theme",
+    "companyMenu": "Switch company",
+    "closeCompanyMenu": "Close company list",
+    "findCompany": "Find a company",
+    "noCompanyMatch": "No company matches that search.",
+    "roleOwner": "You are an owner",
+    "roleMember": "You are a member",
+    "companyUnavailable": "Unavailable"
   },
   "applications": {
     "title": "Applications",
@@ -233,7 +242,18 @@
       "Active": "Active",
       "Suspended": "Suspended",
       "Removed": "Removed"
-    }
+    },
+    "search": "Search name or email",
+    "filterAllRoles": "All roles",
+    "filterAllStatuses": "All statuses",
+    "filterRoleLabel": "Filter by role",
+    "filterStatusLabel": "Filter by status",
+    "showing": "Showing {{shown}} of {{total}}",
+    "noResults": "No members match those filters",
+    "noResultsBody": "{{count}} members are hidden by your search and filters.",
+    "clearFilters": "Clear filters",
+    "inviteCancel": "Cancel",
+    "submitting": "Sending invite…"
   },
   "roles": {
     "title": "Roles",

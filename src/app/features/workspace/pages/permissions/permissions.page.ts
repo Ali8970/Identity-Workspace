@@ -75,9 +75,9 @@ import { PermissionsSkeleton } from './permissions.skeleton';
                   [id]="'permissions-app-' + appGroup.applicationKey"
                 >
                   <span
-                    class="workspace-app-group__icon"
                     [class]="
-                      'workspace-app-group__icon--' + applicationModifier(appGroup.applicationKey)
+                      'workspace-app-group__icon workspace-app-group__icon--' +
+                      applicationModifier(appGroup.applicationKey)
                     "
                     aria-hidden="true"
                   >

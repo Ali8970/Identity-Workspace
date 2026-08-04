@@ -27,6 +27,12 @@
   }
 }
 
+.ui-btn__icon {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+}
+
 .ui-btn--primary {
   background: var(--primary);
   color: var(--primary-ink);
@@ -50,7 +56,7 @@
 
 .ui-btn--danger {
   background: var(--danger);
-  color: #fff;
+  color: var(--danger-ink);
 }
 
 .ui-btn--block {
@@ -116,25 +122,25 @@
 }
 
 .ui-alert--error {
-  border-color: color-mix(in srgb, var(--danger) 35%, white);
+  border-color: var(--danger-border);
   background: var(--danger-soft);
   color: var(--danger);
 }
 
 .ui-alert--success {
-  border-color: color-mix(in srgb, var(--success) 35%, white);
+  border-color: var(--success-border);
   background: var(--success-soft);
   color: var(--success);
 }
 
 .ui-alert--info {
-  border-color: color-mix(in srgb, var(--info) 35%, white);
+  border-color: var(--info-border);
   background: var(--info-soft);
   color: var(--info);
 }
 
 .ui-alert--warning {
-  border-color: color-mix(in srgb, var(--warning) 35%, white);
+  border-color: var(--warning-border);
   background: var(--warning-soft);
   color: var(--warning);
 }

@@ -30,6 +30,13 @@ const HERO_CLASSES = [
   'auth-page__features',
   'auth-page__feature-icon',
   'auth-page__main',
+  // The mobile brand strip. The hero is display:none below 920px, so on a phone
+  // this is the only thing the shell paints above the card — it has to mirror
+  // AuthLayout too or the hand-off shifts on exactly the devices most people
+  // sign in from.
+  'auth-page__strip',
+  'auth-page__strip-name',
+  'auth-page__strip-sub',
 ];
 
 const ORIGIN = 'https://dev.account.brooch.sa';

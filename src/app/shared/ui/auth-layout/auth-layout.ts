@@ -1,6 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LanguageService } from '../../../core/i18n/language.service';
+import { ThemeService } from '../../../core/theme/theme.service';
 import { GlobalErrorBanner } from '../global-error-banner/global-error-banner';
 
 @Component({
@@ -54,6 +55,14 @@ import { GlobalErrorBanner } from '../global-error-banner/global-error-banner';
         </div>
       </aside>
 
+      <div class="auth-page__strip" aria-hidden="true">
+        <span class="auth-page__mark">B</span>
+        <div>
+          <p class="auth-page__strip-name">Brooch</p>
+          <p class="auth-page__strip-sub">{{ 'auth.layout.product' | translate }}</p>
+        </div>
+      </div>
+
       <main class="auth-page__main" id="main-content">
         <div class="auth-page__toolbar">
           <div
@@ -78,6 +87,24 @@ import { GlobalErrorBanner } from '../global-error-banner/global-error-banner';
               AR
             </button>
           </div>
+
+          <button
+            type="button"
+            class="auth-page__icon-btn"
+            (click)="theme.toggle()"
+            [attr.aria-label]="(isDark() ? 'shell.themeLight' : 'shell.themeDark') | translate"
+          >
+            @if (isDark()) {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4" />
+              </svg>
+            } @else {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" />
+              </svg>
+            }
+          </button>
         </div>
 
         <div class="auth-page__card fade-up">
@@ -90,6 +117,10 @@ import { GlobalErrorBanner } from '../global-error-banner/global-error-banner';
 })
 export class AuthLayout {
   protected readonly language = inject(LanguageService);
+  protected readonly theme = inject(ThemeService);
+
+  /** The theme on screen, with `system` resolved — drives which icon to show. */
+  protected readonly isDark = computed(() => this.theme.resolved() === 'dark');
 
   protected setLanguage(lang: 'en' | 'ar'): void {
     if (lang !== this.language.current()) {

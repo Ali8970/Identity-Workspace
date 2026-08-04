@@ -35,6 +35,22 @@ import { MembersSkeleton } from './members.skeleton';
           <span class="workspace-chip workspace-chip--muted">
             {{ 'members.memberCount' | translate: { count: members().length } }}
           </span>
+          @if (canCreate()) {
+            <button type="button" class="ui-btn ui-btn--primary" (click)="openInvite()">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                aria-hidden="true"
+                class="ui-btn__icon"
+              >
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              {{ 'members.add' | translate }}
+            </button>
+          }
         </div>
       </header>
 
@@ -66,17 +82,49 @@ import { MembersSkeleton } from './members.skeleton';
           </div>
         }
 
-        @if (canCreate()) {
-          <section class="workspace-panel" aria-labelledby="members-invite-heading">
-            <header class="workspace-panel__head">
-              <h2 class="workspace-panel__title" id="members-invite-heading">
-                {{ 'members.add' | translate }}
-              </h2>
-              <p class="workspace-panel__lead">{{ 'members.inviteHint' | translate }}</p>
-            </header>
+        @if (canCreate() && inviteOpen()) {
+          <div class="workspace-dialog" role="presentation">
+            <button
+              type="button"
+              class="workspace-dialog__backdrop"
+              [attr.aria-label]="'members.inviteCancel' | translate"
+              (click)="closeInvite()"
+            ></button>
+            <div
+              class="workspace-dialog__panel workspace-dialog__panel--wide"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="members-invite-heading"
+              appFocusTrap
+              (dismiss)="closeInvite()"
+            >
+              <header class="workspace-dialog__head">
+                <div>
+                  <h2 class="workspace-dialog__title" id="members-invite-heading">
+                    {{ 'members.add' | translate }}
+                  </h2>
+                  <p class="workspace-dialog__lead">{{ 'members.inviteHint' | translate }}</p>
+                </div>
+                <button
+                  type="button"
+                  class="workspace-dialog__close"
+                  [attr.aria-label]="'members.inviteCancel' | translate"
+                  (click)="closeInvite()"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.75"
+                    aria-hidden="true"
+                  >
+                    <path d="M6 6l12 12M18 6 6 18" />
+                  </svg>
+                </button>
+              </header>
 
-            <div class="workspace-panel__body">
-              <form class="workspace-form" (submit)="onAdd($event)" novalidate>
+              <div class="workspace-dialog__body">
+                <form class="workspace-form" (submit)="onAdd($event)" novalidate>
                 <div class="auth-field">
                   <label class="auth-field__label" for="member-email">
                     {{ 'members.email' | translate }}
@@ -208,19 +256,32 @@ import { MembersSkeleton } from './members.skeleton';
                   </div>
                 </div>
 
-                <div class="workspace-form__actions">
-                  <button
-                    class="ui-btn ui-btn--primary"
-                    type="submit"
-                    [disabled]="busy() || addForm().invalid()"
-                    [attr.aria-busy]="busy()"
-                  >
-                    {{ 'members.submit' | translate }}
-                  </button>
-                </div>
-              </form>
+                  <div class="workspace-form__actions workspace-dialog__actions">
+                    <button
+                      type="button"
+                      class="ui-btn ui-btn--ghost"
+                      [disabled]="busy()"
+                      (click)="closeInvite()"
+                    >
+                      {{ 'members.inviteCancel' | translate }}
+                    </button>
+                    <button
+                      class="ui-btn ui-btn--primary"
+                      type="submit"
+                      [disabled]="busy() || addForm().invalid()"
+                      [attr.aria-busy]="busy()"
+                    >
+                      @if (busy()) {
+                        {{ 'members.submitting' | translate }}
+                      } @else {
+                        {{ 'members.submit' | translate }}
+                      }
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
-          </section>
+          </div>
         }
 
         <section class="workspace-data-card" aria-labelledby="members-list-heading">
@@ -228,11 +289,82 @@ import { MembersSkeleton } from './members.skeleton';
             <h2 class="workspace-data-card__title" id="members-list-heading">
               {{ 'members.listTitle' | translate }}
             </h2>
+            <span class="workspace-data-card__count">
+              {{
+                'members.showing'
+                  | translate: { shown: visibleMembers().length, total: members().length }
+              }}
+            </span>
           </header>
+
+          @if (members().length > 0) {
+            <!-- Filtering is a computed() over the already-loaded list, so none of
+                 this touches the network. -->
+            <div class="workspace-listbar">
+              <div class="workspace-listbar__search">
+                <span class="workspace-listbar__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <circle cx="11" cy="11" r="6.5" />
+                    <path d="m16 16 4.5 4.5" />
+                  </svg>
+                </span>
+                <input
+                  type="search"
+                  class="workspace-listbar__input"
+                  [value]="search()"
+                  (input)="search.set($any($event.target).value)"
+                  [placeholder]="'members.search' | translate"
+                  [attr.aria-label]="'members.search' | translate"
+                />
+              </div>
+
+              <select
+                class="workspace-facet"
+                [value]="roleFilter()"
+                (change)="roleFilter.set($any($event.target).value)"
+                [attr.aria-label]="'members.filterRoleLabel' | translate"
+              >
+                <option value="">{{ 'members.filterAllRoles' | translate }}</option>
+                @for (role of roles(); track role.id) {
+                  <option [value]="role.id">{{ language.pick(role.nameAr, role.nameEn) }}</option>
+                }
+              </select>
+
+              <select
+                class="workspace-facet"
+                [value]="statusFilter()"
+                (change)="statusFilter.set($any($event.target).value)"
+                [attr.aria-label]="'members.filterStatusLabel' | translate"
+              >
+                <option value="">{{ 'members.filterAllStatuses' | translate }}</option>
+                @for (status of statusOptions(); track status) {
+                  <option [value]="status">{{ statusLabel(status) | translate }}</option>
+                }
+              </select>
+            </div>
+          }
 
           @if (members().length === 0) {
             <div class="workspace-table-empty" role="status">
               {{ 'members.empty' | translate }}
+            </div>
+          } @else if (visibleMembers().length === 0) {
+            <!-- Distinct from the empty state above: nothing is missing, the filters
+                 are just hiding it. Offering "invite someone" here would be wrong. -->
+            <div class="workspace-empty workspace-empty--flush" role="status">
+              <span class="workspace-empty__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                  <circle cx="11" cy="11" r="6.5" />
+                  <path d="m16 16 4.5 4.5" />
+                </svg>
+              </span>
+              <p class="workspace-empty__title">{{ 'members.noResults' | translate }}</p>
+              <p class="workspace-empty__body">
+                {{ 'members.noResultsBody' | translate: { count: members().length } }}
+              </p>
+              <button type="button" class="ui-btn ui-btn--ghost" (click)="clearFilters()">
+                {{ 'members.clearFilters' | translate }}
+              </button>
             </div>
           } @else {
             <div class="workspace-table-wrap">
@@ -240,36 +372,41 @@ import { MembersSkeleton } from './members.skeleton';
                 <thead>
                   <tr>
                     <th scope="col">{{ 'members.colName' | translate }}</th>
-                    <th scope="col">{{ 'members.email' | translate }}</th>
                     <th scope="col">{{ 'members.colRoles' | translate }}</th>
                     <th scope="col">{{ 'members.colStatus' | translate }}</th>
                     @if (canManage()) {
-                      <th scope="col">{{ 'members.colActions' | translate }}</th>
+                      <th scope="col" class="workspace-table__actions-col">
+                        {{ 'members.colActions' | translate }}
+                      </th>
                     }
                   </tr>
                 </thead>
                 <tbody>
-                  @for (row of members(); track row.tenantMembershipId) {
+                  @for (row of visibleMembers(); track row.tenantMembershipId) {
                     <tr>
-                      <td>
+                      <td class="workspace-table__identity">
                         <div class="workspace-member">
                           <span class="workspace-member__avatar" aria-hidden="true">
                             {{ initials(row) }}
                           </span>
                           <span class="workspace-member__info">
-                            <span class="workspace-member__name">
-                              {{ language.pick(row.arabicName, row.englishName) }}
-                            </span>
-                            @if (row.isOwner) {
-                              <span class="workspace-member__owner">
-                                {{ 'members.owner' | translate }}
+                            <span class="workspace-member__name-row">
+                              <span class="workspace-member__name">
+                                {{ language.pick(row.arabicName, row.englishName) }}
                               </span>
-                            }
+                              @if (row.isOwner) {
+                                <span class="workspace-member__owner">
+                                  {{ 'members.owner' | translate }}
+                                </span>
+                              }
+                            </span>
+                            <!-- Email belongs with the name, not in its own column: it is
+                                 how you tell two people apart, not a fact you scan down. -->
+                            <span class="workspace-member__email ltr-text">{{ row.email }}</span>
                           </span>
                         </div>
                       </td>
-                      <td>{{ row.email }}</td>
-                      <td>
+                      <td [attr.data-label]="'members.colRoles' | translate">
                         <div class="workspace-role-list">
                           @if (row.roles.length === 0) {
                             <span class="workspace-role-pill workspace-role-pill--empty">
@@ -284,7 +421,7 @@ import { MembersSkeleton } from './members.skeleton';
                           }
                         </div>
                       </td>
-                      <td>
+                      <td [attr.data-label]="'members.colStatus' | translate">
                         @if (isKnownStatus(row.tenantMembershipStatus)) {
                           <span [class]="statusClass(row.tenantMembershipStatus)">
                             {{ statusLabel(row.tenantMembershipStatus) | translate }}
@@ -296,7 +433,7 @@ import { MembersSkeleton } from './members.skeleton';
                         }
                       </td>
                       @if (canManage()) {
-                        <td>
+                        <td class="workspace-table__actions-col">
                           <button
                             type="button"
                             class="ui-btn ui-btn--ghost workspace-table__action"
@@ -448,7 +585,46 @@ export class MembersPage {
   protected readonly loadFailed = computed(() => this.directory.status() === 'error');
 
   protected readonly busy = signal(false);
+  protected readonly inviteOpen = signal(false);
   protected readonly inviteResult = signal<AddMemberResult | null>(null);
+
+  /* Filters. All three are plain signals feeding one computed — the list is
+     already in memory, so filtering never touches the network. */
+  protected readonly search = signal('');
+  protected readonly roleFilter = signal('');
+  protected readonly statusFilter = signal('');
+
+  /** Statuses actually present in this company, not a hardcoded list. */
+  protected readonly statusOptions = computed(() =>
+    [...new Set(this.members().map((row) => row.tenantMembershipStatus))].sort(),
+  );
+
+  protected readonly visibleMembers = computed(() => {
+    const term = this.search().trim().toLowerCase();
+    const role = this.roleFilter();
+    const status = this.statusFilter();
+
+    return this.members().filter((row) => {
+      if (role && !row.roles.some((entry) => entry.roleId === role)) {
+        return false;
+      }
+      if (status && row.tenantMembershipStatus !== status) {
+        return false;
+      }
+      if (!term) {
+        return true;
+      }
+      // Match either name regardless of UI language — someone searching in
+      // English should still find a member stored only with an Arabic name.
+      return [row.email, row.arabicName, row.englishName].some((value) =>
+        (value ?? '').toLowerCase().includes(term),
+      );
+    });
+  });
+
+  protected readonly hasFilters = computed(
+    () => this.search().trim() !== '' || this.roleFilter() !== '' || this.statusFilter() !== '',
+  );
   protected readonly editingMember = signal<MemberListItem | null>(null);
   protected readonly savingRoles = signal(false);
   protected readonly model = signal({
@@ -492,6 +668,28 @@ export class MembersPage {
 
   protected reload(): void {
     this.directory.reload();
+  }
+
+  protected clearFilters(): void {
+    this.search.set('');
+    this.roleFilter.set('');
+    this.statusFilter.set('');
+  }
+
+  protected openInvite(): void {
+    if (!this.canCreate()) {
+      return;
+    }
+    this.inviteResult.set(null);
+    this.inviteOpen.set(true);
+  }
+
+  protected closeInvite(): void {
+    // Mid-flight requests keep the dialog up so the busy state stays visible.
+    if (this.busy()) {
+      return;
+    }
+    this.inviteOpen.set(false);
   }
 
 
@@ -597,6 +795,9 @@ export class MembersPage {
           roleIds: [],
           teamIds: [],
         });
+        // Close on success only. A failure leaves the dialog open with the
+        // typed values intact, so nobody has to re-enter the form to retry.
+        this.inviteOpen.set(false);
         this.directory.reload();
       } finally {
         this.busy.set(false);

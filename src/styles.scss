@@ -4,3 +4,47 @@
 @use './styles/shell';
 @use './styles/auth';
 @use './styles/workspace';
+
+/* ==========================================================================
+   Reduced motion — global guard
+
+   Emitted last so it wins on order. `_loading.scss` guards the skeletons and
+   overlays; everything else — the page-entrance fade, the sidebar slide, every
+   card lift — was unguarded. Spinners are re-enabled below: they are the only
+   signal that work is in flight, so removing them would remove information,
+   not decoration.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Keep the end state, drop the travel */
+  .fade-up,
+  .shell__main,
+  .auth-shell__panel {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .auth-company-card:hover:not(:disabled),
+  .auth-package-card:hover:not(:disabled),
+  .app-launcher-card:hover,
+  .app-card:hover {
+    transform: none;
+  }
+
+  .auth-form__spinner,
+  .auth-company-card__spinner,
+  .workspace-loading__spinner {
+    animation-duration: 1.4s !important;
+    animation-iteration-count: infinite !important;
+  }
+}

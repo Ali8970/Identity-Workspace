@@ -1,5 +1,28 @@
+/* ==========================================================================
+   Design tokens — the only place in the app allowed to name a colour.
+
+   Two rules keep this file load-bearing:
+
+   1. Every semantic ships a triplet — `--x`, `--x-soft`, `--x-border` — so no
+      component ever calls `color-mix()` inline. The soft/border variants mix
+      against `var(--surface)`, and because custom properties resolve lazily,
+      redefining `--surface` in the dark block re-derives all of them for free.
+   2. A literal hex or rgba() outside this file is a bug. A teal palette once
+      survived a whole migration to indigo precisely because four rules in
+      `_shell.scss` held raw rgba().
+   ========================================================================== */
+
 :root {
-  /* Light theme — Brooch Account */
+  color-scheme: light dark;
+
+  /* Brand */
+  --primary: #1e00b0;
+  --primary-hover: #2a14d4;
+  --primary-ink: #ffffff;
+  --primary-soft: color-mix(in oklab, var(--primary) 10%, var(--surface));
+  --primary-border: color-mix(in oklab, var(--primary) 24%, var(--surface));
+
+  /* Ground and surfaces */
   --ground: #f3f5f8;
   --ground-accent: #e8eef6;
   --surface: #ffffff;
@@ -7,25 +30,70 @@
   --surface-3: #eef2f7;
   --line: #dce3ee;
   --line-strong: #c5cfde;
+
+  /* Text */
   --text: #152033;
   --text-2: #3d4a5c;
   --muted: #66758a;
-  --primary: #1e00b0;
-  --primary-hover: #2a14d4;
-  --primary-soft: rgba(30, 0, 176, 0.1);
-  --primary-ink: #ffffff;
+
+  /* The auth hero is a committed dark brand panel in *both* themes. It must not
+     take the dark-mode lightness lift below, or the white text sitting on it
+     would drop to roughly 2:1 contrast. Depth comes from lightness, not hue. */
+  --hero-from: #2a14d4;
+  --hero-mid: #1e00b0;
+  --hero-to: #150079;
+  --hero-ink: #ffffff;
+
+  /* Modal scrim. Deliberately *not* derived from `--text`: a scrim darkens
+     whatever is behind it, and `--text` inverts to near-white in dark mode,
+     which would turn every backdrop into a white wash. */
+  --scrim: rgba(21, 32, 51, 0.42);
+
+  /* Semantics */
   --danger: #c23545;
-  --danger-soft: rgba(194, 53, 69, 0.1);
+  --danger-ink: #ffffff;
+  --danger-soft: color-mix(in oklab, var(--danger) 10%, var(--surface));
+  --danger-border: color-mix(in oklab, var(--danger) 28%, var(--surface));
   --success: #0f7a4f;
-  --success-soft: rgba(15, 122, 79, 0.1);
+  --success-soft: color-mix(in oklab, var(--success) 10%, var(--surface));
+  --success-border: color-mix(in oklab, var(--success) 28%, var(--surface));
   --warning: #a15c07;
-  --warning-soft: rgba(161, 92, 7, 0.12);
+  --warning-soft: color-mix(in oklab, var(--warning) 12%, var(--surface));
+  --warning-border: color-mix(in oklab, var(--warning) 28%, var(--surface));
+  --warning-ink: color-mix(in oklab, var(--warning) 85%, var(--text));
   --info: #1d5bb8;
-  --info-soft: rgba(29, 91, 184, 0.1);
+  --info-soft: color-mix(in oklab, var(--info) 10%, var(--surface));
+  --info-border: color-mix(in oklab, var(--info) 28%, var(--surface));
+
+  /* Sibling application hues — were hardcoded in `_workspace.scss` */
+  --app-crm: var(--info);
+  --app-hr: #7c3aed;
+  --app-hr-soft: color-mix(in oklab, var(--app-hr) 12%, var(--surface));
+  --app-hr-border: color-mix(in oklab, var(--app-hr) 22%, var(--surface));
+
+  /* Loading system — kept here so the dark block can reach them. Declaring
+     them in `_loading.scss` put a plain `:root` after this file's dark
+     media query, and equal specificity means the later rule wins. */
+  --skeleton-base: #e4eaf2;
+  --skeleton-base-strong: #d8e0ec;
+  --skeleton-sheen: rgba(255, 255, 255, 0.78);
+  --skeleton-radius: 10px;
+  --skeleton-speed: 1.5s;
+
+  /* Type — three voices: display, body, and mono for machine identifiers.
+     `--font-mono` was referenced in three places but never defined, so every
+     permission key and session id fell back to the browser default. */
+  --font-sans: 'Segoe UI Variable Text', 'Segoe UI', -apple-system, 'Helvetica Neue',
+    system-ui, sans-serif;
+  --font-display: 'Segoe UI Variable Display', 'Segoe UI', -apple-system, system-ui,
+    sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, monospace;
+  --font-arabic: 'Segoe UI', 'Noto Sans Arabic', 'IBM Plex Sans Arabic', 'Geeza Pro',
+    Tahoma, sans-serif;
+  --line-body: 1.55;
+
   --radius: 12px;
   --radius-sm: 8px;
-  --font-sans: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
-  --font-display: 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
   --shadow: 0 12px 32px -16px rgba(21, 32, 51, 0.22);
   --shadow-sm: 0 2px 8px rgba(21, 32, 51, 0.06);
   --header-h: 64px;
@@ -33,6 +101,100 @@
   --nav-w-collapsed: 76px;
   --transition: 160ms ease;
 }
+
+/* --------------------------------------------------------------------------
+   Dark theme
+
+   Only tokens are redefined — never a component rule. Anything that styles
+   through the tokens above themes itself.
+   -------------------------------------------------------------------------- */
+
+@mixin dark-tokens {
+  --ground: #0f1320;
+  --ground-accent: #141a2b;
+  --surface: #161c2b;
+  --surface-2: #1b2233;
+  --surface-3: #212a3d;
+  --line: #2a3448;
+  --line-strong: #3a4761;
+
+  --text: #e6ebf5;
+  --text-2: #b3bdd0;
+  --muted: #8593ab;
+
+  /* #1e00b0 is unreadable on a dark ground. Lift the lightness, keep the hue —
+     do not invert, which would land somewhere else entirely. */
+  --primary: #9a8bff;
+  --primary-hover: #b3a6ff;
+  --primary-ink: #100c26;
+
+  --danger: #ff8095;
+  --danger-ink: #2c0710;
+  --success: #4fd39b;
+  --warning: #e5ab5c;
+  --info: #7fb2ff;
+  --app-hr: #b39aff;
+
+  /* Deepened a touch so the panel doesn't glare against a dark workspace */
+  --hero-from: #23109f;
+  --hero-mid: #180089;
+  --hero-to: #0d0058;
+
+  /* Needs to be heavier here — a light scrim over a dark ground reads as fog */
+  --scrim: rgba(0, 0, 0, 0.62);
+
+  /* A 10% tint that reads clearly against white all but disappears against a
+     dark ground, so the soft fills carry more of the hue here. The border
+     ratios are unchanged — those already had enough separation. */
+  --primary-soft: color-mix(in oklab, var(--primary) 17%, var(--surface));
+  --danger-soft: color-mix(in oklab, var(--danger) 16%, var(--surface));
+  --success-soft: color-mix(in oklab, var(--success) 16%, var(--surface));
+  --warning-soft: color-mix(in oklab, var(--warning) 17%, var(--surface));
+  --info-soft: color-mix(in oklab, var(--info) 16%, var(--surface));
+  --app-hr-soft: color-mix(in oklab, var(--app-hr) 17%, var(--surface));
+
+  --skeleton-base: #202940;
+  --skeleton-base-strong: #27314c;
+  --skeleton-sheen: rgba(255, 255, 255, 0.07);
+
+  --shadow: 0 12px 32px -16px rgba(0, 0, 0, 0.75);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    @include dark-tokens;
+  }
+}
+
+/* An explicit choice beats the OS preference, in both directions. `ThemeService`
+   stamps `data-theme` on <html>; without it the media query above applies. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  @include dark-tokens;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+/* --------------------------------------------------------------------------
+   Arabic
+
+   Rebinding the font tokens at the direction boundary re-types the entire app
+   without touching a single component. Arabic also needs more leading than
+   Latin at the same optical size.
+   -------------------------------------------------------------------------- */
+
+[dir='rtl'] {
+  --font-sans: var(--font-arabic);
+  --font-display: var(--font-arabic);
+  --line-body: 1.75;
+}
+
+/* --------------------------------------------------------------------------
+   Base
+   -------------------------------------------------------------------------- */
 
 *,
 *::before,
@@ -48,10 +210,11 @@ body {
 body {
   margin: 0;
   font-family: var(--font-sans);
+  line-height: var(--line-body);
   color: var(--text);
   background:
-    radial-gradient(900px 420px at 8% -10%, rgba(30, 0, 176, 0.07), transparent 55%),
-    radial-gradient(700px 380px at 100% 0%, rgba(29, 91, 184, 0.05), transparent 50%),
+    radial-gradient(900px 420px at 8% -10%, color-mix(in oklab, var(--primary) 7%, transparent), transparent 55%),
+    radial-gradient(700px 380px at 100% 0%, color-mix(in oklab, var(--info) 6%, transparent), transparent 50%),
     var(--ground);
   -webkit-font-smoothing: antialiased;
 }
@@ -93,6 +256,63 @@ textarea {
   inset-inline-start: 0.75rem;
   top: 0.75rem;
 }
+
+/* --------------------------------------------------------------------------
+   Arabic typography guards
+
+   `text-transform: uppercase` is a no-op on Arabic glyphs, so an uppercased
+   Latin label sitting beside an untransformed Arabic one stops reading as the
+   same element. Letter-spacing is worse — it breaks the cursive joins.
+   Hierarchy in RTL comes from size and colour instead.
+   -------------------------------------------------------------------------- */
+
+[dir='rtl'] {
+  .workspace-page__eyebrow,
+  .shell-header__eyebrow,
+  .workspace-app-group__title,
+  .workspace-role-card__code,
+  .workspace-access-role__code,
+  .workspace-access-perm-group__title,
+  .workspace-role-card__perm-title,
+  .workspace-dl__label,
+  .app-launcher-card__key,
+  .app-launcher-card__badge,
+  .auth-package-card__badge,
+  .auth-dev-badge,
+  .ui-ms__option-meta,
+  .mock-toolbar h3,
+  .workspace-table th {
+    letter-spacing: normal;
+    text-transform: none;
+  }
+}
+
+/* Machine identifiers never mirror. Permission keys, role codes, session refs,
+   emails and URLs are LTR strings — inside Arabic text the bidi algorithm
+   reorders them around their dots and at-signs, so `identity.roles.read` can
+   render as `read.roles.identity`. Isolating them fixes it at the source.
+   `.ltr-text` is for one-off use in templates; the rest are typed by class, so
+   the treatment cannot be forgotten on a new page.
+   Alignment is deliberately left alone — these live in flex rows whose own
+   `text-align` already places them. */
+.ltr-text,
+.workspace-perm-item:not(.workspace-perm-item--empty),
+.workspace-perm-catalog-item__key,
+.workspace-session-row__id,
+.workspace-role-card__code,
+.workspace-access-role__code,
+.app-launcher-card__key {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.ltr-text {
+  text-align: start;
+}
+
+/* --------------------------------------------------------------------------
+   Motion
+   -------------------------------------------------------------------------- */
 
 @keyframes fade-up {
   from {

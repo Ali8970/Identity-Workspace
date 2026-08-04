@@ -88,11 +88,16 @@ import { ApplicationsSkeleton } from './applications.skeleton';
               class="app-launcher-card"
               role="listitem"
               [class.app-launcher-card--current]="app.isCurrent"
+              [class.app-launcher-card--locked]="isLocked(app)"
             >
               <div class="app-launcher-card__head">
+                <!-- One class binding rather than a static attribute plus a bound
+                     one: together they are ambiguous about which wins. -->
                 <span
-                  class="app-launcher-card__icon"
-                  [class]="'app-launcher-card__icon--' + applicationModifier(app.key)"
+                  [class]="
+                    'app-launcher-card__icon app-launcher-card__icon--' +
+                    applicationModifier(app.key)
+                  "
                   aria-hidden="true"
                 >
                   @switch (app.key) {
@@ -191,7 +196,21 @@ import { ApplicationsSkeleton } from './applications.skeleton';
                     }
                   </a>
                 } @else {
-                  <span class="workspace-chip workspace-chip--muted">
+                  <!-- Reads as a state, not a caption. Silence here is worse than a
+                       reason: an app you cannot open should say so. -->
+                  <span class="app-launcher-card__locked">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.9"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <rect x="4.5" y="10.5" width="15" height="9.5" rx="2" />
+                      <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" />
+                    </svg>
                     {{ 'applications.unavailable' | translate }}
                   </span>
                 }
@@ -242,6 +261,15 @@ export class ApplicationsPage {
 
   protected canLaunch(baseUrl: string | null): boolean {
     return this.applicationsService.canLaunch(baseUrl);
+  }
+
+  /**
+   * An app that is neither the current one nor launchable. Kept separate from
+   * `canLaunch` so the current app — which is also not launchable — never picks
+   * up the locked treatment.
+   */
+  protected isLocked(app: AvailableApplicationDto): boolean {
+    return !app.isCurrent && !(this.canLaunch(app.baseUrl) && app.baseUrl);
   }
 
   protected onPageShow(): void {

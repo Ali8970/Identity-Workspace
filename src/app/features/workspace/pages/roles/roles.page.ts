@@ -74,9 +74,9 @@ import { RolesSkeleton } from './roles.skeleton';
               <header class="workspace-app-group__head">
                 <h2 class="workspace-app-group__title" [id]="'roles-app-' + group.applicationKey">
                   <span
-                    class="workspace-app-group__icon"
                     [class]="
-                      'workspace-app-group__icon--' + applicationModifier(group.applicationKey)
+                      'workspace-app-group__icon workspace-app-group__icon--' +
+                      applicationModifier(group.applicationKey)
                     "
                     aria-hidden="true"
                   >

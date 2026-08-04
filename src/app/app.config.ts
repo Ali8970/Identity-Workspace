@@ -19,6 +19,7 @@ import { csrfInterceptor } from './core/interceptors/csrf.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { languageInterceptor } from './core/interceptors/language.interceptor';
 import { loadingInterceptor } from './core/interceptors/loading.interceptor';
+import { ThemeService } from './core/theme/theme.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -50,6 +51,11 @@ export const appConfig: ApplicationConfig = {
       const session = inject(SessionStore);
       const router = inject(Router);
       const globalErrors = inject(GlobalErrorService);
+
+      // Synchronous and off the critical path — it only stamps `data-theme` on
+      // <html>. The inline script in index.html has already done this for the
+      // pre-boot shell, so nothing repaints here.
+      inject(ThemeService).init();
 
       // Drop stale banners when leaving a page (e.g. login → register).
       router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)).subscribe(() => {

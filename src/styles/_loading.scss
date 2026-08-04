@@ -4,13 +4,8 @@
    swap the content for placeholder bars, so shapes always match the design.
    ========================================================================== */
 
-:root {
-  --skeleton-base: #e4eaf2;
-  --skeleton-base-strong: #d8e0ec;
-  --skeleton-sheen: rgba(255, 255, 255, 0.78);
-  --skeleton-radius: 10px;
-  --skeleton-speed: 1.5s;
-}
+/* Skeleton tokens live in `_tokens.scss` so the dark block can reach them —
+   a plain `:root` here would sit after that media query and win on order. */
 
 /* --------------------------------------------------------------------------
    Placeholder bar
@@ -248,7 +243,7 @@
   z-index: 120;
   display: grid;
   place-items: center;
-  background: rgba(21, 32, 51, 0.42);
+  background: var(--scrim);
   backdrop-filter: blur(2px);
   animation: ui-overlay-in 160ms ease both;
 }

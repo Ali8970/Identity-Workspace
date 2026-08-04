@@ -11,11 +11,16 @@
   position: relative;
   overflow: hidden;
   padding: clamp(1.5rem, 4vw, 3rem);
-  color: var(--primary-ink);
+  color: var(--hero-ink);
+  /* Single-hue ramp. This used to end on #0a5c56 — a leftover from the teal
+     palette — which read as a muddy hue shift rather than a deliberate one.
+     Depth now comes from lightness. The hero keeps its own tokens because it
+     stays a dark panel in dark mode; `--primary` lifts, and white text on the
+     lifted violet would fail contrast. */
   background:
     radial-gradient(120% 80% at 0% 0%, rgba(255, 255, 255, 0.16), transparent 55%),
     radial-gradient(90% 70% at 100% 100%, rgba(0, 0, 0, 0.12), transparent 50%),
-    linear-gradient(155deg, var(--primary-hover) 0%, var(--primary) 52%, #0a5c56 100%);
+    linear-gradient(155deg, var(--hero-from) 0%, var(--hero-mid) 52%, var(--hero-to) 100%);
 }
 
 .auth-page__hero-inner {
@@ -44,7 +49,8 @@
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 1.15rem;
-  color: var(--primary);
+  /* Sits on the white chip over the hero — must stay the deep brand indigo */
+  color: var(--hero-mid);
   background: rgba(255, 255, 255, 0.96);
   box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.35);
 }
@@ -129,6 +135,37 @@
   position: absolute;
   top: clamp(0.85rem, 2vw, 1.25rem);
   inset-inline-end: clamp(0.85rem, 2vw, 1.25rem);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.auth-page__icon-btn {
+  width: 2.35rem;
+  height: 2.35rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-2);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition:
+    background var(--transition),
+    border-color var(--transition),
+    color var(--transition);
+
+  svg {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  &:hover {
+    background: var(--surface-2);
+    border-color: var(--line-strong);
+    color: var(--text);
+  }
 }
 
 .auth-page__lang {
@@ -256,7 +293,7 @@
   place-items: center;
   background: var(--success-soft);
   color: var(--success);
-  border: 1px solid color-mix(in srgb, var(--success) 25%, white);
+  border: 1px solid var(--success-border);
 
   svg {
     width: 1.65rem;
@@ -266,19 +303,19 @@
   &--info {
     background: var(--info-soft);
     color: var(--info);
-    border-color: color-mix(in srgb, var(--info) 25%, white);
+    border-color: var(--info-border);
   }
 
   &--warning {
     background: var(--warning-soft);
     color: var(--warning);
-    border-color: color-mix(in srgb, var(--warning) 25%, white);
+    border-color: var(--warning-border);
   }
 
   &--danger {
     background: var(--danger-soft);
     color: var(--danger);
-    border-color: color-mix(in srgb, var(--danger) 25%, white);
+    border-color: var(--danger-border);
   }
 }
 
@@ -489,8 +526,9 @@
   width: 1rem;
   height: 1rem;
   border-radius: 999px;
-  border: 2px solid rgba(255, 255, 255, 0.35);
-  border-top-color: #fff;
+  /* Lives inside the submit button, so it tracks the button's ink in both themes */
+  border: 2px solid color-mix(in oklab, currentColor 35%, transparent);
+  border-top-color: currentColor;
   animation: auth-spin 680ms linear infinite;
 }
 
@@ -541,7 +579,7 @@
   border-radius: 999px;
   border: 1px dashed color-mix(in srgb, var(--warning) 45%, var(--line));
   background: var(--warning-soft);
-  color: color-mix(in srgb, var(--warning) 85%, black);
+  color: var(--warning-ink);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -577,25 +615,25 @@
 
   &--info {
     background: var(--info-soft);
-    border-color: color-mix(in srgb, var(--info) 28%, white);
+    border-color: var(--info-border);
     color: var(--info);
   }
 
   &--success {
     background: var(--success-soft);
-    border-color: color-mix(in srgb, var(--success) 28%, white);
+    border-color: var(--success-border);
     color: var(--success);
   }
 
   &--warning {
     background: var(--warning-soft);
-    border-color: color-mix(in srgb, var(--warning) 28%, white);
+    border-color: var(--warning-border);
     color: var(--warning);
   }
 
   &--error {
     background: var(--danger-soft);
-    border-color: color-mix(in srgb, var(--danger) 28%, white);
+    border-color: var(--danger-border);
     color: var(--danger);
   }
 }
@@ -737,13 +775,13 @@
   &--owner {
     color: var(--primary);
     background: var(--primary-soft);
-    border-color: color-mix(in srgb, var(--primary) 20%, white);
+    border-color: var(--primary-border);
   }
 
   &--active {
     color: var(--success);
     background: var(--success-soft);
-    border-color: color-mix(in srgb, var(--success) 20%, white);
+    border-color: var(--success-border);
   }
 }
 
@@ -799,7 +837,7 @@
 
     .auth-stepper__marker {
       background: var(--primary);
-      color: white;
+      color: var(--primary-ink);
       border-color: var(--primary);
     }
   }
@@ -810,7 +848,7 @@
     .auth-stepper__marker {
       background: var(--success-soft);
       color: var(--success);
-      border-color: color-mix(in srgb, var(--success) 35%, white);
+      border-color: var(--success-border);
     }
   }
 }
@@ -944,17 +982,58 @@
   }
 }
 
+/* The hero is hidden below 920px, which used to remove every trace of the brand
+   on the device most people sign in from. This replaces it with a compact strip
+   rather than nothing. It is mirrored in the pre-boot shell so the hand-off
+   still lands at CLS 0 on mobile. */
+.auth-page__strip {
+  display: none;
+}
+
 @media (max-width: 920px) {
   .auth-page {
     grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
   }
 
   .auth-page__hero {
     display: none;
   }
 
+  .auth-page__strip {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1.1rem;
+    color: var(--hero-ink);
+    background: linear-gradient(115deg, var(--hero-from), var(--hero-mid));
+
+    .auth-page__mark {
+      width: 2.2rem;
+      height: 2.2rem;
+      font-size: 0.95rem;
+      border-radius: 10px;
+      box-shadow: none;
+    }
+  }
+
+  .auth-page__strip-name {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+  }
+
+  .auth-page__strip-sub {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 600;
+    opacity: 0.88;
+  }
+
   .auth-page__main {
-    min-height: 100vh;
+    min-height: 0;
     padding-top: 3.5rem;
   }
 
