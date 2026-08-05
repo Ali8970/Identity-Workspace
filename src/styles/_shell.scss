@@ -38,6 +38,8 @@
 
 .shell__alert {
   margin: 0 1.25rem;
+  /* Cleared of the sticky header when scrolled into view. */
+  scroll-margin-block-start: calc(var(--header-h) + 1.5rem);
 }
 
 .shell__main {

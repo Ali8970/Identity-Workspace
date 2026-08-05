@@ -1,6 +1,7 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, ElementRef, afterRenderEffect, inject, input, viewChild } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { GlobalErrorService } from '../../../core/error/global-error.service';
+import { scrollAlertIntoView } from '../../utils/scroll-alert-into-view';
 
 @Component({
   selector: 'app-global-error-banner',
@@ -8,7 +9,7 @@ import { GlobalErrorService } from '../../../core/error/global-error.service';
   template: `
     @if (errors.error(); as failure) {
       @if (variant() === 'auth') {
-        <div class="auth-status auth-status--error" role="alert" aria-live="assertive">
+        <div #alert class="auth-status auth-status--error" role="alert" aria-live="assertive">
           <span class="auth-status__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
               <circle cx="12" cy="12" r="9" />
@@ -32,7 +33,7 @@ import { GlobalErrorService } from '../../../core/error/global-error.service';
           </div>
         </div>
       } @else if (variant() === 'shell') {
-        <div class="shell__alert ui-alert ui-alert--error" role="alert" aria-live="assertive">
+        <div #alert class="shell__alert ui-alert ui-alert--error" role="alert" aria-live="assertive">
           <div class="global-error-banner__content">
             <p class="global-error-banner__message">{{ failure.message }}</p>
             @if (errors.retryAfter() > 0) {
@@ -103,6 +104,23 @@ export class GlobalErrorBanner {
 
   /** `auth` = inside login/register card; `shell` = workspace header area; `fixed` = viewport toast */
   readonly variant = input<'auth' | 'shell' | 'fixed'>('fixed');
+
+  /** Only the in-flow variants can be scrolled past; `fixed` is a viewport toast. */
+  private readonly alert = viewChild<ElementRef<HTMLElement>>('alert');
+
+  constructor() {
+    // Every backend failure lands here (the interceptor funnels them through
+    // GlobalErrorService), so scrolling the banner into view once covers the whole app.
+    // `afterRenderEffect` so the alert is in the DOM before it is measured; a new error is
+    // always a new object, so a repeated failure re-scrolls.
+    afterRenderEffect(() => {
+      const failure = this.errors.error();
+      const element = this.alert()?.nativeElement;
+      if (failure && element) {
+        scrollAlertIntoView(element);
+      }
+    });
+  }
 
   protected dismiss(): void {
     this.errors.dismiss();
