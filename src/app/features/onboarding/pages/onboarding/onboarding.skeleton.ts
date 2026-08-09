@@ -1,5 +1,6 @@
 import { Component, input } from '@angular/core';
 import { Skeleton, SkeletonHost, times } from '../../../../shared/ui/skeleton/skeleton';
+import { OnboardingStep } from '../../models/onboarding-feature.model';
 
 /** Mirrors whichever onboarding step is loading: the company form or the package list. */
 @Component({
@@ -38,7 +39,7 @@ import { Skeleton, SkeletonHost, times } from '../../../../shared/ui/skeleton/sk
   `,
 })
 export class OnboardingSkeleton extends SkeletonHost {
-  readonly step = input<'company' | 'package'>('company');
+  readonly step = input<OnboardingStep>('company');
 
   protected readonly fields = times(2);
   protected readonly packages = times(3);

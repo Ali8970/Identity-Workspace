@@ -146,18 +146,6 @@ export interface TeamDetailDto {
   version: number;
 }
 
-/** GET /packages — PackageResponse. Descriptions are nullable. */
-export interface PackageDto {
-  id: string;
-  nameAr: string;
-  nameEn: string;
-  descriptionAr: string | null;
-  descriptionEn: string | null;
-  displayOrder: number;
-  isActive: boolean;
-  createdAt?: string;
-}
-
 export interface PagedResult<T> {
   items: T[];
   totalCount: number;

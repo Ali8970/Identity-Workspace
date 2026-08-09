@@ -42,8 +42,22 @@ export const API_ROUTES = {
   registerTenant: `${base}/tenants/register`,
   tenant: `${base}/tenant`,
   tenantProfile: `${base}/tenant/profile`,
-  packages: `${base}/packages`,
-  freeTrial: `${base}/subscriptions/free-trial`,
+
+  // Subscriptions — Subscription owns every tenant-facing payment route. Onboarding never
+  // calls a /payments/* endpoint: that surface is read-only history and provider webhooks.
+  availablePackages: `${base}/subscriptions/available-packages`,
+  subscriptions: `${base}/subscriptions`,
+  currentSubscription: `${base}/subscriptions/current`,
+  subscriptionOperation: (operationId: string) =>
+    `${base}/subscription-operations/${operationId}`,
+  paySubscriptionOperation: (operationId: string) =>
+    `${base}/subscription-operations/${operationId}/pay`,
+  verifySubscriptionPayment: (operationId: string) =>
+    `${base}/subscription-operations/${operationId}/payments/verify`,
+  retrySubscriptionPayment: (operationId: string) =>
+    `${base}/subscription-operations/${operationId}/retry-payment`,
+  retrySubscriptionProvisioning: (operationId: string) =>
+    `${base}/subscription-operations/${operationId}/retry-provisioning`,
 
   // Teams (Tenant module)
   teams: `${base}/teams`,

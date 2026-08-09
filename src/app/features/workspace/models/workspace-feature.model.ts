@@ -7,7 +7,6 @@ export type {
   MyAccessResponse,
   MyAccessRoleDto,
   MyAccessTeamDto,
-  PackageDto,
   PermissionCatalogItem,
   RoleListItem,
   SessionDto,

@@ -27,6 +27,8 @@ export interface LoginQueryState {
   intentId: string | null;
   returnUrl: string | null;
   selectionRestartRequired: boolean;
+  /** `?onboarded=1` — set by the onboarding hand-off, which signs the owner out on purpose. */
+  justOnboarded: boolean;
 }
 
 export interface PasswordLinkParams {

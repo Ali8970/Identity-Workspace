@@ -25,6 +25,7 @@ export class LoginService {
       intentId: intent,
       returnUrl: isSafeReturnUrl(returnUrl) ? returnUrl : null,
       selectionRestartRequired: params.get('selectionRestartRequired') === '1',
+      justOnboarded: params.get('onboarded') === '1',
     };
   }
 

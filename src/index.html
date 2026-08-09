@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="utf-8" />
     <title>Brooch Account</title>
@@ -9,31 +9,12 @@
       name="description"
       content="Sign in to Brooch Account — one secure identity for your companies, teams, and every Brooch application."
     />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="color-scheme" content="light dark" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
-
-    <!--
-      The session probe (GET /me) is the first thing the app initializer does and it is
-      cross-origin, so without this it pays DNS + TCP + TLS before the request even starts.
-      Warming the connection while the HTML parses takes that handshake off the boot path.
-    -->
     <link rel="preconnect" href="https://stg.api.brooch.sa" crossorigin />
   </head>
   <body>
-    <!--
-      Pre-boot app shell — the auth hero, painted before Angular loads.
-
-      Angular clears the host element's children when it bootstraps, so this is a throwaway
-      first paint. It exists because this is an SPA with no SSR: without it the first pixel
-      waits on main.js + /i18n/<lang>.json + the cross-origin /me probe, which is what put
-      LCP at 2.7s. The hero title here is the LCP element.
-
-      It must stay *static* markup: the production build inlines critical CSS by scanning
-      this file for used selectors, so markup injected by script would paint unstyled.
-
-      The structure mirrors the hero half of `shared/ui/auth-layout/auth-layout.ts` exactly
-      — same classes, same nesting, same strings — so when Angular takes over nothing moves
-      and CLS stays 0. `npm run check:app-shell` fails if the two drift.
-    -->
     <app-root
       ><div class="auth-page">
         <aside class="auth-page__hero" aria-hidden="true">
@@ -95,25 +76,17 @@
     ></app-root>
 
     <script>
-      // Runs during parse, before the first paint, so whatever it decides is what the user
-      // sees first. Two jobs: resolve the language (the shell above is written in English),
-      // and drop the shell on routes that do not use AuthLayout.
       (function () {
-        // Mirrors ThemeService.readInitial(). Runs before the first paint because the
-        // token layer only reaches dark via `prefers-color-scheme` or this attribute —
-        // stamping it after bootstrap would flash a white ground at a dark-mode user.
-        // No stored preference means `system`, which the media query already handles.
         try {
           var storedTheme = localStorage.getItem('brooch.theme');
-          if (storedTheme === 'light' || storedTheme === 'dark') {
-            document.documentElement.setAttribute('data-theme', storedTheme);
-          }
+          document.documentElement.setAttribute(
+            'data-theme',
+            storedTheme === 'dark' ? 'dark' : 'light',
+          );
         } catch (e) {
-          /* storage blocked — the OS preference still applies */
+          document.documentElement.setAttribute('data-theme', 'light');
         }
 
-        // Mirrors LanguageService.readInitial(): the shared `.brooch.sa` cookie wins over
-        // localStorage, so arriving from the CRM keeps that app's language (and RTL).
         function readLang() {
           try {
             var cookies = document.cookie.split(';');
@@ -124,15 +97,11 @@
               var value = decodeURIComponent(cookies[i].slice(separator + 1).trim());
               if (value === 'ar' || value === 'en') return value;
             }
-          } catch (e) {
-            /* cookies blocked — fall through to the local preference */
-          }
+          } catch (e) {}
           try {
             var stored = localStorage.getItem('brooch.lang');
             if (stored === 'ar' || stored === 'en') return stored;
-          } catch (e) {
-            /* storage blocked — LanguageService still applies it after bootstrap */
-          }
+          } catch (e) {}
           return 'en';
         }
 
@@ -141,9 +110,6 @@
         document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
 
         var root = document.querySelector('app-root');
-
-        // Routes that render through AuthLayout. Anywhere else (the workspace shell) uses
-        // different chrome, so painting this hero there would only flash the wrong screen.
         var AUTH_PATHS = [
           '/login',
           '/register',
@@ -167,7 +133,6 @@
 
         if (lang !== 'ar') return;
 
-        // Only the Arabic copy is duplicated here — English is the markup above.
         var AR = {
           product: 'الحساب',
           heroTitle: 'تسجيل دخول واحد آمن لمساحة بروش بالكامل',
@@ -182,8 +147,6 @@
           var element = targets[t];
           var translated = AR[element.getAttribute('data-shell')];
           if (!translated) continue;
-          // Feature rows keep their icon: replace the trailing text node, not the element,
-          // so the DOM still matches what AuthLayout renders.
           var last = element.lastChild;
           if (last && last.nodeType === 3) {
             last.nodeValue = translated;

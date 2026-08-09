@@ -40,6 +40,21 @@ alwaysApply: true
 - `POST /tenants/register` — no password; then set-password email → login
 - No OTP — 4-digit set-password codes / reset tokens only
 
+## Onboarding purchase (see `ONBOARDING_FRONTEND_GUIDE.md`, `AGENTS.md`)
+- Catalogue = `GET /subscriptions/available-packages`; `POST /subscriptions/free-trial` is **gone**
+- `POST /subscriptions` `{ packageId }` is the only free-vs-paid decision — read `requiresPayment`
+  off the response, never off the catalogue row
+- Never send amount / currency / price / status. `…/pay` = `{ token }`, `…/payments/verify` =
+  `{ providerPaymentId }`
+- Card data goes straight to Moyasar with `save_only: true` (bare `HttpBackend`, no cookie);
+  never to a Brooch origin
+- A provider redirect proves nothing — always `POST …/payments/verify`, then poll
+  `GET /subscription-operations/{id}`
+- Frontend owns `/onboarding/payment-return|-processing|-done|-failed`; these are NOT behind
+  `onboardingCompleteGuard`
+- Honour `requiresReauthentication`: log out, explain, land on `/login?onboarded=1`
+- Resume from `GET /subscriptions/current` — never restart a pending operation
+
 ## API
 - Features call `*Api` services only — never invent endpoints
 - Dev SPA: `https://dev.account.brooch.sa:4300` (ssl + host); `apiBaseUrl` absolute to staging (`https://stg.api.brooch.sa/api/v1`)

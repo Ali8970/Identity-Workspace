@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { AuthFlowStore } from '../../../../core/auth/auth-flow.store';
@@ -12,7 +12,7 @@ import { SelectCompanyService } from '../../services/select-company.service';
 
 @Component({
   selector: 'app-select-company-page',
-  imports: [TranslatePipe, RouterLink, AuthLayout, BusyOverlay],
+  imports: [TranslatePipe, AuthLayout, BusyOverlay],
   host: {
     class: 'auth-page-host auth-page-host--wide',
     '(window:pageshow)': 'onPageShow()',
@@ -48,9 +48,14 @@ import { SelectCompanyService } from '../../services/select-company.service';
             </svg>
           </div>
           <p class="auth-success__message">{{ 'auth.selectCompany.emptyList' | translate }}</p>
-          <a class="ui-btn ui-btn--primary auth-form__submit" routerLink="/login">
+          <button
+            class="ui-btn ui-btn--primary auth-form__submit"
+            type="button"
+            [disabled]="busy()"
+            (click)="backToSignIn()"
+          >
             {{ 'common.backToLogin' | translate }}
-          </a>
+          </button>
         </div>
       } @else {
         <p class="auth-form__section-lead">{{ 'auth.selectCompany.chooseHint' | translate }}</p>
@@ -108,7 +113,14 @@ import { SelectCompanyService } from '../../services/select-company.service';
       }
 
       <p class="auth-form__register">
-        <a class="auth-form__link" routerLink="/login">{{ 'common.backToLogin' | translate }}</a>
+        <button
+          class="auth-form__link"
+          type="button"
+          [disabled]="busy()"
+          (click)="backToSignIn()"
+        >
+          {{ 'common.backToLogin' | translate }}
+        </button>
       </p>
     </app-auth-layout>
 
@@ -139,6 +151,29 @@ export class SelectCompanyPage {
     this.redirecting.set(false);
     this.busy.set(false);
     this.selectingId.set(null);
+  }
+
+  /**
+   * Leaving the picker means abandoning the sign-in, so the Selection session is ended before
+   * navigating. A plain link to `/login` would be bounced right back here by `guestGuard`.
+   *
+   * A failed logout still lands on `/login`: the local session is dropped either way, and
+   * stranding the user on a picker they asked to leave is the worse outcome.
+   */
+  protected async backToSignIn(): Promise<void> {
+    if (this.busy()) {
+      return;
+    }
+    this.busy.set(true);
+    try {
+      await firstValueFrom(this.selectCompanyService.signOut());
+    } catch {
+      this.selectCompanyService.markSignedOut();
+    } finally {
+      this.selectCompanyService.clearFlow();
+      await this.router.navigate(['/login'], { replaceUrl: true });
+      this.busy.set(false);
+    }
   }
 
   protected async choose(tenantMembershipId: string): Promise<void> {

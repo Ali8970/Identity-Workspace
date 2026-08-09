@@ -72,6 +72,23 @@ export class SelectCompanyService {
     return this.session.refresh();
   }
 
+  /**
+   * Ends the half-finished session behind the picker.
+   *
+   * Navigating to `/login` on its own is a dead link here: the cookie session is real but
+   * still in Selection stage, and `guestGuard` sends an authenticated visitor straight back to
+   * `/select-company`. Going back to sign-in therefore has to mean signing out — which a
+   * Selection session is explicitly allowed to do.
+   */
+  signOut(): Observable<void> {
+    return this.session.logout();
+  }
+
+  /** Drops the local session when the logout call itself failed, so `/login` is reachable. */
+  markSignedOut(): void {
+    this.session.markAnonymous();
+  }
+
   clearFlow(): void {
     this.flow.clear();
   }

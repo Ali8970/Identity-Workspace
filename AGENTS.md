@@ -70,3 +70,31 @@ Three layers, do not invent a fourth:
 3. **Blocking overlay** — `<app-busy-overlay messageKey="…">` for actions that invalidate the page (logout, company switch, SSO hand-off). When the action ends in a full-page navigation, leave the overlay up rather than clearing it in a `finally`.
 
 Inline `aria-busy` + `.ui-spinner` still belongs on individual busy controls.
+
+### Onboarding purchase & payment
+
+Subscription owns every tenant-facing payment route; this SPA never calls `/payments/*`.
+Full contract: `ONBOARDING_FRONTEND_GUIDE.md`. Non-negotiables:
+
+- **Never send an amount, currency, price or status.** `POST /subscriptions` takes `{ packageId }`,
+  `…/pay` takes `{ token }`, `…/payments/verify` takes `{ providerPaymentId }`. Prices come from the
+  server's snapshot; on screen they are display only.
+- **`POST /subscriptions` decides free vs paid**, via `requiresPayment` on the *response*. The
+  catalogue's own `requiresPayment` only picks button copy.
+- **Card data goes to the provider only** — `MoyasarTokenizationService` uses a bare `HttpBackend`
+  (no interceptors, no cookie) and posts `save_only: true`. Nothing card-shaped may reach a Brooch
+  origin, a log, or the error pipeline.
+- **A provider redirect is not proof of payment.** `/onboarding/payment-return` reads only `id` off
+  the query string and posts it to `…/payments/verify`; `status`/`message` are never read. Screens
+  render `GET /subscription-operations/{id}`.
+- **Branch on flags, never on text or price arithmetic**: `isFree`, `isAvailable`, `requiresPayment`,
+  `paymentState`, `status`, `canRetryPayment`, `isPayable`.
+- **Resume from server state** (`GET /tenant`, `GET /subscriptions/current`), never from storage.
+  `CheckoutStore` holds only two breadcrumbs (package id, operation id) plus the in-memory
+  tokenization config — which is per attempt and never persisted.
+- **`requiresReauthentication` is honoured and explained** — `OnboardingCompletion` signs the owner
+  out and lands them on `/login?onboarded=1` with a success banner.
+- Payment result routes sit **outside** `onboardingCompleteGuard`; a verified payment activates the
+  tenant, and that guard would bounce the payer off their own result.
+- Provider/tokenization failures bypass the HTTP pipeline, so they are published through
+  `GlobalErrorService` via `clientError()` — never a page-local error panel.

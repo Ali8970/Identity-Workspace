@@ -119,7 +119,7 @@ export class AuthLayout {
   protected readonly language = inject(LanguageService);
   protected readonly theme = inject(ThemeService);
 
-  /** The theme on screen, with `system` resolved — drives which icon to show. */
+  /** Drives which theme-toggle icon to show. */
   protected readonly isDark = computed(() => this.theme.resolved() === 'dark');
 
   protected setLanguage(lang: 'en' | 'ar'): void {

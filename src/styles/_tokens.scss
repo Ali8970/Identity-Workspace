@@ -13,7 +13,7 @@
    ========================================================================== */
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 
   /* Brand */
   --primary: #1e00b0;
@@ -161,14 +161,7 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    @include dark-tokens;
-  }
-}
-
-/* An explicit choice beats the OS preference, in both directions. `ThemeService`
-   stamps `data-theme` on <html>; without it the media query above applies. */
+/* Theme is user-controlled only via `data-theme` — never `prefers-color-scheme`. */
 :root[data-theme='dark'] {
   color-scheme: dark;
   @include dark-tokens;

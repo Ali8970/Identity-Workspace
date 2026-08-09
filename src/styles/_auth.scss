@@ -555,6 +555,16 @@
   }
 }
 
+/* Some of these links are actions, not navigation (leaving a checkout, starting over), so they
+   are real <button>s. Strip the browser chrome so they read identically to the anchors. */
+button.auth-form__link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
 .auth-form__register {
   margin: 1rem 0 0;
   padding: 0.85rem 1rem;
@@ -957,6 +967,35 @@
   color: var(--text-2);
 }
 
+.auth-package-card__price {
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: var(--primary);
+}
+
+.auth-package-card__apps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.15rem;
+}
+
+.auth-package-card__app {
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-2);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.auth-package-card__note {
+  margin-top: 0.25rem;
+  font-size: 0.78rem;
+  color: var(--warning);
+}
+
 .auth-package-card__badge {
   display: inline-flex;
   align-self: start;
@@ -969,6 +1008,79 @@
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: uppercase;
+}
+
+/* ── Payment step ─────────────────────────────────────────────────────────── */
+
+/* The amount the SERVER priced. Shown, never used to decide anything. */
+.auth-pay-summary {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0 0 1.1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.auth-pay-summary__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+
+  dt {
+    margin: 0;
+    color: var(--text-2);
+    font-size: 0.84rem;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--text);
+    font-size: 0.86rem;
+    font-weight: 600;
+  }
+}
+
+.auth-pay-summary__row dd.auth-pay-summary__amount {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* Expiry month / year / CVC sit on one line; they wrap before they shrink to unusable. */
+.auth-field-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(4.5rem, 1fr));
+  gap: 0.65rem;
+
+  .auth-field {
+    min-width: 0;
+  }
+}
+
+/* These three carry no leading icon, so they must not reserve room for one. */
+.auth-field__input--bare {
+  padding-inline-start: 0.85rem;
+
+  [dir='rtl'] & {
+    padding-inline-end: 0.85rem;
+  }
+}
+
+.auth-card-form__lock {
+  display: inline-flex;
+  vertical-align: -0.15rem;
+  width: 0.95rem;
+  height: 0.95rem;
+  margin-inline-end: 0.3rem;
+  color: var(--success);
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
 }
 
 .auth-package-card__check {

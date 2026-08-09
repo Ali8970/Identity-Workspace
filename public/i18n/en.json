@@ -23,7 +23,8 @@
       "redirecting": "Redirecting you securely…",
       "selectionRestart": "Please sign in again to choose a company.",
       "intentBanner": "You are signing in to open another Brooch application.",
-      "retryIn": "Try again in {{seconds}}s"
+      "retryIn": "Try again in {{seconds}}s",
+      "onboardedBanner": "Your workspace is ready. Sign in again to pick up your new access."
     },
     "register": {
       "title": "Register company",
@@ -388,10 +389,11 @@
   },
   "onboarding": {
     "title": "Set up your workspace",
-    "subtitle": "Finish company details and choose a package to start your free trial.",
+    "subtitle": "Finish company details, then choose the plan that fits your team.",
     "stepsLabel": "Onboarding progress",
     "stepCompany": "Company",
     "stepPackage": "Package",
+    "stepPayment": "Payment",
     "companyTitle": "Company profile",
     "companyHint": "These names appear across Brooch apps and on invoices.",
     "packageTitle": "Choose a package",
@@ -401,13 +403,121 @@
     "arabicNamePlaceholder": "e.g. Company name in Arabic",
     "englishNamePlaceholder": "e.g. Brooch Trading Co.",
     "continue": "Continue",
-    "startTrial": "Start free trial",
-    "startTrialHint": "No payment required — your trial starts immediately after sign-in.",
-    "trialBadge": "Free trial",
+    "continueToPayment": "Continue to payment",
+    "activate": "Activate this plan",
+    "starting": "Preparing your plan…",
+    "freeHint": "No payment required — this plan activates as soon as you continue.",
+    "paidHint": "You will enter your card details on the next step. Nothing is charged until then.",
     "backToCompany": "Back to company profile",
     "loading": "Loading your workspace…",
-    "redirecting": "Starting your trial…",
-    "noPackages": "No packages are available right now. Contact support or try again later."
+    "redirecting": "Activating your workspace…",
+    "noPackages": "No packages are available right now. Contact support or try again later.",
+    "package": {
+      "free": "Free",
+      "pricePerPeriod": "{{amount}} / {{period}}",
+      "trial": "Includes a {{days}}-day free trial",
+      "period": {
+        "monthly": "month",
+        "quarterly": "quarter",
+        "yearly": "year",
+        "annual": "year",
+        "months": "{{count}} months"
+      },
+      "disabled": {
+        "default": "This package cannot be selected right now.",
+        "alreadyCurrent": "This is already your current package.",
+        "trialAlreadyRedeemed": "The free trial for this package has already been used.",
+        "downgradeNotSupported": "Moving down to this package is not supported."
+      }
+    },
+    "payment": {
+      "title": "Payment details",
+      "subtitle": "Your card is sent straight to our payment provider — never to Brooch.",
+      "loading": "Loading your purchase…",
+      "amountDue": "Amount due",
+      "window": "Payment window",
+      "expiresIn": "Expires in about {{minutes}} min",
+      "cardName": "Name on card",
+      "cardNamePlaceholder": "As printed on the card",
+      "cardNameInvalid": "Enter the name printed on the card.",
+      "cardNumber": "Card number",
+      "cardNumberInvalid": "Enter a valid card number.",
+      "expiryMonth": "Month",
+      "expiryYear": "Year",
+      "cvc": "CVC",
+      "expiryInvalid": "Check the expiry date and security code.",
+      "securityNote": "Card details go directly to our payment provider over a secure connection.",
+      "payAction": "Pay {{amount}}",
+      "paying": "Processing payment…",
+      "authenticating": "Opening your bank’s verification…",
+      "backToPackages": "Choose a different package",
+      "reopen": "Enter card details",
+      "reopening": "Reopening your purchase…",
+      "reopenHint": "This purchase is still waiting for payment. Reopen it to enter your card details again.",
+      "stalled": "This purchase is waiting for payment and cannot be reopened right now. Try again shortly, or contact support if it persists.",
+      "configurationMissing": "This package needs a payment, but checkout could not be prepared. Nothing has been charged — please try again.",
+      "tokenizationFailed": {
+        "declined": "Those card details were not accepted. Check them and try again — nothing was charged.",
+        "network": "We could not reach the payment provider. Nothing was charged — please try again.",
+        "misconfigured": "Card payments are temporarily unavailable. Please try again shortly."
+      },
+      "redirectRejected": {
+        "missing": "We could not open the card verification step. Nothing was charged — please try again.",
+        "insecure": "The card verification step was not offered over a secure connection, so we stopped. Nothing was charged.",
+        "untrustedHost": "The card verification step did not come from a recognised provider, so we stopped. Nothing was charged."
+      }
+    },
+    "result": {
+      "checking": "Checking your payment…",
+      "doNotClose": "Please keep this window open.",
+      "checkAgain": "Check again",
+      "continueToSignIn": "Continue to sign in",
+      "resumeSetup": "Resume setup",
+      "tryAnotherCard": "Try another card",
+      "notRetryable": "This purchase can no longer be retried. Start again from the package step.",
+      "backToPackages": "Back to packages",
+      "startAgain": "Start again",
+      "reauthNote": "Your workspace is ready — please sign in again to start.",
+      "loading": {
+        "title": "Confirming your payment",
+        "body": "We are checking the result with your payment provider."
+      },
+      "pending": {
+        "title": "Still processing",
+        "body": "Your provider has not finished this payment yet. Nothing will be charged twice."
+      },
+      "provisioning": {
+        "title": "Payment confirmed",
+        "body": "We are finishing your workspace setup now."
+      },
+      "completed": {
+        "title": "You are all set",
+        "body": "Your payment was verified and your subscription is active."
+      },
+      "provisioningFailed": {
+        "title": "Almost there",
+        "body": "Your payment went through and will not be taken again. Setting up your workspace did not finish — you can resume it here."
+      },
+      "failed": {
+        "title": "Payment not completed",
+        "body": "Your payment did not go through, so nothing was charged and your plan is unchanged."
+      },
+      "closed": {
+        "title": "This purchase is closed",
+        "body": "It was cancelled or expired before it completed. Nothing was charged."
+      },
+      "unknown": {
+        "title": "We could not find this purchase",
+        "body": "There is no purchase to confirm for this session. Go back and start again."
+      }
+    },
+    "pending": {
+      "body": "You already have a purchase awaiting payment for {{package}}.",
+      "locked": "A different plan can only be started once this one is paid or its payment window closes (about {{hours}}h left). There is no way to cancel it sooner.",
+      "hint": "Finish the purchase above, or wait for its payment window to close before choosing another plan.",
+      "continuePayment": "Continue payment",
+      "blockedAction": "Blocked by the pending purchase"
+    }
   },
   "common": {
     "backToLogin": "Back to sign in",

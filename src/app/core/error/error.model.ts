@@ -17,6 +17,32 @@ export interface BroochError {
   raw: unknown;
 }
 
+/**
+ * Shapes a failure that never travelled through the HTTP pipeline so it can be published on
+ * the one global banner.
+ *
+ * The direct-to-provider tokenization call deliberately bypasses every interceptor (see
+ * `MoyasarTokenizationService`), so its rejections would otherwise have nowhere to surface —
+ * and growing a second, page-local error UI for them is exactly what the error-handling rules
+ * forbid. `status: 0` marks it as client-side; there is no `traceId` because no Brooch request
+ * was made.
+ */
+export function clientError(code: string, message: string): BroochError {
+  return {
+    status: 0,
+    code,
+    message,
+    messageKey: null,
+    correlationId: null,
+    traceId: null,
+    redirectUrl: null,
+    fieldErrors: null,
+    requiredPermissions: null,
+    retryAfterSeconds: null,
+    raw: null,
+  };
+}
+
 export function isValidationError(error: BroochError): boolean {
   return error.code === 'Validation' || !!error.fieldErrors;
 }

@@ -10,8 +10,6 @@ import {
   AddMemberResult,
   MemberListItem,
   MemberRolesDto,
-  PackageDto,
-  PagedResult,
   PermissionCatalogItem,
   RoleListItem,
   SetTeamManagerRequest,
@@ -29,7 +27,6 @@ export type {
   AddMemberResult,
   MemberListItem,
   MemberRolesDto,
-  PackageDto,
   PermissionCatalogItem,
   RoleListItem,
   SetTeamManagerRequest,
@@ -208,18 +205,4 @@ export class TenantApi {
       .pipe(map(() => undefined));
   }
 
-  packages(): Observable<PackageDto[]> {
-    return this.http
-      .get<ApiResponse<PagedResult<PackageDto>>>(API_ROUTES.packages, { withCredentials: true })
-      .pipe(
-        unwrapData(),
-        map((page) => page.items ?? []),
-      );
-  }
-
-  startFreeTrial(packageId: string): Observable<unknown> {
-    return this.http
-      .post<ApiResponse<unknown>>(API_ROUTES.freeTrial, { packageId }, { withCredentials: true })
-      .pipe(unwrapData());
-  }
 }

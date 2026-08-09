@@ -39,6 +39,17 @@ import { LoginService } from '../../services/login.service';
           <span class="auth-status__body">{{ 'auth.login.intentBanner' | translate }}</span>
         </div>
       }
+      @if (justOnboarded()) {
+        <div class="auth-status auth-status--success" role="status">
+          <span class="auth-status__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+              <path d="m9 12 2 2 4-4" />
+              <circle cx="12" cy="12" r="9" />
+            </svg>
+          </span>
+          <span class="auth-status__body">{{ 'auth.login.onboardedBanner' | translate }}</span>
+        </div>
+      }
       @if (selectionRestartRequired()) {
         <div class="auth-status auth-status--warning" role="status">
           <span class="auth-status__icon" aria-hidden="true">
@@ -189,6 +200,8 @@ export class LoginPage {
 
   protected readonly busy = signal(false);
   protected readonly selectionRestartRequired = signal(false);
+  /** The re-authentication that follows a completed purchase — a success, not a failure. */
+  protected readonly justOnboarded = signal(false);
   protected readonly redirecting = signal(false);
   protected readonly showPassword = signal(false);
   protected readonly submitted = signal(false);
@@ -206,6 +219,7 @@ export class LoginPage {
     const query = this.loginService.readQueryState();
     this.returnUrl.set(query.returnUrl);
     this.selectionRestartRequired.set(query.selectionRestartRequired);
+    this.justOnboarded.set(query.justOnboarded);
   }
 
   protected togglePasswordVisibility(): void {

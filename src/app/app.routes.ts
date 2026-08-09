@@ -55,6 +55,7 @@ export const routes: Routes = [
   {
     path: 'onboarding/company',
     canActivate: [authGuard, onboardingCompleteGuard],
+    data: { step: 'company' },
     loadComponent: () =>
       import('./features/onboarding/pages/onboarding/onboarding.page').then(
         (m) => m.OnboardingPage,
@@ -63,11 +64,31 @@ export const routes: Routes = [
   {
     path: 'onboarding/package',
     canActivate: [authGuard, onboardingCompleteGuard],
+    data: { step: 'package' },
     loadComponent: () =>
       import('./features/onboarding/pages/onboarding/onboarding.page').then(
         (m) => m.OnboardingPage,
       ),
   },
+  {
+    // The card step of a paid purchase. Still behind onboardingCompleteGuard: nothing has been
+    // charged yet, so a tenant that already subscribed has no business here.
+    path: 'onboarding/payment',
+    canActivate: [authGuard, onboardingCompleteGuard],
+    loadComponent: () =>
+      import('./features/onboarding/pages/payment/payment.page').then((m) => m.PaymentPage),
+  },
+  // Payment results — the four paths the backend builds its callbacks against. Deliberately
+  // OUTSIDE onboardingCompleteGuard: a verified payment flips the tenant to active, and that
+  // guard would bounce the payer away from their own result.
+  ...['payment-return', 'payment-processing', 'payment-done', 'payment-failed'].map((path) => ({
+    path: `onboarding/${path}`,
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/onboarding/pages/payment-result/payment-result.page').then(
+        (m) => m.PaymentResultPage,
+      ),
+  })),
   {
     path: 'access-denied',
     loadComponent: () =>
