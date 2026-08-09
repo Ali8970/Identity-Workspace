@@ -436,16 +436,13 @@
       "loading": "Loading your purchase…",
       "amountDue": "Amount due",
       "window": "Payment window",
-      "expiresIn": "Expires in about {{minutes}} min",
       "cardName": "Name on card",
       "cardNamePlaceholder": "As printed on the card",
       "cardNameInvalid": "Enter the name printed on the card.",
       "cardNumber": "Card number",
       "cardNumberInvalid": "Enter a valid card number.",
-      "expiryMonth": "Month",
-      "expiryYear": "Year",
       "cvc": "CVC",
-      "expiryInvalid": "Check the expiry date and security code.",
+      "expiryInvalid": "Enter the expiry date as MM / YY.",
       "securityNote": "Card details go directly to our payment provider over a secure connection.",
       "payAction": "Pay {{amount}}",
       "paying": "Processing payment…",
@@ -465,6 +462,13 @@
         "missing": "We could not open the card verification step. Nothing was charged — please try again.",
         "insecure": "The card verification step was not offered over a secure connection, so we stopped. Nothing was charged.",
         "untrustedHost": "The card verification step did not come from a recognised provider, so we stopped. Nothing was charged."
+      },
+      "expiry": "Expiry (MM / YY)",
+      "cvcInvalid": "Enter the 3 or 4 digit security code.",
+      "expiresIn": {
+        "days": "About {{days}}d {{hours}}h left",
+        "hours": "About {{hours}}h {{minutes}}m left",
+        "minutes": "About {{minutes}}m left"
       }
     },
     "result": {
@@ -513,10 +517,15 @@
     },
     "pending": {
       "body": "You already have a purchase awaiting payment for {{package}}.",
-      "locked": "A different plan can only be started once this one is paid or its payment window closes (about {{hours}}h left). There is no way to cancel it sooner.",
+      "locked": "A different plan can only be started once this one is paid or its payment window closes. There is no way to cancel it sooner.",
       "hint": "Finish the purchase above, or wait for its payment window to close before choosing another plan.",
       "continuePayment": "Continue payment",
-      "blockedAction": "Blocked by the pending purchase"
+      "blockedAction": "Blocked by the pending purchase",
+      "expiresIn": {
+        "days": "Time left: about {{days}}d {{hours}}h.",
+        "hours": "Time left: about {{hours}}h {{minutes}}m.",
+        "minutes": "Time left: about {{minutes}}m."
+      }
     }
   },
   "common": {

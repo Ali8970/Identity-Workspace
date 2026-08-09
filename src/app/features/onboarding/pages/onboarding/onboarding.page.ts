@@ -15,6 +15,7 @@ import {
 } from '../../../../models/subscription.model';
 import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
 import { BusyOverlay } from '../../../../shared/ui/busy-overlay/busy-overlay';
+import { durationLabel } from '../../../../shared/utils/format-duration';
 import { OnboardingStep } from '../../models/onboarding-feature.model';
 import { CheckoutStore } from '../../services/checkout.store';
 import { OnboardingCompletion } from '../../services/onboarding-completion.service';
@@ -162,7 +163,10 @@ const NO_PACKAGE_STEP: PackageStepData = { packages: [], subscribed: false, pend
               <span class="auth-status__body">
                 {{ 'onboarding.pending.body' | translate: { package: pendingPackageName() } }}
                 <span class="auth-status__hint">
-                  {{ 'onboarding.pending.locked' | translate: { hours: pendingExpiresInHours() } }}
+                  {{ 'onboarding.pending.locked' | translate }}
+                  @if (pendingExpiry(); as expiry) {
+                    {{ expiry.key | translate: expiry.params }}
+                  }
                 </span>
               </span>
             </div>
@@ -366,14 +370,10 @@ export class OnboardingPage {
     return pkg ? this.language.pick(pkg.nameAr, pkg.nameEn) : '';
   });
 
-  /** How long the owner is locked to this purchase. Rounded up; the window is ~24h. */
-  protected readonly pendingExpiresInHours = computed(() => {
-    const expiresAt = this.pendingOperation()?.expiresAt;
-    if (!expiresAt) {
-      return 0;
-    }
-    return Math.max(0, Math.ceil((Date.parse(expiresAt) - Date.now()) / 3_600_000));
-  });
+  /** How long the owner stays locked to this purchase, in units they can read. */
+  protected readonly pendingExpiry = computed(() =>
+    durationLabel(this.pendingOperation()?.expiresAt, Date.now(), 'onboarding.pending.expiresIn'),
+  );
 
   protected readonly companyForm = form(this.companyModel, (schema) => {
     required(schema.arabicCompanyName);

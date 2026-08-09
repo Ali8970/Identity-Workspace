@@ -23,6 +23,7 @@ import {
 } from '../../../../models/subscription.model';
 import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
 import { BusyOverlay } from '../../../../shared/ui/busy-overlay/busy-overlay';
+import { durationLabel } from '../../../../shared/utils/format-duration';
 import { formatMoney } from '../../../../shared/utils/format-money';
 import { CardFormValue } from '../../models/onboarding-feature.model';
 import { CheckoutStore } from '../../services/checkout.store';
@@ -74,10 +75,10 @@ const COUNTDOWN_TICK_MS = 30_000;
             <dt>{{ 'onboarding.payment.amountDue' | translate }}</dt>
             <dd class="auth-pay-summary__amount">{{ amountLabel() }}</dd>
           </div>
-          @if (expiresInMinutes(); as minutes) {
+          @if (expiryLabel(); as expiry) {
             <div class="auth-pay-summary__row">
               <dt>{{ 'onboarding.payment.window' | translate }}</dt>
-              <dd>{{ 'onboarding.payment.expiresIn' | translate: { minutes } }}</dd>
+              <dd>{{ expiry.key | translate: expiry.params }}</dd>
             </div>
           }
         </dl>
@@ -184,14 +185,13 @@ export class PaymentPage {
   /** Ticks so the payment window counts down without a timer per binding. */
   private readonly now = signal(Date.now());
 
-  protected readonly expiresInMinutes = computed(() => {
-    const expiresAt = this.operation()?.expiresAt;
-    if (!expiresAt) {
-      return null;
-    }
-    const remaining = Date.parse(expiresAt) - this.now();
-    return remaining > 0 ? Math.ceil(remaining / 60_000) : null;
-  });
+  /**
+   * The window as a person reads it — "about 1 day" rather than "about 1440 min". The unit
+   * that leads follows the magnitude, and the label disappears once the window has passed.
+   */
+  protected readonly expiryLabel = computed(() =>
+    durationLabel(this.operation()?.expiresAt, this.now(), 'onboarding.payment.expiresIn'),
+  );
 
   constructor() {
     if (this.operationId === null) {

@@ -1049,10 +1049,10 @@ button.auth-form__link {
   color: var(--primary);
 }
 
-/* Expiry month / year / CVC sit on one line; they wrap before they shrink to unusable. */
+/* Expiry and CVC share a line. Expiry gets the wider column: it holds "MM / YY". */
 .auth-field-row {
   display: grid;
-  grid-template-columns: repeat(3, minmax(4.5rem, 1fr));
+  grid-template-columns: minmax(7rem, 3fr) minmax(4.5rem, 2fr);
   gap: 0.65rem;
 
   .auth-field {
