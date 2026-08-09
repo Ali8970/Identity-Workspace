@@ -656,9 +656,16 @@ button.auth-form__link {
 }
 
 .auth-status__hint {
+  display: block;
   margin-top: 0.35rem;
   font-size: 0.82rem;
   opacity: 0.9;
+}
+
+.auth-status__action {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
 }
 
 .auth-dev-hint {

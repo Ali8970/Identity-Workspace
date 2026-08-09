@@ -1,4 +1,5 @@
 import { Service } from '@angular/core';
+import { ProviderUrlRejectionReason, validateProviderUrl } from './provider-url';
 
 /**
  * The single place the browser is allowed to leave Brooch for a payment provider.
@@ -12,34 +13,18 @@ import { Service } from '@angular/core';
  * allow-list. Re-checking here is defence in depth: a corrupted or spoofed response must never
  * turn this into an open redirect.
  */
-const ALLOWED_AUTHENTICATION_HOSTS: readonly string[] = ['api.moyasar.com'];
-
-export type RedirectRejectionReason = 'missing' | 'insecure' | 'untrustedHost';
+export type RedirectRejectionReason = ProviderUrlRejectionReason;
 
 export type RedirectUrlCheck =
   | { ok: true; url: string }
   | { ok: false; reason: RedirectRejectionReason };
 
 export function validateAuthenticationUrl(redirectUrl: string | null | undefined): RedirectUrlCheck {
-  if (!redirectUrl || redirectUrl.trim() === '') {
-    return { ok: false, reason: 'missing' };
-  }
+  const check = validateProviderUrl(redirectUrl);
 
-  let parsed: URL;
-  try {
-    parsed = new URL(redirectUrl);
-  } catch {
-    return { ok: false, reason: 'insecure' };
-  }
-
-  if (parsed.protocol !== 'https:') {
-    return { ok: false, reason: 'insecure' };
-  }
-  if (!ALLOWED_AUTHENTICATION_HOSTS.includes(parsed.hostname.toLowerCase())) {
-    return { ok: false, reason: 'untrustedHost' };
-  }
-
-  return { ok: true, url: redirectUrl };
+  // The payer is sent to the URL exactly as the backend issued it, not to a re-serialised
+  // version of it: a 3DS link can carry path or query detail that normalisation would alter.
+  return check.ok ? { ok: true, url: check.raw } : check;
 }
 
 /**

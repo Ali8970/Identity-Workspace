@@ -49,9 +49,12 @@ export interface AvailablePackageView {
   includedApplications: string[];
   features: SubscriptionFeatureView[];
   limits: Record<string, number>;
-  isCurrent: boolean;
+  /**
+   * The server's per-tenant verdict on whether this package can be picked right now, and why
+   * not. This pair is the ONLY authority on selectability — the SPA never works out for itself
+   * that a package is ineligible, because it cannot see what the server is weighing.
+   */
   isAvailable: boolean;
-  isAllowedUpgrade: boolean;
   disabledReason: PackageDisabledReason | string | null;
 }
 

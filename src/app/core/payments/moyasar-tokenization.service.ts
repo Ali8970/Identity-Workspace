@@ -2,6 +2,7 @@ import { HttpBackend, HttpClient, HttpErrorResponse, HttpHeaders } from '@angula
 import { Service, inject } from '@angular/core';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import { PaymentConfiguration } from '../../models/subscription.model';
+import { validateProviderUrl } from './provider-url';
 
 /** Card details exactly as the payer typed them. Never leaves the HTTP call below. */
 export interface CardDetails {
@@ -37,7 +38,7 @@ interface MoyasarTokenResponse {
  * The only place in this SPA that touches raw card data — and it sends it straight to the
  * payment provider, never to a Brooch origin.
  *
- * Three things make that boundary real rather than aspirational:
+ * Four things make that boundary real rather than aspirational:
  *
  *  1. **A bare `HttpBackend`, not the app's `HttpClient`.** Every Brooch interceptor is
  *     bypassed: no session cookie, no CSRF token, no `X-Brooch-Application`, and — critically
@@ -47,6 +48,10 @@ interface MoyasarTokenResponse {
  *     sending Brooch's session cookie there would be a leak in the other direction.
  *  3. **Nothing comes back but the token and safe metadata.** A caller cannot forward card
  *     fields onward because it never receives them.
+ *  4. **The destination is checked against the provider allow-list first.** The URL arrives in
+ *     an API response, so it is the one part of this call an attacker could hope to influence —
+ *     and here that would not be an open redirect but card data posted to their own origin.
+ *     A URL that fails the check is `misconfigured`: the card is never even serialised.
  *
  * The configuration is per purchase and comes from `POST /subscriptions` — never hardcoded and
  * never read from the environment file, so a key rotation needs no redeploy.
@@ -56,7 +61,9 @@ export class MoyasarTokenizationService {
   private readonly direct = new HttpClient(inject(HttpBackend));
 
   tokenize(configuration: PaymentConfiguration, card: CardDetails): Observable<TokenizedCard> {
-    if (configuration.publishableKey === '' || configuration.tokenizationUrl === '') {
+    const endpoint = validateProviderUrl(configuration.tokenizationUrl);
+
+    if (configuration.publishableKey.trim() === '' || !endpoint.ok) {
       return throwError((): TokenizationFailure => ({ reason: 'misconfigured' }));
     }
 
@@ -75,7 +82,7 @@ export class MoyasarTokenizationService {
     };
 
     return this.direct
-      .post<MoyasarTokenResponse>(configuration.tokenizationUrl, body, {
+      .post<MoyasarTokenResponse>(endpoint.raw, body, {
         headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
       })
       .pipe(

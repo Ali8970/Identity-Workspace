@@ -116,5 +116,37 @@ describe('MoyasarTokenizationService', () => {
     await expect(tokenized).rejects.toEqual({ reason: 'misconfigured' } satisfies TokenizationFailure);
     backend.expectNone(CONFIGURATION.tokenizationUrl);
   });
+
+  /**
+   * The tokenization URL is the one input to this call that comes off the wire, and a card is
+   * what gets posted to it. If a response could point it anywhere, that is card exfiltration
+   * rather than a misrouted request — so an untrusted URL must produce no request at all.
+   */
+  describe('untrusted tokenization URL', () => {
+    it.each([
+      ['plain http', 'http://api.moyasar.com/v1/tokens'],
+      ['another origin', 'https://evil.test/v1/tokens'],
+      ['a look-alike host', 'https://api.moyasar.com.evil.test/v1/tokens'],
+      ['userinfo hiding the real host', 'https://api.moyasar.com@evil.test/v1/tokens'],
+      ['an explicit off-API port', 'https://api.moyasar.com:8443/v1/tokens'],
+      ['a relative path', '/v1/tokens'],
+      ['empty', ''],
+    ])('sends nothing when the URL is %s', async (_label, tokenizationUrl) => {
+      const tokenized = firstValueFrom(service.tokenize({ ...CONFIGURATION, tokenizationUrl }, CARD));
+
+      await expect(tokenized).rejects.toEqual({
+        reason: 'misconfigured',
+      } satisfies TokenizationFailure);
+      backend.expectNone(() => true);
+    });
+
+    it('still posts to the provider URL exactly as issued', () => {
+      const tokenizationUrl = 'https://api.moyasar.com/v1/tokens?locale=ar';
+
+      service.tokenize({ ...CONFIGURATION, tokenizationUrl }, CARD).subscribe();
+
+      backend.expectOne(tokenizationUrl).flush({ id: 'token_1' });
+    });
+  });
 });
 

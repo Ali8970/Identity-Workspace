@@ -59,4 +59,19 @@ describe('validateAuthenticationUrl', () => {
       reason: 'untrustedHost',
     });
   });
+
+  /** Userinfo puts the trusted name where a reader expects the host; the host is `evil.test`. */
+  it('rejects userinfo that hides the real host', () => {
+    expect(validateAuthenticationUrl('https://api.moyasar.com@evil.test/3ds')).toEqual({
+      ok: false,
+      reason: 'untrustedHost',
+    });
+  });
+
+  it('rejects an explicit port outside the provider API', () => {
+    expect(validateAuthenticationUrl('https://api.moyasar.com:8443/3ds')).toEqual({
+      ok: false,
+      reason: 'untrustedHost',
+    });
+  });
 });

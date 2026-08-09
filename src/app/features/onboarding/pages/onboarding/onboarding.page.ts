@@ -168,6 +168,13 @@ const NO_PACKAGE_STEP: PackageStepData = { packages: [], subscribed: false, pend
                     {{ expiry.key | translate: expiry.params }}
                   }
                 </span>
+                <button
+                  class="auth-form__link auth-status__action"
+                  type="button"
+                  (click)="continuePendingPayment()"
+                >
+                  {{ 'onboarding.pending.continuePayment' | translate }}
+                </button>
               </span>
             </div>
           }
@@ -318,31 +325,23 @@ export class OnboardingPage {
     () => this.packages().find((pkg) => pkg.packageId === this.selectedPackageId()) ?? null,
   );
 
-  /** True when the chosen package is the one the open purchase was priced for. */
+  /** True when the chosen package is the one the open purchase was already priced for. */
   private readonly selectionMatchesPending = computed(() => {
     const pending = this.pendingOperation();
     return pending !== null && pending.targetPackageId === this.selectedPackageId();
   });
 
   /**
-   * A pending purchase blocks every OTHER package: the API has no way to cancel an operation,
-   * and `POST /subscriptions` answers 409 AlreadyPending while one is open. Saying so up front
-   * beats letting the owner click into a rejection.
-   */
-  protected readonly blockedByPending = computed(
-    () => this.pendingOperation() !== null && !this.selectionMatchesPending(),
-  );
-
-  /**
    * The catalogue's `requiresPayment` is presentation only — it picks the button's wording,
    * never the flow. `POST /subscriptions` decides whether a card is actually needed.
+   *
+   * Picking the package an operation is already open for goes straight to that purchase rather
+   * than opening a second one; anything else is a normal start, and the server decides whether
+   * it is allowed.
    */
   protected readonly continueLabel = computed(() => {
     if (this.selectionMatchesPending()) {
       return 'onboarding.pending.continuePayment';
-    }
-    if (this.blockedByPending()) {
-      return 'onboarding.pending.blockedAction';
     }
     return this.selectedPackage()?.requiresPayment
       ? 'onboarding.continueToPayment'
@@ -356,10 +355,15 @@ export class OnboardingPage {
     return this.selectedPackage()?.requiresPayment ? 'onboarding.paidHint' : 'onboarding.freeHint';
   });
 
+  /**
+   * `isAvailable` is the whole test. An open purchase is NOT treated as a reason to refuse a
+   * different package here: the server publishes selectability per package, and second-guessing
+   * it would make this screen stricter than the API — silently blocking a switch the backend
+   * may well allow. If it does not, `POST /subscriptions` says so and that answer is handled.
+   */
   protected readonly canContinue = computed(
     () =>
       !this.busy() &&
-      !this.blockedByPending() &&
       (this.selectionMatchesPending() || (this.selectedPackage()?.isAvailable ?? false)),
   );
 
@@ -470,12 +474,8 @@ export class OnboardingPage {
     }
 
     // The purchase already exists for this package — go and pay it, do not open a second one.
-    const pending = this.pendingOperation();
-    if (pending !== null && this.selectionMatchesPending()) {
-      this.checkout.openOperation(pending.operationId, null);
-      await this.router.navigate(['/onboarding/payment'], {
-        queryParams: { operationId: pending.operationId },
-      });
+    if (this.selectionMatchesPending()) {
+      this.continuePendingPayment();
       return;
     }
 
@@ -527,9 +527,24 @@ export class OnboardingPage {
         return;
       }
       if (code === 'SubscriptionOperation.AlreadyPending') {
+        // The server refuses a second purchase while one is open. Re-read so the banner shows
+        // the operation it means, and stay put — the owner can continue it from there. This is
+        // handled on the way out rather than guessed at on the way in.
         this.catalogue.reload();
       }
     }
+  }
+
+  /** Straight to the open purchase — always available while one exists, whatever is selected. */
+  protected continuePendingPayment(): void {
+    const pending = this.pendingOperation();
+    if (pending === null) {
+      return;
+    }
+    this.checkout.openOperation(pending.operationId, null);
+    void this.router.navigate(['/onboarding/payment'], {
+      queryParams: { operationId: pending.operationId },
+    });
   }
 
   private leaveWizard(): void {
