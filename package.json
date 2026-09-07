@@ -11,7 +11,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "eslint .",
-    "check:app-shell": "node scripts/check-app-shell.mjs"
+    "check:app-shell": "node scripts/check-app-shell.mjs",
+    "start:dev:trusted": "ng serve --host dev.account.brooch.sa --port 4300 --ssl --ssl-cert ../.certs/brooch-dev.crt --ssl-key ../.certs/brooch-dev.key"
   },
   "private": true,
   "packageManager": "npm@11.6.1",
