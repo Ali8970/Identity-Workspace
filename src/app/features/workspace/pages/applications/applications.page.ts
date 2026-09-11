@@ -167,10 +167,10 @@ import { ApplicationsSkeleton } from './applications.skeleton';
                     </svg>
                     {{ 'applications.current' | translate }}
                   </span>
-                } @else if (canLaunch(app.baseUrl) && app.baseUrl) {
+                } @else if (canLaunch(app.url)) {
                   <a
                     class="ui-btn ui-btn--primary app-launcher-card__action"
-                    [href]="app.baseUrl"
+                    [href]="app.url"
                     rel="noopener"
                     [attr.aria-busy]="launching() === app.key || null"
                     [attr.aria-disabled]="
@@ -259,8 +259,8 @@ export class ApplicationsPage {
     return tenant ? this.language.pick(tenant.nameAr, tenant.nameEn) : '';
   });
 
-  protected canLaunch(baseUrl: string | null): boolean {
-    return this.applicationsService.canLaunch(baseUrl);
+  protected canLaunch(url: string | null | undefined): boolean {
+    return this.applicationsService.canLaunch(url);
   }
 
   /**
@@ -269,7 +269,7 @@ export class ApplicationsPage {
    * up the locked treatment.
    */
   protected isLocked(app: AvailableApplicationDto): boolean {
-    return !app.isCurrent && !(this.canLaunch(app.baseUrl) && app.baseUrl);
+    return !app.isCurrent && !this.canLaunch(app.url);
   }
 
   protected onPageShow(): void {
@@ -288,7 +288,7 @@ export class ApplicationsPage {
       return;
     }
 
-    if (this.launching() !== null || !this.canLaunch(app.baseUrl)) {
+    if (this.launching() !== null || !this.canLaunch(app.url)) {
       event.preventDefault();
       return;
     }

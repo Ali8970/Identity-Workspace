@@ -10,14 +10,14 @@ export class ApplicationsService {
 
   readonly availableApplications = () => this.session.current()?.availableApplications ?? [];
 
-  canLaunch(baseUrl: string | null | undefined): boolean {
-    return isNavigableRedirect(baseUrl);
+  canLaunch(url: string | null | undefined): boolean {
+    return isNavigableRedirect(url);
   }
 
-  open(baseUrl: string | null | undefined): void {
-    if (isNavigableRedirect(baseUrl)) {
+  open(url: string | null | undefined): void {
+    if (isNavigableRedirect(url)) {
       // Keep Account in history so Back from the sibling app returns here.
-      this.sso.assign(baseUrl);
+      this.sso.assign(url);
     }
   }
 }

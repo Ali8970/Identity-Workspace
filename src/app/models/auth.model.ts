@@ -104,7 +104,6 @@ export interface CurrentApplicationDto {
   key: string;
   nameAr: string;
   nameEn: string;
-  baseUrl: string | null;
 }
 
 export interface CurrentTenantDto {
@@ -136,7 +135,7 @@ export interface AvailableApplicationDto {
   key: string;
   nameAr: string;
   nameEn: string;
-  baseUrl: string | null;
+  url: string;
   isCurrent: boolean;
 }
 
