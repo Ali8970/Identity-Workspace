@@ -11,6 +11,7 @@ alwaysApply: true
 - CSRF: `GET /api/v1/auth/csrf` returns raw `{ token }` (not ApiResponse); send `X-XSRF-TOKEN` on unsafe non-exempt POSTs
 - CSRF-exempt: login, set-password, forgot-password(+complete), login-intent, csrf, tenants/register
 - Every authenticated call: `X-Brooch-Application: account` + `Accept-Language`
+- Local `ng serve` only: also `X-Brooch-Dev-Client: true` (hostname `dev.account.brooch.sa` / localhost; never in stg/prod)
 - Interceptor order: **application header → language → csrf → error**
 
 ## Login decision tree (exact order)
