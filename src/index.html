@@ -77,27 +77,31 @@
 
     <script>
       (function () {
-        try {
-          var storedTheme = localStorage.getItem('brooch.theme');
-          document.documentElement.setAttribute(
-            'data-theme',
-            storedTheme === 'dark' ? 'dark' : 'light',
-          );
-        } catch (e) {
-          document.documentElement.setAttribute('data-theme', 'light');
-        }
-
-        function readLang() {
+        function readCookie(name) {
           try {
             var cookies = document.cookie.split(';');
             for (var i = 0; i < cookies.length; i++) {
               var separator = cookies[i].indexOf('=');
               if (separator < 0) continue;
-              if (cookies[i].slice(0, separator).trim() !== 'brooch.lang') continue;
-              var value = decodeURIComponent(cookies[i].slice(separator + 1).trim());
-              if (value === 'ar' || value === 'en') return value;
+              if (cookies[i].slice(0, separator).trim() !== name) continue;
+              return decodeURIComponent(cookies[i].slice(separator + 1).trim());
             }
           } catch (e) {}
+          return null;
+        }
+
+        // Shared `.brooch.sa` cookie first so the theme matches LandLord (shared-theme-cookie.ts).
+        var theme = readCookie('brooch.theme');
+        if (theme !== 'light' && theme !== 'dark') {
+          try {
+            theme = localStorage.getItem('brooch.theme');
+          } catch (e) {}
+        }
+        document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'dark' : 'light');
+
+        function readLang() {
+          var value = readCookie('brooch.lang');
+          if (value === 'ar' || value === 'en') return value;
           try {
             var stored = localStorage.getItem('brooch.lang');
             if (stored === 'ar' || stored === 'en') return stored;
