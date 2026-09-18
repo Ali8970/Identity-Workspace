@@ -84,8 +84,12 @@ export class FocusTrap {
     );
   }
 
+  /** A form dialog can mark its first field with `data-autofocus` so focus skips the close button. */
   private focusFirst(): void {
+    const preferred = this.host.nativeElement.querySelector<HTMLElement>(
+      '[data-autofocus]:not([disabled])',
+    );
     const items = this.focusable();
-    (items[0] ?? this.host.nativeElement).focus();
+    (preferred ?? items[0] ?? this.host.nativeElement).focus();
   }
 }

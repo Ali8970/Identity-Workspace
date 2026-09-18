@@ -1,4 +1,9 @@
-import { TenantMemberAccessEmailType, TenantMembershipStatus } from '../enums/domain.enums';
+import {
+  BroochUserStatus,
+  TeamKind,
+  TenantMemberAccessEmailType,
+  TenantMembershipStatus,
+} from '../enums/domain.enums';
 
 /** Wire DTOs for workspace / tenant APIs (OpenAPI-shaped). */
 
@@ -28,11 +33,20 @@ export interface MemberListItem {
   arabicName: string;
   englishName: string;
   tenantMembershipStatus: TenantMembershipStatus | string;
+  userStatus: BroochUserStatus | string;
   isOwner: boolean;
   isPrimary: boolean;
   jobTitle: string | null;
   roles: TenantMemberRoleDto[];
   applicationKeys: string[];
+}
+
+export interface ResendActivationResult {
+  tenantMembershipId: string;
+  userId: string;
+  email: string;
+  reusedExistingToken: boolean;
+  expiresAtUtc: string;
 }
 
 /**
@@ -70,9 +84,38 @@ export interface RoleListItem {
   description: string | null;
   /** Seeded catalogue role — immutable through the API. */
   isSystem: boolean;
+  isOwnerRole: boolean;
   /** Inactive roles cannot be assigned. */
   isActive: boolean;
   permissionKeys: string[];
+}
+
+export interface CreateRoleRequest {
+  applicationKey: string;
+  code: string;
+  nameAr: string;
+  nameEn: string;
+  description: string | null;
+  permissionKeys: string[];
+}
+
+export interface UpdateRoleRequest {
+  nameAr: string;
+  nameEn: string;
+  description: string | null;
+  isActive: boolean;
+}
+
+export interface RolePermissionsDto {
+  roleId: string;
+  applicationKey: string;
+  permissionKeys: string[];
+  availablePermissionKeys: string[];
+}
+
+export interface RoleMembershipsDto {
+  roleId: string;
+  tenantMembershipIds: string[];
 }
 
 /**
@@ -109,10 +152,44 @@ export interface MemberRolesDto {
 export interface TeamNode {
   id: string;
   name: string;
+  applicationKey: string | null;
+  kind: TeamKind | string;
   managerTenantMembershipId: string | null;
   isMissingManager: boolean;
   memberCount: number;
   children: TeamNode[];
+}
+
+export interface TeamListItem {
+  id: string;
+  tenantId: string;
+  name: string;
+  description: string | null;
+  applicationKey: string | null;
+  kind: TeamKind | string;
+  parentTeamId: string | null;
+  managerTenantMembershipId: string | null;
+  isMissingManager: boolean;
+  status: string;
+  memberCount: number;
+  version: number;
+}
+
+export interface CreateTeamRequest {
+  name: string;
+  description: string | null;
+  parentTeamId: string;
+  managerTenantMembershipId: string | null;
+}
+
+export interface UpdateTeamRequest {
+  name: string;
+  description: string | null;
+  parentTeamId: string | null;
+}
+
+export interface AddTeamMemberRequest {
+  tenantMembershipId: string;
 }
 
 /** Localized label used by DDL endpoints (`title.ar` / `title.en`). */
@@ -138,6 +215,8 @@ export interface TeamDetailDto {
   tenantId: string;
   name: string;
   description: string | null;
+  applicationKey: string | null;
+  kind: TeamKind | string;
   parentTeamId: string | null;
   managerTenantMembershipId: string | null;
   isMissingManager: boolean;

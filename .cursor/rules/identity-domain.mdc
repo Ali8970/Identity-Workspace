@@ -33,7 +33,7 @@ alwaysApply: true
 
 ## Authz
 - Permissions gate **actions/nav links**, never routes — backend 403 is truth
-- `/roles` is read-only viewer in v1
+- `/roles` manages roles (create / edit / activate-deactivate / permissions) behind `identity.roles.manage`; `identity.roles.read` alone is a viewer. System and owner roles are immutable — never offer edits the backend rejects. Only grant permissions the application offers AND (for non-owners) the caller already holds in that application
 - Authenticated API 401 → local logout → `/login` (public auth failures stay + banner; `Auth.SessionExpired` → `/session-expired`)
 - `login-intent` may return HTTP 200 with `isValid: false` — treat as failure
 

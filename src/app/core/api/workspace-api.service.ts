@@ -8,16 +8,25 @@ import { unwrapData } from './unwrap';
 import {
   AddMemberRequest,
   AddMemberResult,
+  AddTeamMemberRequest,
+  CreateRoleRequest,
+  CreateTeamRequest,
   MemberListItem,
   MemberRolesDto,
   PermissionCatalogItem,
+  ResendActivationResult,
   RoleListItem,
+  RoleMembershipsDto,
+  RolePermissionsDto,
   SetTeamManagerRequest,
   TeamDetailDto,
+  TeamListItem,
   TeamMembershipDdlItem,
   TeamNode,
   TenantDto,
   TenantMeResponseWire,
+  UpdateRoleRequest,
+  UpdateTeamRequest,
   UpdateTenantProfileRequest,
   readTenantId,
 } from '../../models/workspace.model';
@@ -25,15 +34,24 @@ import {
 export type {
   AddMemberRequest,
   AddMemberResult,
+  AddTeamMemberRequest,
+  CreateRoleRequest,
+  CreateTeamRequest,
   MemberListItem,
   MemberRolesDto,
   PermissionCatalogItem,
+  ResendActivationResult,
   RoleListItem,
+  RoleMembershipsDto,
+  RolePermissionsDto,
   SetTeamManagerRequest,
   TeamDetailDto,
+  TeamListItem,
   TeamMembershipDdlItem,
   TeamNode,
   TenantDto,
+  UpdateRoleRequest,
+  UpdateTeamRequest,
 } from '../../models/workspace.model';
 
 /** Drops undefined entries so we never send `?search=undefined`. */
@@ -53,6 +71,11 @@ function toParams(values: Record<string, string | boolean | undefined>): HttpPar
 export interface MemberListFilters {
   search?: string;
   status?: TenantMembershipStatus;
+}
+
+export interface TeamListFilters {
+  applicationKey?: string;
+  tenantMembershipId?: string;
 }
 
 /**
@@ -99,6 +122,32 @@ export class MembersApi {
       })
       .pipe(unwrapData());
   }
+
+  get(tenantMembershipId: string): Observable<MemberListItem> {
+    return this.http
+      .get<ApiResponse<MemberListItem>>(API_ROUTES.membership(tenantMembershipId), {
+        withCredentials: true,
+      })
+      .pipe(unwrapData());
+  }
+
+  remove(tenantMembershipId: string): Observable<void> {
+    return this.http
+      .delete<ApiResponse<unknown>>(API_ROUTES.membership(tenantMembershipId), {
+        withCredentials: true,
+      })
+      .pipe(map(() => undefined));
+  }
+
+  resendActivation(tenantMembershipId: string): Observable<ResendActivationResult> {
+    return this.http
+      .post<ApiResponse<ResendActivationResult>>(
+        API_ROUTES.membershipResendActivation(tenantMembershipId),
+        {},
+        { withCredentials: true },
+      )
+      .pipe(unwrapData());
+  }
 }
 
 /** Roles defined in the current company, optionally narrowed to one application. */
@@ -119,6 +168,68 @@ export class RolesApi {
         map((roles) =>
           roles.map((role) => ({ ...role, permissionKeys: role.permissionKeys ?? [] })),
         ),
+      );
+  }
+
+  get(roleId: string): Observable<RoleListItem> {
+    return this.http
+      .get<ApiResponse<RoleListItem>>(API_ROUTES.role(roleId), { withCredentials: true })
+      .pipe(unwrapData());
+  }
+
+  permissions(roleId: string): Observable<RolePermissionsDto> {
+    return this.http
+      .get<ApiResponse<RolePermissionsDto>>(API_ROUTES.rolePermissions(roleId), {
+        withCredentials: true,
+      })
+      .pipe(
+        unwrapData(),
+        map((dto) => ({
+          ...dto,
+          permissionKeys: dto.permissionKeys ?? [],
+          availablePermissionKeys: dto.availablePermissionKeys ?? [],
+        })),
+      );
+  }
+
+  create(request: CreateRoleRequest): Observable<RoleListItem> {
+    return this.http
+      .post<ApiResponse<RoleListItem>>(API_ROUTES.roles, request, { withCredentials: true })
+      .pipe(
+        unwrapData(),
+        map((role) => ({ ...role, permissionKeys: role.permissionKeys ?? [] })),
+      );
+  }
+
+  update(roleId: string, request: UpdateRoleRequest): Observable<RoleListItem> {
+    return this.http
+      .put<ApiResponse<RoleListItem>>(API_ROUTES.role(roleId), request, {
+        withCredentials: true,
+      })
+      .pipe(
+        unwrapData(),
+        map((role) => ({ ...role, permissionKeys: role.permissionKeys ?? [] })),
+      );
+  }
+
+  setPermissions(roleId: string, permissionKeys: string[]): Observable<RolePermissionsDto> {
+    return this.http
+      .put<ApiResponse<RolePermissionsDto>>(
+        API_ROUTES.rolePermissions(roleId),
+        { permissionKeys },
+        { withCredentials: true },
+      )
+      .pipe(unwrapData());
+  }
+
+  memberships(roleId: string): Observable<RoleMembershipsDto> {
+    return this.http
+      .get<ApiResponse<RoleMembershipsDto>>(API_ROUTES.roleMemberships(roleId), {
+        withCredentials: true,
+      })
+      .pipe(
+        unwrapData(),
+        map((dto) => ({ ...dto, tenantMembershipIds: dto.tenantMembershipIds ?? [] })),
       );
   }
 }
@@ -174,6 +285,62 @@ export class TeamsApi {
         withCredentials: true,
       })
       .pipe(unwrapData());
+  }
+
+  list(filters: TeamListFilters = {}): Observable<TeamListItem[]> {
+    return this.http
+      .get<ApiResponse<TeamListItem[] | null>>(API_ROUTES.teams, {
+        withCredentials: true,
+        params: toParams({
+          applicationKey: filters.applicationKey,
+          tenantMembershipId: filters.tenantMembershipId,
+        }),
+      })
+      .pipe(map((response) => response.data ?? []));
+  }
+
+  missingManager(): Observable<TeamListItem[]> {
+    return this.http
+      .get<ApiResponse<TeamListItem[] | null>>(API_ROUTES.teamsMissingManager, {
+        withCredentials: true,
+      })
+      .pipe(map((response) => response.data ?? []));
+  }
+
+  create(request: CreateTeamRequest): Observable<TeamDetailDto> {
+    return this.http
+      .post<ApiResponse<TeamDetailDto>>(API_ROUTES.teams, request, { withCredentials: true })
+      .pipe(unwrapData());
+  }
+
+  update(teamId: string, request: UpdateTeamRequest): Observable<TeamDetailDto> {
+    return this.http
+      .put<ApiResponse<TeamDetailDto>>(API_ROUTES.team(teamId), request, {
+        withCredentials: true,
+      })
+      .pipe(unwrapData());
+  }
+
+  archive(teamId: string): Observable<void> {
+    return this.http
+      .delete<ApiResponse<unknown>>(API_ROUTES.team(teamId), { withCredentials: true })
+      .pipe(map(() => undefined));
+  }
+
+  addMember(teamId: string, request: AddTeamMemberRequest): Observable<void> {
+    return this.http
+      .post<ApiResponse<unknown>>(API_ROUTES.teamMembers(teamId), request, {
+        withCredentials: true,
+      })
+      .pipe(map(() => undefined));
+  }
+
+  removeMember(teamId: string, tenantMembershipId: string): Observable<void> {
+    return this.http
+      .delete<ApiResponse<unknown>>(API_ROUTES.teamMember(teamId, tenantMembershipId), {
+        withCredentials: true,
+      })
+      .pipe(map(() => undefined));
   }
 }
 
