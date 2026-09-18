@@ -152,24 +152,26 @@ export class ShellLayout {
   protected readonly navItems = computed(() => {
     const items: ShellNavItem[] = [
       { route: '/applications', labelKey: 'shell.applications', icon: 'applications' },
-    ];
-    if (this.canReadUsers()) {
-      items.push({ route: '/members', labelKey: 'shell.members', icon: 'members' });
-    }
-    if (this.canReadRoles()) {
-      items.push(
-        { route: '/roles', labelKey: 'shell.roles', icon: 'roles' },
-        { route: '/permissions', labelKey: 'shell.permissions', icon: 'permissions' },
-      );
-    }
-    if (this.canReadTeams()) {
-      items.push({ route: '/teams', labelKey: 'shell.teams', icon: 'teams' });
-    }
-    items.push(
       { route: '/my-access', labelKey: 'shell.myAccess', icon: 'my-access' },
       { route: '/account', labelKey: 'shell.account', icon: 'account' },
-    );
-    return items;
+    ];
+    const secondary: ShellNavItem[] = [];
+    if (this.canReadUsers()) {
+      secondary.push({ route: '/members', labelKey: 'shell.members', icon: 'members' });
+    }
+    if (this.canReadRoles()) {
+      secondary.push({ route: '/roles', labelKey: 'shell.roles', icon: 'roles' });
+    }
+    if (this.canReadPermissions()) {
+      secondary.push({ route: '/permissions', labelKey: 'shell.permissions', icon: 'permissions' });
+    }
+    if (this.canReadTeams()) {
+      secondary.push({ route: '/teams', labelKey: 'shell.teams', icon: 'teams' });
+    }
+    if (secondary.length > 0) {
+      secondary[0] = { ...secondary[0], dividerBefore: true };
+    }
+    return [...items, ...secondary];
   });
 
   constructor() {
@@ -199,11 +201,15 @@ export class ShellLayout {
   }
 
   protected canReadUsers(): boolean {
-    return this.session.hasPermission(PERMISSIONS.membershipsManage);
+    return this.session.hasPermission(PERMISSIONS.membershipsRead);
   }
 
   protected canReadRoles(): boolean {
     return this.session.hasPermission(PERMISSIONS.rolesRead);
+  }
+
+  protected canReadPermissions(): boolean {
+    return this.session.hasPermission(PERMISSIONS.permissionsRead);
   }
 
   protected canReadTeams(): boolean {

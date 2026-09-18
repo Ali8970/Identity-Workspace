@@ -45,7 +45,7 @@
 .shell__main {
   flex: 1;
   padding: 0 1.25rem 2rem;
-  animation: fade-up 240ms ease both;
+  animation: fade-up 240ms ease backwards;
 }
 
 /* Sidebar */
@@ -131,6 +131,14 @@
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
+}
+
+.shell-sidebar__divider {
+  flex: 0 0 auto;
+  margin-block: 0.45rem;
+  margin-inline: 0.55rem;
+  border: 0;
+  border-block-start: 1px solid var(--line);
 }
 
 .shell-sidebar__link {

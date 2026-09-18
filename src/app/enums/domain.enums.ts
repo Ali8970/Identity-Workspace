@@ -4,6 +4,8 @@ export type BroochUserStatus = 'Active' | 'Inactive' | 'Suspended' | 'PendingAct
 
 export type TenantMembershipStatus = 'Active' | 'Suspended' | 'Removed';
 
+export type TeamKind = 'Organization' | 'Application' | 'Team';
+
 export type TenantStatus = 'Onboarding' | 'Active' | 'Suspended' | 'Disabled';
 
 /** OpenAPI TenantOnboardingState (includes provisioning steps). */

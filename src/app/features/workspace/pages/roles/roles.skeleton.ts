@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { Skeleton, SkeletonHost, times } from '../../../../shared/ui/skeleton/skeleton';
 
-/** Mirrors the roles page: application groups, each a grid of role cards. */
 @Component({
   selector: 'app-roles-skeleton',
   imports: [Skeleton],
@@ -9,41 +8,47 @@ import { Skeleton, SkeletonHost, times } from '../../../../shared/ui/skeleton/sk
   template: `
     <span class="visually-hidden">{{ label() }}</span>
 
-    @for (group of groups; track group) {
-      <section class="workspace-app-group">
-        <header class="workspace-app-group__head">
-          <div class="ui-skeleton-row">
-            <app-skeleton variant="icon" />
-            <app-skeleton variant="title" width="7rem" />
-          </div>
-          <app-skeleton variant="chip" />
-        </header>
+    <section class="workspace-data-card">
+      <header class="workspace-data-card__head">
+        <app-skeleton variant="title" width="6rem" />
+        <app-skeleton variant="text" width="5rem" />
+      </header>
 
-        <div class="workspace-role-grid">
-          @for (card of cards; track card) {
-            <article class="workspace-role-card">
-              <div class="ui-skeleton-col">
-                <app-skeleton variant="title" width="70%" />
-                <app-skeleton variant="text" width="45%" />
+      <div class="workspace-listbar">
+        <app-skeleton variant="input" />
+        <app-skeleton variant="input" width="11rem" />
+      </div>
+
+      <ul class="workspace-role-grid">
+        @for (card of cards; track card) {
+          <li class="workspace-role-card">
+            <div class="workspace-role-card__top">
+              <div class="ui-skeleton-row">
+                <app-skeleton variant="icon" />
+                <app-skeleton variant="text" width="4.5rem" />
               </div>
-              <div class="ui-skeleton-inline">
-                @for (permission of permissions; track permission) {
-                  <app-skeleton variant="pill" [width]="permissionWidth($index)" />
-                }
-              </div>
-            </article>
-          }
-        </div>
-      </section>
-    }
+              <app-skeleton variant="pill" width="3.5rem" />
+            </div>
+            <app-skeleton variant="title" [width]="nameWidth($index)" />
+            <app-skeleton variant="pill" width="6rem" />
+            <div class="ui-skeleton-col">
+              <app-skeleton variant="text" width="100%" />
+              <app-skeleton variant="text" width="65%" />
+            </div>
+            <div class="workspace-role-card__foot">
+              <app-skeleton variant="text" width="6.5rem" />
+              <app-skeleton variant="text" width="5rem" />
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
   `,
 })
 export class RolesSkeleton extends SkeletonHost {
-  protected readonly groups = times(2);
-  protected readonly cards = times(3);
-  protected readonly permissions = times(4);
+  protected readonly cards = times(6);
 
-  protected permissionWidth(index: number): string {
-    return ['5rem', '7rem', '4.5rem', '6rem'][index % 4];
+  protected nameWidth(index: number): string {
+    return ['62%', '48%', '70%', '55%', '66%', '44%'][index % 6];
   }
 }

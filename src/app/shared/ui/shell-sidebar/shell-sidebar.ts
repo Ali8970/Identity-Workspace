@@ -25,6 +25,9 @@ import { ShellNavItem } from '../../layouts/shell-nav.model';
 
       <nav class="shell-sidebar__nav">
         @for (item of items(); track item.route) {
+          @if (item.dividerBefore) {
+            <hr class="shell-sidebar__divider" />
+          }
           <a
             class="shell-sidebar__link"
             [routerLink]="item.route"

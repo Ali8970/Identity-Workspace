@@ -25,14 +25,19 @@ export const API_ROUTES = {
 
   // Memberships — company scope comes from the session, not the URL.
   memberships: `${base}/memberships`,
+  membershipsDdl: `${base}/memberships/ddl`,
   membership: (tenantMembershipId: string) => `${base}/memberships/${tenantMembershipId}`,
   membershipRoles: (tenantMembershipId: string) =>
     `${base}/memberships/${tenantMembershipId}/roles`,
+  membershipResendActivation: (tenantMembershipId: string) =>
+    `${base}/memberships/${tenantMembershipId}/resend-activation`,
 
   // Roles — likewise scoped to the caller's company by the session.
   roles: `${base}/roles`,
+  rolesDdl: `${base}/roles/ddl`,
   role: (roleId: string) => `${base}/roles/${roleId}`,
   rolePermissions: (roleId: string) => `${base}/roles/${roleId}/permissions`,
+  roleMemberships: (roleId: string) => `${base}/roles/${roleId}/memberships`,
 
   // Platform catalogues
   applications: `${base}/applications`,
@@ -62,8 +67,13 @@ export const API_ROUTES = {
   // Teams (Tenant module)
   teams: `${base}/teams`,
   teamsTree: `${base}/teams/tree`,
+  teamsMissingManager: `${base}/teams/missing-manager`,
+  team: (teamId: string) => `${base}/teams/${teamId}`,
   teamMembershipsDdl: (teamId: string) => `${base}/teams/${teamId}/memberships/ddl`,
   teamManager: (teamId: string) => `${base}/teams/${teamId}/manager`,
+  teamMembers: (teamId: string) => `${base}/teams/${teamId}/members`,
+  teamMember: (teamId: string, membershipId: string) =>
+    `${base}/teams/${teamId}/members/${membershipId}`,
 } as const;
 
 export const CSRF_EXEMPT_PATHS = [
