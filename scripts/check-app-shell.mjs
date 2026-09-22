@@ -14,29 +14,30 @@ import { CookieJar, JSDOM } from 'jsdom';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const indexHtml = read('src/index.html');
+const authLayout = read('src/app/shared/ui/auth-layout/auth-layout.ts');
 const flatten = (value) => value.replace(/\s+/g, ' ').trim();
 
-/** Classes AuthLayout renders for the hero half; the shell must use the same ones. */
-const HERO_CLASSES = [
-  'auth-page',
-  'auth-page__hero',
-  'auth-page__hero-inner',
-  'auth-page__logo',
-  'auth-page__mark',
-  'auth-page__logo-name',
-  'auth-page__logo-sub',
-  'auth-page__hero-title',
-  'auth-page__hero-lead',
-  'auth-page__features',
-  'auth-page__feature-icon',
-  'auth-page__main',
-  // The mobile brand strip. The hero is display:none below 920px, so on a phone
-  // this is the only thing the shell paints above the card — it has to mirror
-  // AuthLayout too or the hand-off shifts on exactly the devices most people
-  // sign in from.
-  'auth-page__strip',
-  'auth-page__strip-name',
-  'auth-page__strip-sub',
+/**
+ * Parts the pre-boot shell and AuthLayout both paint. Class strings are compared
+ * so a Tailwind edit on one side cannot drift from the other (that drift is CLS).
+ */
+const SHELL_PARTS = [
+  'page',
+  'hero',
+  'hero-inner',
+  'logo',
+  'mark',
+  'logo-name',
+  'logo-sub',
+  'hero-title',
+  'hero-lead',
+  'features',
+  'feature-icon',
+  'main',
+  'strip',
+  'strip-mark',
+  'strip-name',
+  'strip-sub',
 ];
 
 const ORIGIN = 'https://dev.account.brooch.sa';
@@ -92,9 +93,26 @@ for (const [lang, layout] of Object.entries(translations)) {
 
 // 2. The hand-off only stays shift-free while the shell mirrors AuthLayout's classes.
 const loginDocument = paint('/login', 'en');
-for (const className of HERO_CLASSES) {
-  if (!loginDocument.querySelector(`.${className}`)) {
-    fail(`the shell no longer renders .${className} — the hand-off will shift layout`);
+const classOf = (source, part) => {
+  const pattern = new RegExp(`data-shell-part="${part}"[^>]*class="([^"]+)"`);
+  return source.match(pattern)?.[1] ?? null;
+};
+for (const part of SHELL_PARTS) {
+  const shellClass = classOf(indexHtml, part);
+  const layoutClass = classOf(authLayout, part);
+  if (!shellClass || !layoutClass) {
+    fail(`data-shell-part="${part}" is missing a class in the shell or AuthLayout`);
+    continue;
+  }
+  if (shellClass !== layoutClass) {
+    fail(
+      `data-shell-part="${part}" classes drifted:\n` +
+        `      shell : ${shellClass}\n` +
+        `      layout: ${layoutClass}`,
+    );
+  }
+  if (!loginDocument.querySelector(`[data-shell-part="${part}"]`)) {
+    fail(`the shell no longer renders [data-shell-part="${part}"]`);
   }
 }
 
@@ -105,13 +123,13 @@ if (arabicDocument.documentElement.dir !== 'rtl' || arabicDocument.documentEleme
 }
 
 // 4. Feature rows keep their icon when translated (the text node is swapped, not the node).
-if (arabicDocument.querySelectorAll('.auth-page__feature-icon svg').length !== 3) {
+if (arabicDocument.querySelectorAll('[data-feature-icon] svg').length !== 3) {
   fail('translating the shell dropped the feature icons');
 }
 
 // 5. Routes outside AuthLayout must not flash the auth hero.
 for (const path of ['/', '/applications', '/members']) {
-  if (paint(path, 'en').querySelector('.auth-page')) {
+  if (paint(path, 'en').querySelector('[data-auth-shell]')) {
     fail(`the shell paints the auth hero on ${path}, which does not use AuthLayout`);
   }
 }

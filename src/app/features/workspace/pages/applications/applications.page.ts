@@ -8,6 +8,7 @@ import { AvailableApplicationDto } from '../../../../models/auth.model';
 import { ApplicationsService } from '../../services/applications.service';
 import { ApplicationsSkeleton } from './applications.skeleton';
 
+
 @Component({
   selector: 'app-applications-page',
   imports: [TranslatePipe, ApplicationsSkeleton],

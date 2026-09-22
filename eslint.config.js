@@ -13,7 +13,7 @@ const angular = require('angular-eslint');
  */
 module.exports = tseslint.config(
   {
-    ignores: ['dist/**', '.angular/**', 'node_modules/**'],
+    ignores: ['dist/**', '.angular/**', 'node_modules/**', 'e2e/**', 'playwright.config.ts'],
   },
   {
     files: ['**/*.ts'],

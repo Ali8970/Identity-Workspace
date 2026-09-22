@@ -6,10 +6,13 @@ alwaysApply: true
 
 # SASS / UI
 
-- No Angular Material, PrimeNG, Bootstrap, Tailwind UI kits
-- Design tokens live in `src/styles/_tokens.scss` — use CSS variables
+- No Angular Material, PrimeNG, Bootstrap, or Tailwind component kits
+- Layout and color are Tailwind v4 utilities. Tokens live in `src/tailwind.css` and are aliased with `@theme inline` — do not copy hex into utilities
+- Dark mode is `data-theme` on `<html>` (the `dark:` variant). Do not use `prefers-color-scheme`
+- Breakpoints are the desktop-first `max-w480` … `max-w1024` variants. Use logical utilities (`ps`/`pe`, `ms`/`me`, `start`/`end`)
 - Shared primitives under `src/app/shared/ui/` only
 - Prefer native `<button>`, `<input>`, `<a>` with attribute-selector components when wrapping
 - Keep components small; auth layout vs shell layout are separate
-- Loading visuals (skeletons, global bar, overlay, spinner) live in `src/styles/_loading.scss` — one palette, one shimmer; never restyle them per page
-- Skeletons reuse the real layout classes of the section they stand in for
+- Keyframes and `::before` / `::after` rules that a utility cannot express stay in `src/tailwind.css` until the last template that needs them is gone
+- Loading visuals (skeletons, global bar, overlay, spinner) share one shimmer, defined once and used by the shared loading components — never restyle them per page
+- Skeletons reuse the real layout utilities of the section they stand in for
