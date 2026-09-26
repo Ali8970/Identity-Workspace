@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Skeleton, SkeletonHost, times } from '../../../../shared/ui/skeleton/skeleton';
 
+/** Mirrors the roles page: list panel chrome above, role cards below. */
 @Component({
   selector: 'app-roles-skeleton',
   imports: [Skeleton],
@@ -8,18 +9,21 @@ import { Skeleton, SkeletonHost, times } from '../../../../shared/ui/skeleton/sk
   template: `
     <span class="visually-hidden">{{ label() }}</span>
 
-    <section class="workspace-data-card">
-      <header class="workspace-data-card__head">
+    <section
+      class="list-table-panel overflow-hidden rounded-[10px] border-[1.468px] border-border-button bg-surface shadow-[var(--shadow-card)]"
+    >
+      <div
+        class="flex flex-wrap items-center justify-between gap-2 border-b-[1.468px] border-border-subtle px-[18px] py-3"
+      >
         <app-skeleton variant="title" width="6rem" />
         <app-skeleton variant="text" width="5rem" />
-      </header>
-
-      <div class="workspace-listbar">
-        <app-skeleton variant="input" />
-        <app-skeleton variant="input" width="11rem" />
       </div>
 
-      <ul class="workspace-role-grid">
+      <div class="border-b-[1.468px] border-border-subtle px-[18px] py-[14px]">
+        <app-skeleton variant="input" />
+      </div>
+
+      <ul class="workspace-role-grid m-0 list-none p-[18px]">
         @for (card of cards; track card) {
           <li class="workspace-role-card">
             <div class="workspace-role-card__top">

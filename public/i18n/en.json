@@ -359,7 +359,7 @@
     "filterStatus": "Filter by status",
     "filterAllStatuses": "All statuses",
     "noResults": "No roles match your filters.",
-    "clearFilters": "Clear filters",
+    "clearFilters": "Clear",
     "emptyTitle": "No roles yet",
     "emptyBodyManage": "Create roles to control access to your applications.",
     "emptyReadOnly": "No roles are available.",
@@ -515,6 +515,14 @@
         "extend": "Extend",
         "qualify": "Qualify"
       }
+    },
+    "otherFilters": "Other filters",
+    "applyFilters": "Apply",
+    "stats": {
+      "total": "Roles",
+      "applications": "Applications",
+      "active": "Active",
+      "inactive": "Inactive"
     }
   },
   "permissions": {

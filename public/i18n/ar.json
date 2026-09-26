@@ -359,7 +359,7 @@
     "filterStatus": "تصفية حسب الحالة",
     "filterAllStatuses": "جميع الحالات",
     "noResults": "لا توجد أدوار مطابقة للتصفية.",
-    "clearFilters": "مسح التصفية",
+    "clearFilters": "مسح",
     "emptyTitle": "لا توجد أدوار بعد",
     "emptyBodyManage": "أنشئ أدوارًا للتحكم في الوصول إلى تطبيقاتك.",
     "emptyReadOnly": "لا توجد أدوار متاحة.",
@@ -515,6 +515,14 @@
         "extend": "تمديد",
         "qualify": "تأهيل"
       }
+    },
+    "otherFilters": "تصفية إضافية",
+    "applyFilters": "تطبيق",
+    "stats": {
+      "total": "الأدوار",
+      "applications": "التطبيقات",
+      "active": "نشط",
+      "inactive": "غير نشط"
     }
   },
   "permissions": {

@@ -1,13 +1,19 @@
 import { Component, Injector, afterNextRender, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { TranslatePipe } from '@ngx-translate/core';
+import { FormControl } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { SessionStore } from '../../../../core/auth/session.store';
 import { ApplicationLabels } from '../../../../core/i18n/application-labels.service';
 import { LanguageService } from '../../../../core/i18n/language.service';
 import { ConfirmDialog } from '../../../../shared/ui/confirm-dialog/confirm-dialog';
 import { applicationModifier } from '../../../../shared/ui/display';
-import { Skeleton } from '../../../../shared/ui/skeleton/skeleton';
+import { EmptyState } from '../../../../shared/ui/empty-state/empty-state';
+import { ErrorPanel } from '../../../../shared/ui/error-panel/error-panel';
+import { ListFilterBar } from '../../../../shared/ui/list-filter-bar/list-filter-bar';
+import type { ListStatCard } from '../../../../shared/ui/list-stats/list-stat-card';
+import { ListStats } from '../../../../shared/ui/list-stats/list-stats';
+import { PageHeader } from '../../../../shared/ui/page-header/page-header';
 import {
   MemberListItem,
   PermissionCatalogItem,
@@ -38,81 +44,58 @@ interface RoleNotice {
     RoleDetailsDialog,
     RoleFormDialog,
     RolesSkeleton,
-    Skeleton,
+    PageHeader,
+    ListStats,
+    ListFilterBar,
+    EmptyState,
+    ErrorPanel,
   ],
   template: `
-    <div class="workspace-page">
-      <header class="workspace-page__head workspace-roles-head">
-        <div class="workspace-page__intro">
-          <p class="workspace-page__eyebrow">{{ 'roles.eyebrow' | translate }}</p>
-          <h1 class="workspace-page__title" id="main-content-header" tabindex="-1">
-            {{ 'roles.title' | translate }}
-          </h1>
-          <p class="workspace-page__lead">
-            {{ (canManage() ? 'roles.subtitle' : 'roles.subtitleReadOnly') | translate }}
-          </p>
-
-          <ul class="workspace-roles-head__summary" [attr.aria-label]="'roles.summary' | translate">
-            @if (initialLoading()) {
-              <li><app-skeleton variant="chip" /></li>
-              <li><app-skeleton variant="chip" /></li>
-            } @else if (!loadFailed()) {
-              <li class="workspace-chip workspace-chip--muted">
-                {{ 'roles.roleCount' | translate: { count: roles().length } }}
-              </li>
-              <li class="workspace-chip workspace-chip--muted">
-                {{ 'roles.applicationCount' | translate: { count: applications().length } }}
-              </li>
-              @if (inactiveCount() > 0) {
-                <li class="workspace-chip workspace-chip--muted">
-                  {{ 'roles.inactiveCount' | translate: { count: inactiveCount() } }}
-                </li>
-              }
-            }
-          </ul>
-        </div>
-
+    <div>
+      <app-page-header
+        [title]="'roles.title' | translate"
+        [description]="(canManage() ? 'roles.subtitle' : 'roles.subtitleReadOnly') | translate"
+      >
         @if (canManage()) {
-          <div class="workspace-page__meta">
-            <button
-              type="button"
-              class="ui-btn ui-btn--primary"
-              id="roles-add-button"
-              aria-haspopup="dialog"
-              [disabled]="initialLoading() || loadFailed() || applications().length === 0"
-              (click)="openCreate()"
+          <button
+            type="button"
+            class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg bg-primary px-3.5 text-[13px] font-semibold text-on-primary shadow-[var(--shadow-primary-button)] hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
+            id="roles-add-button"
+            aria-haspopup="dialog"
+            [disabled]="initialLoading() || loadFailed() || applications().length === 0"
+            (click)="openCreate()"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              aria-hidden="true"
+              class="size-4"
             >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                aria-hidden="true"
-                class="ui-btn__icon"
-              >
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-              {{ 'roles.add' | translate }}
-            </button>
-          </div>
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            {{ 'roles.add' | translate }}
+          </button>
         }
-      </header>
+      </app-page-header>
+
+      <div class="mb-4">
+        <app-list-stats [stats]="roleStats()" [loading]="initialLoading()" />
+      </div>
 
       @if (notice(); as current) {
-        <div class="workspace-status workspace-status--success" role="status">
-          <span class="workspace-status__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-              <path d="m9 12 2 2 4-4" />
-              <circle cx="12" cy="12" r="9" />
-            </svg>
-          </span>
-          <span class="workspace-status__body">
+        <div
+          class="mb-4 flex flex-wrap items-center gap-3 rounded-[10px] border-[1.468px] border-success bg-success-bg px-4 py-3 text-[13px] text-success-text"
+          role="status"
+        >
+          <span class="min-w-0 flex-1">
             {{ current.key | translate: { name: current.name } }}
           </span>
           <button
             type="button"
-            class="workspace-roles-notice__dismiss"
+            class="inline-flex size-8 cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent text-success-text hover:bg-surface"
             [attr.aria-label]="'roles.notice.dismiss' | translate"
             (click)="notice.set(null)"
           >
@@ -122,6 +105,7 @@ interface RoleNotice {
               stroke="currentColor"
               stroke-width="1.75"
               aria-hidden="true"
+              class="size-4"
             >
               <path d="M6 6l12 12M18 6 6 18" />
             </svg>
@@ -132,123 +116,83 @@ interface RoleNotice {
       @if (initialLoading()) {
         <app-roles-skeleton [label]="'roles.loading' | translate" />
       } @else if (loadFailed()) {
-        <section class="workspace-empty" role="status">
-          <p class="workspace-empty__body">{{ 'common.loadFailed' | translate }}</p>
-          <button type="button" class="ui-btn ui-btn--ghost" (click)="reload()">
-            {{ 'common.retry' | translate }}
-          </button>
-        </section>
-      } @else if (roles().length === 0) {
-        <section class="workspace-empty" role="status">
-          <div class="workspace-empty__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-              <path d="M12 3 4 7v6c0 5 3.5 7.7 8 8 4.5-.3 8-3 8-8V7l-8-4Z" />
-              <circle cx="12" cy="10" r="2.5" />
-              <path d="M8.5 16c.7-1.3 1.9-2 3.5-2s2.8.7 3.5 2" />
-            </svg>
-          </div>
-          @if (canManage()) {
-            <h2 class="workspace-empty__title">{{ 'roles.emptyTitle' | translate }}</h2>
-            <p class="workspace-empty__body">{{ 'roles.emptyBodyManage' | translate }}</p>
-            @if (applications().length > 0) {
-              <button
-                type="button"
-                class="ui-btn ui-btn--primary"
-                aria-haspopup="dialog"
-                (click)="openCreate()"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  aria-hidden="true"
-                  class="ui-btn__icon"
-                >
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-                {{ 'roles.add' | translate }}
-              </button>
-            }
-          } @else {
-            <h2 class="workspace-empty__title">{{ 'roles.emptyReadOnly' | translate }}</h2>
-          }
-        </section>
+        <app-error-panel
+          [title]="'common.loadFailed' | translate"
+          [retryLabel]="'common.retry' | translate"
+          (retry)="reload()"
+        />
       } @else {
-        <section class="workspace-data-card" aria-labelledby="roles-list-heading">
-          <header class="workspace-data-card__head">
-            <h2 class="workspace-data-card__title" id="roles-list-heading">
+        <section
+          class="list-table-panel overflow-hidden rounded-[10px] border-[1.468px] border-border-button bg-surface shadow-[var(--shadow-card)]"
+          aria-labelledby="roles-list-heading"
+        >
+          <div
+            class="flex flex-wrap items-center justify-between gap-2 border-b-[1.468px] border-border-subtle px-[18px] py-3"
+          >
+            <h2 class="m-0 text-[14px] font-bold text-text" id="roles-list-heading">
               {{ 'roles.listTitle' | translate }}
             </h2>
-            <span class="workspace-data-card__count" aria-live="polite">
+            <span class="text-[12px] text-text-muted" aria-live="polite">
               {{
                 'roles.showing' | translate: { shown: visibleRoles().length, total: roles().length }
               }}
             </span>
-          </header>
+          </div>
 
-          <div class="workspace-listbar">
-            <div class="workspace-listbar__search">
-              <span class="workspace-listbar__icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                  <circle cx="11" cy="11" r="6.5" />
-                  <path d="m16 16 4.5 4.5" />
-                </svg>
-              </span>
-              <input
-                type="search"
-                class="workspace-listbar__input"
-                [value]="search()"
-                (input)="search.set($any($event.target).value)"
-                [placeholder]="'roles.search' | translate"
-                [attr.aria-label]="'roles.search' | translate"
-              />
-            </div>
-
-            @if (applications().length > 1) {
+          <app-list-filter-bar
+            [searchControl]="searchDraft"
+            [searchPlaceholder]="'roles.search' | translate"
+            [otherFiltersLabel]="'roles.otherFilters' | translate"
+            [applyLabel]="'roles.applyFilters' | translate"
+            [clearLabel]="'roles.clearFilters' | translate"
+            [activeFilterCount]="activeFilterCount()"
+            (apply)="applyFilters()"
+            (clear)="clearFilters()"
+          >
+            <label class="flex min-w-[10rem] flex-col gap-1 text-[12px] font-medium text-text-muted">
+              {{ 'roles.filterApplication' | translate }}
               <select
-                class="workspace-facet"
-                [value]="applicationFilter()"
-                (change)="applicationFilter.set($any($event.target).value)"
-                [attr.aria-label]="'roles.filterApplication' | translate"
+                class="list-filter-control field-control"
+                [value]="applicationDraft()"
+                (change)="applicationDraft.set($any($event.target).value)"
               >
                 <option value="">{{ 'roles.filterAllApplications' | translate }}</option>
                 @for (application of applications(); track application.key) {
                   <option [value]="application.key">{{ application.label }}</option>
                 }
               </select>
-            }
-
-            @if (inactiveCount() > 0 || statusFilter() !== '') {
+            </label>
+            <label class="flex min-w-[10rem] flex-col gap-1 text-[12px] font-medium text-text-muted">
+              {{ 'roles.filterStatus' | translate }}
               <select
-                class="workspace-facet"
-                [value]="statusFilter()"
-                (change)="statusFilter.set($any($event.target).value)"
-                [attr.aria-label]="'roles.filterStatus' | translate"
+                class="list-filter-control field-control"
+                [value]="statusDraft()"
+                (change)="statusDraft.set($any($event.target).value)"
               >
                 <option value="">{{ 'roles.filterAllStatuses' | translate }}</option>
                 <option value="active">{{ 'roles.active' | translate }}</option>
                 <option value="inactive">{{ 'roles.inactive' | translate }}</option>
               </select>
-            }
-          </div>
+            </label>
+          </app-list-filter-bar>
 
-          @if (visibleRoles().length === 0) {
-            <div class="workspace-empty workspace-empty--flush" role="status">
-              <span class="workspace-empty__icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                  <circle cx="11" cy="11" r="6.5" />
-                  <path d="m16 16 4.5 4.5" />
-                </svg>
-              </span>
-              <p class="workspace-empty__title">{{ 'roles.noResults' | translate }}</p>
-              <button type="button" class="ui-btn ui-btn--ghost" (click)="clearFilters()">
-                {{ 'roles.clearFilters' | translate }}
-              </button>
-            </div>
+          @if (roles().length === 0) {
+            <app-empty-state
+              [title]="(canManage() ? 'roles.emptyTitle' : 'roles.emptyReadOnly') | translate"
+              [detail]="canManage() ? ('roles.emptyBodyManage' | translate) : undefined"
+              [actionLabel]="
+                canManage() && applications().length > 0 ? ('roles.add' | translate) : undefined
+              "
+              (action)="openCreate()"
+            />
+          } @else if (visibleRoles().length === 0) {
+            <app-empty-state
+              [title]="'roles.noResults' | translate"
+              [actionLabel]="'roles.clearFilters' | translate"
+              (action)="clearFilters()"
+            />
           } @else {
-            <ul class="workspace-role-grid">
+            <ul class="workspace-role-grid list-none p-[18px] m-0">
               @for (role of visibleRoles(); track role.id) {
                 @let name = roleName(role);
                 @let editable = canEditRole(role);
@@ -345,7 +289,9 @@ interface RoleNotice {
                         <circle cx="8" cy="15" r="4" />
                         <path d="m10.8 12.2 8.2-8.2M16 7l2 2M14 9l2 2" />
                       </svg>
-                      {{ 'roles.permissionCount' | translate: { count: role.permissionKeys.length } }}
+                      {{
+                        'roles.permissionCount' | translate: { count: role.permissionKeys.length }
+                      }}
                     </span>
 
                     <button
@@ -437,6 +383,7 @@ export class RolesPage {
   private readonly session = inject(SessionStore);
   private readonly applicationLabels = inject(ApplicationLabels);
   private readonly language = inject(LanguageService);
+  private readonly translate = inject(TranslateService);
   private readonly injector = inject(Injector);
 
   protected readonly applicationModifier = applicationModifier;
@@ -459,9 +406,15 @@ export class RolesPage {
   protected readonly canReadMembers = computed(() => this.rolesService.canReadMembers());
   protected readonly canReadPermissions = computed(() => this.rolesService.canReadPermissions());
 
+  /** Applied filters — drive the visible list. */
   protected readonly search = signal('');
   protected readonly applicationFilter = signal('');
   protected readonly statusFilter = signal<StatusFilter>('');
+
+  /** Draft filters — commit only on Apply / Enter. */
+  protected readonly searchDraft = new FormControl('', { nonNullable: true });
+  protected readonly applicationDraft = signal('');
+  protected readonly statusDraft = signal<StatusFilter>('');
 
   protected readonly notice = signal<RoleNotice | null>(null);
   protected readonly saving = signal(false);
@@ -497,6 +450,40 @@ export class RolesPage {
   protected readonly inactiveCount = computed(
     () => this.roles().filter((role) => !role.isActive).length,
   );
+
+  protected readonly roleStats = computed((): ListStatCard[] => {
+    this.language.current();
+    const rows = this.roles();
+    const active = rows.filter((role) => role.isActive).length;
+    const inactive = rows.length - active;
+    return [
+      {
+        label: this.translate.instant('roles.stats.total'),
+        value: rows.length,
+        accent: '#2b5bf9',
+        icon: 'values',
+      },
+      {
+        label: this.translate.instant('roles.stats.applications'),
+        value: this.applications().length,
+        accent: '#1e00b0',
+        icon: 'apps',
+      },
+      {
+        label: this.translate.instant('roles.stats.active'),
+        value: active,
+        accent: '#0fbc15',
+        icon: 'active',
+      },
+      {
+        label: this.translate.instant('roles.stats.inactive'),
+        value: inactive,
+        accent: '#f57c00',
+        icon: 'warning',
+        valueTone: inactive > 0 ? 'danger' : 'default',
+      },
+    ];
+  });
 
   protected readonly defaultApplication = computed(() => {
     const filter = this.applicationFilter();
@@ -539,11 +526,34 @@ export class RolesPage {
       );
   });
 
+  protected readonly activeFilterCount = computed(() => {
+    let count = 0;
+    if (this.search().trim()) {
+      count += 1;
+    }
+    if (this.applicationFilter()) {
+      count += 1;
+    }
+    if (this.statusFilter()) {
+      count += 1;
+    }
+    return count;
+  });
+
   protected reload(): void {
     this.catalog.reload();
   }
 
+  protected applyFilters(): void {
+    this.search.set(this.searchDraft.value);
+    this.applicationFilter.set(this.applicationDraft());
+    this.statusFilter.set(this.statusDraft());
+  }
+
   protected clearFilters(): void {
+    this.searchDraft.setValue('');
+    this.applicationDraft.set('');
+    this.statusDraft.set('');
     this.search.set('');
     this.applicationFilter.set('');
     this.statusFilter.set('');
