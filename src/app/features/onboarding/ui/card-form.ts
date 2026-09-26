@@ -174,7 +174,7 @@ const EMPTY_CARD: CardFormModel = { name: '', number: '', expiry: '', cvc: '' };
            a button by that name would promise something it cannot do. Leaving the card form is
            the page's own "choose a different package" link. -->
       <button
-        class="ui-btn ui-btn--primary auth-form__submit"
+        class="btn-primary auth-form__submit inline-flex h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border-0 px-4 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
         type="submit"
         [disabled]="busy()"
         [attr.aria-busy]="busy()"

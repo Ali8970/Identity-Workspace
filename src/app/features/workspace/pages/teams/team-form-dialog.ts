@@ -153,11 +153,11 @@ function notBlank(value: string) {
                 {{ 'teams.form.detailsSection' | translate }}
               </h3>
 
-              <div class="auth-field">
+              <div class="mb-3.5 flex flex-col gap-1">
                 <div class="workspace-form-dialog__label-row">
-                  <label class="auth-field__label" for="team-form-name">
+                  <label class="text-[12px] font-semibold text-text-muted" for="team-form-name">
                     {{ 'teams.nameLabel' | translate }}
-                    <span class="auth-field__required" aria-hidden="true">*</span>
+                    <span class="text-danger" aria-hidden="true">*</span>
                   </label>
                   <span
                     class="workspace-form-dialog__counter"
@@ -167,11 +167,11 @@ function notBlank(value: string) {
                     {{ nameLength() }}/{{ nameMax }}
                   </span>
                 </div>
-                <div class="auth-field__control auth-field__control--plain">
+                <div class="relative">
                   <input
                     id="team-form-name"
-                    class="auth-field__input auth-field__input--plain"
-                    [class.auth-field__input--invalid]="errors().name"
+                    class="field-control"
+                    [class.border-danger]="errors().name"
                     type="text"
                     autocomplete="off"
                     data-autofocus
@@ -182,15 +182,15 @@ function notBlank(value: string) {
                   />
                 </div>
                 @if (errors().name; as message) {
-                  <p class="auth-field__error" id="team-form-name-error" role="alert">
+                  <p class="m-0 text-[12px] text-danger" id="team-form-name-error" role="alert">
                     {{ message | translate: { max: nameMax } }}
                   </p>
                 }
               </div>
 
-              <div class="auth-field">
+              <div class="mb-3.5 flex flex-col gap-1">
                 <div class="workspace-form-dialog__label-row">
-                  <label class="auth-field__label" for="team-form-description">
+                  <label class="text-[12px] font-semibold text-text-muted" for="team-form-description">
                     {{ 'teams.descriptionLabel' | translate }}
                     <span class="workspace-role-form__optional">
                       {{ 'teams.form.optional' | translate }}
@@ -206,8 +206,8 @@ function notBlank(value: string) {
                 </div>
                 <textarea
                   id="team-form-description"
-                  class="auth-field__input auth-field__input--plain workspace-role-form__textarea"
-                  [class.auth-field__input--invalid]="errors().description"
+                  class="field-control workspace-role-form__textarea"
+                  [class.border-danger]="errors().description"
                   rows="3"
                   [placeholder]="
                     (descriptionState() === 'loading'
@@ -227,7 +227,7 @@ function notBlank(value: string) {
                   [formField]="teamForm.description"
                 ></textarea>
                 @if (errors().description; as message) {
-                  <p class="auth-field__error" id="team-form-description-error" role="alert">
+                  <p class="m-0 text-[12px] text-danger" id="team-form-description-error" role="alert">
                     {{ message | translate: { max: descriptionMax } }}
                   </p>
                 } @else if (descriptionState() === 'error') {
@@ -254,9 +254,9 @@ function notBlank(value: string) {
 
               @if (canPickApplication()) {
                 <fieldset class="workspace-choice-group">
-                  <legend class="auth-field__label">
+                  <legend class="text-[12px] font-semibold text-text-muted">
                     {{ 'teams.applicationLabel' | translate }}
-                    <span class="auth-field__required" aria-hidden="true">*</span>
+                    <span class="text-danger" aria-hidden="true">*</span>
                   </legend>
                   <div class="workspace-choice-group__options">
                     @for (application of applications(); track application.key) {
@@ -316,16 +316,16 @@ function notBlank(value: string) {
                 </dl>
               }
 
-              <div class="auth-field">
-                <label class="auth-field__label" for="team-form-parent">
+              <div class="mb-3.5 flex flex-col gap-1">
+                <label class="text-[12px] font-semibold text-text-muted" for="team-form-parent">
                   {{ 'teams.parentLabel' | translate }}
-                  <span class="auth-field__required" aria-hidden="true">*</span>
+                  <span class="text-danger" aria-hidden="true">*</span>
                 </label>
-                <div class="auth-field__control auth-field__control--plain">
+                <div class="relative">
                   <select
                     id="team-form-parent"
-                    class="auth-field__input auth-field__input--plain"
-                    [class.auth-field__input--invalid]="errors().parentTeamId"
+                    class="field-control"
+                    [class.border-danger]="errors().parentTeamId"
                     [attr.aria-invalid]="errors().parentTeamId ? true : null"
                     [attr.aria-describedby]="
                       errors().parentTeamId ? 'team-form-parent-error' : 'team-form-parent-hint'
@@ -341,7 +341,7 @@ function notBlank(value: string) {
                   </select>
                 </div>
                 @if (errors().parentTeamId; as message) {
-                  <p class="auth-field__error" id="team-form-parent-error" role="alert">
+                  <p class="m-0 text-[12px] text-danger" id="team-form-parent-error" role="alert">
                     {{ message | translate }}
                   </p>
                 } @else {
@@ -386,7 +386,7 @@ function notBlank(value: string) {
             <div class="workspace-actions">
               <button
                 type="button"
-                class="ui-btn ui-btn--ghost"
+                class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface px-3.5 text-[13px] font-semibold text-text hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
                 [disabled]="saving()"
                 (click)="close()"
               >
@@ -394,7 +394,7 @@ function notBlank(value: string) {
               </button>
               <button
                 type="submit"
-                class="ui-btn ui-btn--primary"
+                class="btn-primary inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
                 [disabled]="saving() || descriptionState() === 'loading' || descriptionBlocked()"
                 [attr.aria-busy]="saving()"
               >

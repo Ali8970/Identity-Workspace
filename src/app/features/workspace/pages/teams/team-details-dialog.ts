@@ -195,7 +195,7 @@ const TABS: readonly TeamDetailsTab[] = ['overview', 'members', 'subteams', 'set
                     <div class="workspace-actions">
                       <button
                         type="button"
-                        class="ui-btn ui-btn--ghost"
+                        class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface px-3.5 text-[13px] font-semibold text-text hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
                         (click)="assignManager.emit()"
                       >
                         {{
@@ -208,7 +208,7 @@ const TABS: readonly TeamDetailsTab[] = ['overview', 'members', 'subteams', 'set
                       @if (team().managerTenantMembershipId && team().kind !== 'Application') {
                         <button
                           type="button"
-                          class="ui-btn ui-btn--ghost"
+                          class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface px-3.5 text-[13px] font-semibold text-text hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
                           (click)="removeManager.emit()"
                         >
                           {{ 'teams.removeManager' | translate }}
@@ -236,7 +236,7 @@ const TABS: readonly TeamDetailsTab[] = ['overview', 'members', 'subteams', 'set
                     {{ 'teams.membersLabel' | translate }}
                   </h3>
                   @if (canManage()) {
-                    <button type="button" class="ui-btn ui-btn--primary" (click)="addMember.emit()">
+                    <button type="button" class="btn-primary inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50" (click)="addMember.emit()">
                       <svg
                         viewBox="0 0 24 24"
                         fill="none"
@@ -244,7 +244,7 @@ const TABS: readonly TeamDetailsTab[] = ['overview', 'members', 'subteams', 'set
                         stroke-width="2"
                         stroke-linecap="round"
                         aria-hidden="true"
-                        class="ui-btn__icon"
+                        class="size-4 shrink-0"
                       >
                         <path d="M12 5v14M5 12h14" />
                       </svg>
@@ -290,7 +290,7 @@ const TABS: readonly TeamDetailsTab[] = ['overview', 'members', 'subteams', 'set
                           } @else {
                             <button
                               type="button"
-                              class="ui-btn ui-btn--ghost workspace-table__action"
+                              class="table-row-action-icon workspace-table__action"
                               [disabled]="memberBusy() !== null"
                               [attr.aria-busy]="memberBusy() === member.id"
                               [attr.aria-label]="
@@ -316,7 +316,7 @@ const TABS: readonly TeamDetailsTab[] = ['overview', 'members', 'subteams', 'set
                     {{ 'teams.subteamsLabel' | translate }}
                   </h3>
                   @if (canManage() && canAddChild()) {
-                    <button type="button" class="ui-btn ui-btn--primary" (click)="addSubteam.emit()">
+                    <button type="button" class="btn-primary inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50" (click)="addSubteam.emit()">
                       <svg
                         viewBox="0 0 24 24"
                         fill="none"
@@ -324,7 +324,7 @@ const TABS: readonly TeamDetailsTab[] = ['overview', 'members', 'subteams', 'set
                         stroke-width="2"
                         stroke-linecap="round"
                         aria-hidden="true"
-                        class="ui-btn__icon"
+                        class="size-4 shrink-0"
                       >
                         <path d="M12 5v14M5 12h14" />
                       </svg>
@@ -370,7 +370,7 @@ const TABS: readonly TeamDetailsTab[] = ['overview', 'members', 'subteams', 'set
                         </span>
                         <button
                           type="button"
-                          class="ui-btn ui-btn--ghost workspace-table__action"
+                          class="table-row-action-icon workspace-table__action"
                           [attr.aria-label]="'teams.openTeamFor' | translate: { team: child.name }"
                           (click)="openTeam.emit(child)"
                         >
@@ -405,7 +405,7 @@ const TABS: readonly TeamDetailsTab[] = ['overview', 'members', 'subteams', 'set
                         {{ 'teams.editLead' | translate }}
                       </p>
                     </div>
-                    <button type="button" class="ui-btn ui-btn--ghost" (click)="edit.emit()">
+                    <button type="button" class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface px-3.5 text-[13px] font-semibold text-text hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50" (click)="edit.emit()">
                       {{ 'teams.editTeam' | translate }}
                     </button>
                   </div>
@@ -429,7 +429,7 @@ const TABS: readonly TeamDetailsTab[] = ['overview', 'members', 'subteams', 'set
                     </div>
                     <button
                       type="button"
-                      class="ui-btn ui-btn--danger"
+                      class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 bg-danger px-3.5 text-[13px] font-semibold text-on-primary hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                       [disabled]="archiveBlockedReason() !== null"
                       (click)="archive.emit()"
                     >

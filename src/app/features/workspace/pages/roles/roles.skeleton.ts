@@ -23,10 +23,14 @@ import { Skeleton, SkeletonHost, times } from '../../../../shared/ui/skeleton/sk
         <app-skeleton variant="input" />
       </div>
 
-      <ul class="workspace-role-grid m-0 list-none p-[18px]">
+      <ul
+        class="m-0 grid list-none gap-3 p-[18px] [grid-template-columns:repeat(auto-fill,minmax(min(100%,19rem),1fr))]"
+      >
         @for (card of cards; track card) {
-          <li class="workspace-role-card">
-            <div class="workspace-role-card__top">
+          <li
+            class="relative flex min-w-0 flex-col gap-2.5 rounded-[10px] border-[1.468px] border-border-button bg-surface p-4 shadow-[var(--shadow-card)]"
+          >
+            <div class="flex items-center justify-between gap-2">
               <div class="ui-skeleton-row">
                 <app-skeleton variant="icon" />
                 <app-skeleton variant="text" width="4.5rem" />
@@ -39,7 +43,9 @@ import { Skeleton, SkeletonHost, times } from '../../../../shared/ui/skeleton/sk
               <app-skeleton variant="text" width="100%" />
               <app-skeleton variant="text" width="65%" />
             </div>
-            <div class="workspace-role-card__foot">
+            <div
+              class="mt-auto flex items-center justify-between gap-2 border-t-[1.468px] border-border-subtle pt-3"
+            >
               <app-skeleton variant="text" width="6.5rem" />
               <app-skeleton variant="text" width="5rem" />
             </div>

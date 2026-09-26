@@ -332,10 +332,10 @@ import { MembersSkeleton } from './members.skeleton';
                 <span>{{ 'members.editRolesReplaceWarning' | translate }}</span>
               </aside>
 
-              <div class="auth-field">
-                <span class="auth-field__label" id="edit-member-roles-label">
+              <div class="mb-3.5 flex flex-col gap-1">
+                <span class="text-[12px] font-semibold text-text-muted" id="edit-member-roles-label">
                   {{ 'members.roles' | translate }}
-                  <span class="auth-field__required" aria-hidden="true">*</span>
+                  <span class="text-danger" aria-hidden="true">*</span>
                 </span>
 
                 @if (memberRolesLoading()) {
@@ -416,7 +416,7 @@ import { MembersSkeleton } from './members.skeleton';
                 }
 
                 @if (editForm.roleIds().touched() && editForm.roleIds().invalid()) {
-                  <p class="auth-field__error" id="edit-member-roles-error" role="alert">
+                  <p class="m-0 text-[12px] text-danger" id="edit-member-roles-error" role="alert">
                     {{ 'members.rolesRequired' | translate }}
                   </p>
                 } @else {
@@ -429,7 +429,7 @@ import { MembersSkeleton } from './members.skeleton';
               <div class="workspace-form__actions workspace-dialog__actions">
                 <button
                   type="button"
-                  class="ui-btn ui-btn--ghost"
+                  class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface px-3.5 text-[13px] font-semibold text-text hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
                   [disabled]="savingRoles()"
                   (click)="closeEditRoles()"
                 >
@@ -437,7 +437,7 @@ import { MembersSkeleton } from './members.skeleton';
                 </button>
                 <button
                   type="submit"
-                  class="ui-btn ui-btn--primary"
+                  class="btn-primary inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
                   [disabled]="savingRoles() || editForm().invalid()"
                   [attr.aria-busy]="savingRoles()"
                 >
@@ -580,11 +580,11 @@ import { MembersSkeleton } from './members.skeleton';
             }
 
             <div class="workspace-form__actions workspace-dialog__actions">
-              <button type="button" class="ui-btn ui-btn--ghost" (click)="closeDetail()">
+              <button type="button" class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface px-3.5 text-[13px] font-semibold text-text hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50" (click)="closeDetail()">
                 {{ 'common.close' | translate }}
               </button>
               @if (canManage() && !member.isOwner) {
-                <button type="button" class="ui-btn ui-btn--danger" (click)="askRemove(member)">
+                <button type="button" class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 bg-danger px-3.5 text-[13px] font-semibold text-on-primary hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50" (click)="askRemove(member)">
                   {{ 'members.remove' | translate }}
                 </button>
               }

@@ -54,7 +54,7 @@ let nextDialogId = 0;
           <div class="workspace-form__actions workspace-dialog__actions">
             <button
               type="button"
-              class="ui-btn ui-btn--ghost"
+              class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface px-3.5 text-[13px] font-semibold text-text hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
               [disabled]="busy()"
               (click)="onCancel()"
             >
@@ -62,7 +62,7 @@ let nextDialogId = 0;
             </button>
             <button
               type="button"
-              [class]="destructive() ? 'ui-btn ui-btn--danger' : 'ui-btn ui-btn--primary'"
+              [class]="destructive() ? 'inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 bg-danger px-3.5 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50' : 'btn-primary inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50'"
               [disabled]="busy()"
               [attr.aria-busy]="busy()"
               (click)="confirmed.emit()"

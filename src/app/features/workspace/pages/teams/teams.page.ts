@@ -340,14 +340,14 @@ interface TeamRow {
               </p>
             } @else {
               <form class="workspace-form" (submit)="saveManager($event)" novalidate>
-                <div class="auth-field">
-                  <label class="auth-field__label" for="team-manager-select">
+                <div class="mb-3.5 flex flex-col gap-1">
+                  <label class="text-[12px] font-semibold text-text-muted" for="team-manager-select">
                     {{ 'teams.managerLabel' | translate }}
                   </label>
-                  <div class="auth-field__control auth-field__control--plain">
+                  <div class="relative">
                     <select
                       id="team-manager-select"
-                      class="auth-field__input auth-field__input--plain"
+                      class="field-control"
                       [value]="managerChoice()"
                       (change)="managerChoice.set($any($event.target).value)"
                     >
@@ -374,7 +374,7 @@ interface TeamRow {
                 <div class="workspace-form__actions workspace-dialog__actions">
                   <button
                     type="button"
-                    class="ui-btn ui-btn--ghost"
+                    class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface px-3.5 text-[13px] font-semibold text-text hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
                     [disabled]="saving()"
                     (click)="closeAssignManager()"
                   >
@@ -382,7 +382,7 @@ interface TeamRow {
                   </button>
                   <button
                     type="submit"
-                    class="ui-btn ui-btn--primary"
+                    class="btn-primary inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
                     [disabled]="saving()"
                     [attr.aria-busy]="saving()"
                   >
@@ -473,14 +473,14 @@ interface TeamRow {
               </p>
             } @else {
               <form class="workspace-form" (submit)="saveAddMember($event)" novalidate>
-                <div class="auth-field">
-                  <label class="auth-field__label" for="team-add-member-select">
+                <div class="mb-3.5 flex flex-col gap-1">
+                  <label class="text-[12px] font-semibold text-text-muted" for="team-add-member-select">
                     {{ 'teams.addMemberLabel' | translate }}
                   </label>
-                  <div class="auth-field__control auth-field__control--plain">
+                  <div class="relative">
                     <select
                       id="team-add-member-select"
-                      class="auth-field__input auth-field__input--plain"
+                      class="field-control"
                       [value]="addMemberChoice()"
                       (change)="addMemberChoice.set($any($event.target).value)"
                     >
@@ -499,7 +499,7 @@ interface TeamRow {
                 <div class="workspace-form__actions workspace-dialog__actions">
                   <button
                     type="button"
-                    class="ui-btn ui-btn--ghost"
+                    class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface px-3.5 text-[13px] font-semibold text-text hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
                     [disabled]="saving()"
                     (click)="closeAddMember()"
                   >
@@ -507,7 +507,7 @@ interface TeamRow {
                   </button>
                   <button
                     type="submit"
-                    class="ui-btn ui-btn--primary"
+                    class="btn-primary inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
                     [disabled]="saving() || addMemberChoice() === ''"
                     [attr.aria-busy]="saving()"
                   >

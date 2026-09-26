@@ -61,115 +61,139 @@ import { PermissionsSkeleton } from './permissions.skeleton';
           />
         </section>
       } @else {
-        @for (appGroup of applicationGroups(); track appGroup.applicationKey) {
-          <section
-            class="workspace-app-group"
-            [attr.aria-labelledby]="'permissions-app-' + appGroup.applicationKey"
-          >
-            <header class="workspace-app-group__head">
-              <h2
-                class="workspace-app-group__title"
-                [id]="'permissions-app-' + appGroup.applicationKey"
+        <div class="flex flex-col gap-4">
+          @for (appGroup of applicationGroups(); track appGroup.applicationKey) {
+            <section
+              class="list-table-panel overflow-hidden rounded-[10px] border-[1.468px] border-border-button bg-surface shadow-[var(--shadow-card)]"
+              [attr.aria-labelledby]="'permissions-app-' + appGroup.applicationKey"
+            >
+              <header
+                class="flex flex-wrap items-center justify-between gap-2 border-b-[1.468px] border-border-subtle px-[18px] py-3"
               >
-                <span
-                  [class]="
-                    'workspace-app-group__icon workspace-app-group__icon--' +
-                    applicationModifier(appGroup.applicationKey)
-                  "
-                  aria-hidden="true"
+                <h2
+                  class="m-0 inline-flex min-w-0 items-center gap-2.5 text-[13px] font-semibold text-text"
+                  [id]="'permissions-app-' + appGroup.applicationKey"
                 >
-                  @switch (appGroup.applicationKey) {
-                    @case ('account') {
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                        <path d="M12 3 4 7v6c0 5 3.5 7.7 8 8 4.5-.3 8-3 8-8V7l-8-4Z" />
-                      </svg>
-                    }
-                    @case ('crm') {
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.75"
-                      >
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                        <circle cx="9" cy="7" r="3.5" />
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-                      </svg>
-                    }
-                    @case ('hr') {
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.75"
-                      >
-                        <rect x="3" y="7" width="18" height="13" rx="2" />
-                        <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                      </svg>
-                    }
-                    @default {
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.75"
-                      >
-                        <rect x="3" y="3" width="7" height="7" rx="1.5" />
-                        <rect x="14" y="3" width="7" height="7" rx="1.5" />
-                        <rect x="3" y="14" width="7" height="7" rx="1.5" />
-                        <rect x="14" y="14" width="7" height="7" rx="1.5" />
-                      </svg>
-                    }
-                  }
-                </span>
-                {{ appLabel(appGroup.applicationKey) }}
-              </h2>
-              <span class="workspace-chip workspace-chip--muted">
-                {{
-                  'permissions.groupPermissionCount'
-                    | translate: { count: appGroup.permissionCount }
-                }}
-              </span>
-            </header>
-
-            @for (group of appGroup.groups; track group.name) {
-              <section
-                class="workspace-perm-group"
-                [attr.aria-labelledby]="
-                  'permissions-group-' + appGroup.applicationKey + '-' + group.name
-                "
-              >
-                <header class="workspace-perm-group__head">
-                  <h3
-                    class="workspace-perm-group__title"
-                    [id]="'permissions-group-' + appGroup.applicationKey + '-' + group.name"
+                  <span
+                    [class]="
+                      'grid size-7 shrink-0 place-items-center rounded-md bg-primary-light text-info workspace-app-group__icon--' +
+                      applicationModifier(appGroup.applicationKey)
+                    "
+                    aria-hidden="true"
                   >
-                    {{ groupLabel(group.name) }}
-                  </h3>
-                  <span class="workspace-chip workspace-chip--muted">
-                    {{ 'permissions.groupCount' | translate: { count: group.items.length } }}
+                    @switch (appGroup.applicationKey) {
+                      @case ('account') {
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.75"
+                          class="size-3.5"
+                        >
+                          <path d="M12 3 4 7v6c0 5 3.5 7.7 8 8 4.5-.3 8-3 8-8V7l-8-4Z" />
+                        </svg>
+                      }
+                      @case ('crm') {
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.75"
+                          class="size-3.5"
+                        >
+                          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                          <circle cx="9" cy="7" r="3.5" />
+                          <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg>
+                      }
+                      @case ('hr') {
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.75"
+                          class="size-3.5"
+                        >
+                          <rect x="3" y="7" width="18" height="13" rx="2" />
+                          <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        </svg>
+                      }
+                      @default {
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.75"
+                          class="size-3.5"
+                        >
+                          <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                          <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                          <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                          <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                        </svg>
+                      }
+                    }
                   </span>
-                </header>
+                  {{ appLabel(appGroup.applicationKey) }}
+                </h2>
+                <span
+                  class="inline-flex items-center rounded-md bg-surface-muted px-2 py-0.5 text-[11px] font-semibold text-text-muted"
+                >
+                  {{
+                    'permissions.groupPermissionCount'
+                      | translate: { count: appGroup.permissionCount }
+                  }}
+                </span>
+              </header>
 
-                <ul class="workspace-perm-catalog">
-                  @for (item of group.items; track item.key) {
-                    <li class="workspace-perm-catalog-item">
-                      <span class="workspace-perm-catalog-item__body">
-                        <strong class="workspace-perm-catalog-item__name">
-                          {{ language.pick(item.nameAr, item.nameEn) }}
-                        </strong>
-                        <span class="workspace-perm-catalog-item__desc">
-                          {{ 'permissions.keyLabel' | translate }}
-                        </span>
+              <div class="flex flex-col gap-0 divide-y-[1.468px] divide-border-subtle">
+                @for (group of appGroup.groups; track group.name) {
+                  <section
+                    class="px-[18px] py-3.5"
+                    [attr.aria-labelledby]="
+                      'permissions-group-' + appGroup.applicationKey + '-' + group.name
+                    "
+                  >
+                    <header class="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+                      <h3
+                        class="m-0 text-[13px] font-semibold text-text"
+                        [id]="'permissions-group-' + appGroup.applicationKey + '-' + group.name"
+                      >
+                        {{ groupLabel(group.name) }}
+                      </h3>
+                      <span
+                        class="inline-flex items-center rounded-md bg-surface-muted px-2 py-0.5 text-[11px] font-semibold text-text-muted"
+                      >
+                        {{ 'permissions.groupCount' | translate: { count: group.items.length } }}
                       </span>
-                      <code class="workspace-perm-catalog-item__key">{{ item.key }}</code>
-                    </li>
-                  }
-                </ul>
-              </section>
-            }
-          </section>
-        }
+                    </header>
+
+                    <ul class="m-0 flex list-none flex-col gap-1.5 p-0">
+                      @for (item of group.items; track item.key) {
+                        <li
+                          class="flex flex-wrap items-center justify-between gap-2 rounded-lg border-[1.468px] border-border-subtle bg-surface-muted/40 px-3 py-2.5"
+                        >
+                          <span class="min-w-0 flex flex-col gap-0.5">
+                            <strong class="text-[13px] font-semibold text-text">
+                              {{ language.pick(item.nameAr, item.nameEn) }}
+                            </strong>
+                            <span class="text-[11px] font-medium text-text-muted">
+                              {{ 'permissions.keyLabel' | translate }}
+                            </span>
+                          </span>
+                          <code
+                            class="ltr-text rounded-md border-[1.468px] border-border-button bg-surface px-2 py-1 font-mono text-[11px] font-semibold text-text-muted"
+                            dir="ltr"
+                          >{{ item.key }}</code>
+                        </li>
+                      }
+                    </ul>
+                  </section>
+                }
+              </div>
+            </section>
+          }
+        </div>
       }
     </div>
   `,

@@ -192,20 +192,24 @@ interface RoleNotice {
               (action)="clearFilters()"
             />
           } @else {
-            <ul class="workspace-role-grid list-none p-[18px] m-0">
+            <ul
+              class="m-0 grid list-none gap-3 p-[18px] [grid-template-columns:repeat(auto-fill,minmax(min(100%,19rem),1fr))]"
+            >
               @for (role of visibleRoles(); track role.id) {
                 @let name = roleName(role);
                 @let editable = canEditRole(role);
                 <li
-                  class="workspace-role-card"
-                  [class.workspace-role-card--inactive]="!role.isActive"
-                  [class.workspace-role-card--owner]="role.isOwnerRole"
+                  class="relative flex min-w-0 flex-col gap-2.5 rounded-[10px] border-[1.468px] border-border-button bg-surface p-4 font-[family-name:var(--font-family)] shadow-[var(--shadow-card)]"
+                  [class.border-info]="role.isOwnerRole"
+                  [class.bg-surface-muted]="!role.isActive"
                 >
-                  <div class="workspace-role-card__top">
-                    <span class="workspace-role-card__app">
+                  <div class="flex items-center justify-between gap-2">
+                    <span
+                      class="inline-flex min-w-0 items-center gap-2 text-[11px] font-semibold tracking-wide text-text-muted uppercase"
+                    >
                       <span
                         [class]="
-                          'workspace-app-group__icon workspace-role-card__app-icon workspace-app-group__icon--' +
+                          'grid size-6 shrink-0 place-items-center rounded-md bg-primary-light text-info workspace-app-group__icon--' +
                           applicationModifier(role.applicationKey)
                         "
                         aria-hidden="true"
@@ -215,6 +219,7 @@ interface RoleNotice {
                           fill="none"
                           stroke="currentColor"
                           stroke-width="1.75"
+                          class="size-3.5"
                         >
                           <rect x="3" y="3" width="7" height="7" rx="1.5" />
                           <rect x="14" y="3" width="7" height="7" rx="1.5" />
@@ -222,7 +227,7 @@ interface RoleNotice {
                           <rect x="14" y="14" width="7" height="7" rx="1.5" />
                         </svg>
                       </span>
-                      <bdi>{{ appLabel(role.applicationKey) }}</bdi>
+                      <bdi class="truncate">{{ appLabel(role.applicationKey) }}</bdi>
                     </span>
                     <span
                       class="workspace-status-pill"
@@ -233,62 +238,39 @@ interface RoleNotice {
                     </span>
                   </div>
 
-                  <h3 class="workspace-role-card__name">{{ name }}</h3>
+                  <h3 class="m-0 text-[15px] leading-snug font-bold text-text">{{ name }}</h3>
 
-                  <div class="workspace-role-card__badges">
+                  <div class="flex flex-wrap gap-1.5">
                     @if (role.isOwnerRole) {
-                      <span class="workspace-role-badge workspace-role-badge--owner">
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="1.75"
-                          aria-hidden="true"
-                        >
-                          <path d="m4 8 4 3 4-6 4 6 4-3-2 10H6L4 8Z" />
-                        </svg>
+                      <span
+                        class="inline-flex items-center gap-1 rounded-md bg-primary-light px-2 py-0.5 text-[11px] font-semibold text-info-text"
+                      >
                         {{ 'roles.ownerRole' | translate }}
                       </span>
                     } @else if (role.isSystem) {
-                      <span class="workspace-role-badge workspace-role-badge--system">
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="1.75"
-                          aria-hidden="true"
-                        >
-                          <rect x="5" y="11" width="14" height="10" rx="2" />
-                          <path d="M8 11V8a4 4 0 0 1 8 0v3" />
-                        </svg>
+                      <span
+                        class="inline-flex items-center gap-1 rounded-md bg-surface-muted px-2 py-0.5 text-[11px] font-semibold text-text-muted"
+                      >
                         {{ 'roles.systemRole' | translate }}
                       </span>
                     } @else {
-                      <span class="workspace-role-badge">
+                      <span
+                        class="rounded-md border-[1.468px] border-border-button px-2 py-0.5 text-[11px] font-semibold text-text"
+                      >
                         {{ 'roles.customRole' | translate }}
                       </span>
                     }
                   </div>
 
                   <p
-                    class="workspace-role-card__desc"
-                    [class.workspace-role-card__desc--empty]="!role.description"
+                    class="m-0 min-h-[2.6em] text-[13px] leading-normal text-text-muted"
+                    [class.italic]="!role.description"
                   >
                     {{ role.description || ('roles.noDescription' | translate) }}
                   </p>
 
-                  <div class="workspace-role-card__foot">
-                    <span class="workspace-role-card__stat">
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.75"
-                        aria-hidden="true"
-                      >
-                        <circle cx="8" cy="15" r="4" />
-                        <path d="m10.8 12.2 8.2-8.2M16 7l2 2M14 9l2 2" />
-                      </svg>
+                  <div class="mt-auto flex items-center justify-between gap-2 border-t-[1.468px] border-border-subtle pt-3">
+                    <span class="text-[12px] font-medium text-text-muted">
                       {{
                         'roles.permissionCount' | translate: { count: role.permissionKeys.length }
                       }}
@@ -296,27 +278,23 @@ interface RoleNotice {
 
                     <button
                       type="button"
-                      class="workspace-role-card__action"
+                      class="table-row-action-icon"
                       aria-haspopup="dialog"
                       [id]="'role-card-' + role.id"
                       [attr.aria-label]="
                         (editable ? 'roles.manageRoleFor' : 'roles.viewRoleFor')
                           | translate: { name: name }
                       "
+                      [attr.title]="(editable ? 'roles.manageRole' : 'roles.viewRole') | translate"
                       (click)="openDetails(role)"
                     >
-                      {{ (editable ? 'roles.manageRole' : 'roles.viewRole') | translate }}
-                      <svg
-                        class="workspace-role-card__arrow"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        aria-hidden="true"
-                      >
-                        <path d="M5 12h14M13 6l6 6-6 6" />
-                      </svg>
+                      <img
+                        class="table-row-action-glyph"
+                        src="/images/table-actions/eye.svg"
+                        width="16"
+                        height="16"
+                        alt=""
+                      />
                     </button>
                   </div>
                 </li>

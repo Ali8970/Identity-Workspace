@@ -38,13 +38,29 @@ use the same control pattern for consistency.
   collapse to zero width, 52px header, theme + language + user menu.
 - Account keeps the **company switcher** in the header (Account-only).
 
+## Type scale (Lama Sans via `--font-family`)
+
+| Role | Size / weight | Typical use |
+|------|---------------|-------------|
+| Page / dialog title | 22 / 800 | `PageHeader`, dialog titles |
+| Section / card title | 15 / 700 | Role / app card names |
+| Body | 13 / 400 | Leads, descriptions, table cells |
+| Name / emphasis | 13 / 600 | App group headers, member names |
+| Badge / chip | 11 / 600 | Status pills, counts, keys |
+| Table head | 11 / 700 | Column labels |
+| Field label | 12 / 600 | Form labels above `.field-control` |
+
+Primary actions use `.btn-primary` (CRM gradient). Inputs use `.field-control`
+(no hover restyle — focus only). Dialog panels: `border-button`, radius `10px`.
+
 ## Styling rules
 
 - Tailwind utilities + tokens in `src/tailwind.css` (`@theme inline`).
 - Do not invent parallel sidebar / header / table / filter styles.
 - Do not add new feature SCSS for redesigned screens; migrate to utilities.
 - Global shared classes that cannot be utilities: `.field-control`,
-  `.panel-section`, `.list-table-panel` (same as Administration).
+  `.btn-primary`, `.panel-section`, `.list-table-panel`, `.table-row-action-icon`
+  (same as Administration / CRM).
 
 ## Future package
 

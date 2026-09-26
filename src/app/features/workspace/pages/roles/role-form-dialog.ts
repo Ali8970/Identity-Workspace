@@ -188,9 +188,9 @@ function sameKeys(left: readonly string[], right: readonly string[]): boolean {
                       : 'role-form-application-hint'
                   "
                 >
-                  <legend class="auth-field__label">
+                  <legend class="text-[12px] font-semibold text-text-muted">
                     {{ 'roles.form.application' | translate }}
-                    <span class="auth-field__required" aria-hidden="true">*</span>
+                    <span class="text-danger" aria-hidden="true">*</span>
                   </legend>
                   <div class="workspace-choice-group__options">
                     @for (application of applications(); track application.key; let first = $first) {
@@ -241,7 +241,7 @@ function sameKeys(left: readonly string[], right: readonly string[]): boolean {
                     }
                   </div>
                   @if (errors().applicationKey; as message) {
-                    <p class="auth-field__error" id="role-form-application-error" role="alert">
+                    <p class="m-0 text-[12px] text-danger" id="role-form-application-error" role="alert">
                       {{ message | translate }}
                     </p>
                   } @else {
@@ -253,16 +253,16 @@ function sameKeys(left: readonly string[], right: readonly string[]): boolean {
               }
 
               <div class="workspace-form__row workspace-role-form__row">
-                <div class="auth-field">
-                  <label class="auth-field__label" for="role-form-name-en">
+                <div class="mb-3.5 flex flex-col gap-1">
+                  <label class="text-[12px] font-semibold text-text-muted" for="role-form-name-en">
                     {{ 'roles.form.nameEn' | translate }}
-                    <span class="auth-field__required" aria-hidden="true">*</span>
+                    <span class="text-danger" aria-hidden="true">*</span>
                   </label>
-                  <div class="auth-field__control auth-field__control--plain">
+                  <div class="relative">
                     <input
                       id="role-form-name-en"
-                      class="auth-field__input auth-field__input--plain"
-                      [class.auth-field__input--invalid]="errors().nameEn"
+                      class="field-control"
+                      [class.border-danger]="errors().nameEn"
                       type="text"
                       dir="ltr"
                       lang="en"
@@ -275,22 +275,22 @@ function sameKeys(left: readonly string[], right: readonly string[]): boolean {
                     />
                   </div>
                   @if (errors().nameEn; as message) {
-                    <p class="auth-field__error" id="role-form-name-en-error" role="alert">
+                    <p class="m-0 text-[12px] text-danger" id="role-form-name-en-error" role="alert">
                       {{ message | translate: { max: nameMax } }}
                     </p>
                   }
                 </div>
 
-                <div class="auth-field">
-                  <label class="auth-field__label" for="role-form-name-ar">
+                <div class="mb-3.5 flex flex-col gap-1">
+                  <label class="text-[12px] font-semibold text-text-muted" for="role-form-name-ar">
                     {{ 'roles.form.nameAr' | translate }}
-                    <span class="auth-field__required" aria-hidden="true">*</span>
+                    <span class="text-danger" aria-hidden="true">*</span>
                   </label>
-                  <div class="auth-field__control auth-field__control--plain">
+                  <div class="relative">
                     <input
                       id="role-form-name-ar"
-                      class="auth-field__input auth-field__input--plain"
-                      [class.auth-field__input--invalid]="errors().nameAr"
+                      class="field-control"
+                      [class.border-danger]="errors().nameAr"
                       type="text"
                       dir="rtl"
                       lang="ar"
@@ -302,7 +302,7 @@ function sameKeys(left: readonly string[], right: readonly string[]): boolean {
                     />
                   </div>
                   @if (errors().nameAr; as message) {
-                    <p class="auth-field__error" id="role-form-name-ar-error" role="alert">
+                    <p class="m-0 text-[12px] text-danger" id="role-form-name-ar-error" role="alert">
                       {{ message | translate: { max: nameMax } }}
                     </p>
                   }
@@ -310,16 +310,16 @@ function sameKeys(left: readonly string[], right: readonly string[]): boolean {
               </div>
 
               @if (!isEdit()) {
-                <div class="auth-field">
-                  <label class="auth-field__label" for="role-form-code">
+                <div class="mb-3.5 flex flex-col gap-1">
+                  <label class="text-[12px] font-semibold text-text-muted" for="role-form-code">
                     {{ 'roles.form.code' | translate }}
-                    <span class="auth-field__required" aria-hidden="true">*</span>
+                    <span class="text-danger" aria-hidden="true">*</span>
                   </label>
-                  <div class="auth-field__control auth-field__control--plain">
+                  <div class="relative">
                     <input
                       id="role-form-code"
-                      class="auth-field__input auth-field__input--plain workspace-role-form__code"
-                      [class.auth-field__input--invalid]="errors().code"
+                      class="field-control workspace-role-form__code"
+                      [class.border-danger]="errors().code"
                       type="text"
                       dir="ltr"
                       autocomplete="off"
@@ -335,7 +335,7 @@ function sameKeys(left: readonly string[], right: readonly string[]): boolean {
                     />
                   </div>
                   @if (errors().code; as message) {
-                    <p class="auth-field__error" id="role-form-code-error" role="alert">
+                    <p class="m-0 text-[12px] text-danger" id="role-form-code-error" role="alert">
                       {{ message | translate: { max: codeMax } }}
                     </p>
                   }
@@ -345,8 +345,8 @@ function sameKeys(left: readonly string[], right: readonly string[]): boolean {
                 </div>
               }
 
-              <div class="auth-field">
-                <label class="auth-field__label" for="role-form-description">
+              <div class="mb-3.5 flex flex-col gap-1">
+                <label class="text-[12px] font-semibold text-text-muted" for="role-form-description">
                   {{ 'roles.form.description' | translate }}
                   <span class="workspace-role-form__optional">
                     {{ 'roles.form.optional' | translate }}
@@ -354,8 +354,8 @@ function sameKeys(left: readonly string[], right: readonly string[]): boolean {
                 </label>
                 <textarea
                   id="role-form-description"
-                  class="auth-field__input auth-field__input--plain workspace-role-form__textarea"
-                  [class.auth-field__input--invalid]="errors().description"
+                  class="field-control workspace-role-form__textarea"
+                  [class.border-danger]="errors().description"
                   rows="3"
                   [placeholder]="'roles.form.descriptionPlaceholder' | translate"
                   [attr.aria-invalid]="errors().description ? true : null"
@@ -365,7 +365,7 @@ function sameKeys(left: readonly string[], right: readonly string[]): boolean {
                   [formField]="roleForm.description"
                 ></textarea>
                 @if (errors().description; as message) {
-                  <p class="auth-field__error" id="role-form-description-error" role="alert">
+                  <p class="m-0 text-[12px] text-danger" id="role-form-description-error" role="alert">
                     {{ message | translate: { max: descriptionMax } }}
                   </p>
                 }
@@ -468,7 +468,7 @@ function sameKeys(left: readonly string[], right: readonly string[]): boolean {
             <div class="workspace-actions">
               <button
                 type="button"
-                class="ui-btn ui-btn--ghost"
+                class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface px-3.5 text-[13px] font-semibold text-text hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
                 [disabled]="saving()"
                 (click)="close()"
               >
@@ -476,7 +476,7 @@ function sameKeys(left: readonly string[], right: readonly string[]): boolean {
               </button>
               <button
                 type="submit"
-                class="ui-btn ui-btn--primary"
+                class="btn-primary inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
                 [disabled]="saving() || loading()"
                 [attr.aria-busy]="saving()"
               >

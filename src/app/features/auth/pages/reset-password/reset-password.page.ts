@@ -30,7 +30,7 @@ import { PasswordService } from '../../services/password.service';
           </h1>
           <p class="auth-success__message">{{ 'auth.reset.invalidLink' | translate }}</p>
 
-          <a class="ui-btn ui-btn--primary auth-form__submit" routerLink="/forgot-password">
+          <a class="btn-primary auth-form__submit inline-flex h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border-0 px-4 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50" routerLink="/forgot-password">
             {{ 'auth.reset.requestNew' | translate }}
           </a>
           <p class="auth-form__register">
@@ -51,7 +51,7 @@ import { PasswordService } from '../../services/password.service';
           </h1>
           <p class="auth-success__message">{{ 'auth.reset.success' | translate }}</p>
 
-          <a class="ui-btn ui-btn--primary auth-form__submit" routerLink="/login">
+          <a class="btn-primary auth-form__submit inline-flex h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border-0 px-4 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50" routerLink="/login">
             {{ 'auth.reset.goToLogin' | translate }}
           </a>
         </div>
@@ -181,7 +181,7 @@ import { PasswordService } from '../../services/password.service';
 
           <div class="auth-form__actions">
             <button
-              class="ui-btn ui-btn--primary auth-form__submit"
+              class="btn-primary auth-form__submit inline-flex h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border-0 px-4 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
               type="submit"
               [disabled]="busy() || resetForm().invalid()"
             >

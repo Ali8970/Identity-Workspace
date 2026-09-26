@@ -1,203 +1,211 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Observable, firstValueFrom } from 'rxjs';
 import { SessionStore } from '../../../../core/auth/session.store';
 import { LanguageService } from '../../../../core/i18n/language.service';
 import { MyCompanyDto } from '../../../../models/auth.model';
 import { BusyOverlay } from '../../../../shared/ui/busy-overlay/busy-overlay';
 import { nameInitials } from '../../../../shared/ui/display';
+import { EmptyState } from '../../../../shared/ui/empty-state/empty-state';
+import { ErrorPanel } from '../../../../shared/ui/error-panel/error-panel';
+import type { ListStatCard } from '../../../../shared/ui/list-stats/list-stat-card';
+import { ListStats } from '../../../../shared/ui/list-stats/list-stats';
+import { PageHeader } from '../../../../shared/ui/page-header/page-header';
+import { PanelSection } from '../../../../shared/ui/panel-section/panel-section';
 import { SessionDto } from '../../models/workspace-feature.model';
 import { AccountService } from '../../services/account.service';
 import { AccountSkeleton } from './account.skeleton';
 
 @Component({
   selector: 'app-account-page',
-  imports: [TranslatePipe, AccountSkeleton, BusyOverlay],
+  imports: [
+    TranslatePipe,
+    AccountSkeleton,
+    BusyOverlay,
+    PageHeader,
+    ListStats,
+    PanelSection,
+    EmptyState,
+    ErrorPanel,
+  ],
   template: `
-    <div class="workspace-page">
-      <header class="workspace-page__head">
-        <div class="workspace-page__intro">
-          <p class="workspace-page__eyebrow">{{ 'account.eyebrow' | translate }}</p>
-          <h1 class="workspace-page__title" id="main-content-header" tabindex="-1">
-            {{ 'account.title' | translate }}
-          </h1>
-          <p class="workspace-page__lead">{{ 'account.subtitle' | translate }}</p>
-        </div>
+    <div>
+      <app-page-header
+        [title]="'account.title' | translate"
+        [description]="'account.subtitle' | translate"
+      />
 
-        @if (userInitial()) {
-          <div class="workspace-page__meta">
-            <span class="workspace-chip">
-              <span class="workspace-profile__avatar" style="width:1.65rem;height:1.65rem;font-size:0.72rem;flex:0 0 1.65rem" aria-hidden="true">
-                {{ userInitial() }}
-              </span>
-              {{ userEmail() }}
-            </span>
-          </div>
-        }
-      </header>
+      <div class="mb-4">
+        <app-list-stats [stats]="accountStats()" [loading]="loading()" />
+      </div>
 
       @if (loading()) {
         <app-account-skeleton [label]="'account.loading' | translate" />
       } @else if (loadFailed()) {
-        <section class="workspace-empty" role="status">
-          <p class="workspace-empty__body">{{ 'common.loadFailed' | translate }}</p>
-          <button type="button" class="ui-btn ui-btn--ghost" (click)="reload()">
-            {{ 'common.retry' | translate }}
-          </button>
-        </section>
+        <app-error-panel
+          [title]="'common.loadFailed' | translate"
+          [retryLabel]="'common.retry' | translate"
+          (retry)="reload()"
+        />
       } @else {
-        <div class="workspace-account-stack">
-          <section class="workspace-panel" aria-labelledby="account-profile-heading">
-            <header class="workspace-panel__head">
-              <h2 class="workspace-panel__title" id="account-profile-heading">
-                {{ 'account.profile' | translate }}
-              </h2>
-              <p class="workspace-panel__lead">{{ 'account.profileLead' | translate }}</p>
-            </header>
-
-            <div class="workspace-panel__body">
-              @if (session.current(); as me) {
-                <div class="workspace-profile">
-                  <span class="workspace-profile__avatar" aria-hidden="true">{{ userInitial() }}</span>
-                  <div class="workspace-profile__details">
-                    <dl class="workspace-dl">
-                      <div class="workspace-dl__row">
-                        <dt class="workspace-dl__label">{{ 'account.email' | translate }}</dt>
-                        <dd class="workspace-dl__value">{{ me.user.email }}</dd>
-                      </div>
-                      <div class="workspace-dl__row">
-                        <dt class="workspace-dl__label">{{ 'account.name' | translate }}</dt>
-                        <dd class="workspace-dl__value">
-                          {{ language.pick(me.user.nameAr, me.user.nameEn) }}
-                        </dd>
-                      </div>
-                    </dl>
+        <div class="flex flex-col gap-4">
+          <app-panel-section
+            [title]="'account.profile' | translate"
+            [description]="'account.profileLead' | translate"
+          >
+            @if (session.current(); as me) {
+              <div class="flex items-start gap-4">
+                <span
+                  class="grid size-14 shrink-0 place-items-center rounded-2xl text-[18px] font-bold text-on-primary"
+                  style="background: var(--primary-gradient)"
+                  aria-hidden="true"
+                  >{{ userInitial() }}</span
+                >
+                <dl class="m-0 grid min-w-0 flex-1 gap-3">
+                  <div>
+                    <dt class="m-0 text-[11px] font-semibold text-text-muted">
+                      {{ 'account.email' | translate }}
+                    </dt>
+                    <dd class="mt-1 mb-0 text-[13px] font-semibold text-text ltr-text">
+                      {{ me.user.email }}
+                    </dd>
                   </div>
-                </div>
-              }
-            </div>
-          </section>
+                  <div>
+                    <dt class="m-0 text-[11px] font-semibold text-text-muted">
+                      {{ 'account.name' | translate }}
+                    </dt>
+                    <dd class="mt-1 mb-0 text-[13px] font-semibold text-text">
+                      {{ language.pick(me.user.nameAr, me.user.nameEn) }}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            }
+          </app-panel-section>
 
-          <section class="workspace-panel" aria-labelledby="account-companies-heading">
-            <header class="workspace-panel__head">
-              <h2 class="workspace-panel__title" id="account-companies-heading">
-                {{ 'account.companies' | translate }}
-              </h2>
-              <p class="workspace-panel__lead">{{ 'account.companiesLead' | translate }}</p>
-            </header>
-
-            <div class="workspace-panel__body">
-              @if (companies().length === 0) {
-                <p class="workspace-panel__empty" role="status">{{ 'account.noCompanies' | translate }}</p>
-              } @else {
-                <div class="workspace-company-list" role="list">
-                  @for (company of companies(); track company.tenantMembershipId) {
-                    <article
-                      class="workspace-company-row"
-                      role="listitem"
-                      [class.workspace-company-row--current]="company.isCurrent"
-                    >
-                      <div class="workspace-company-row__body">
-                        <strong class="workspace-company-row__name">
-                          {{ language.pick(company.companyNameAr, company.companyNameEn) }}
-                        </strong>
-                        <div class="workspace-company-row__meta">
-                          @if (company.isCurrent) {
-                            <span class="workspace-role-pill">{{ 'account.current' | translate }}</span>
-                          }
-                          @if (company.isOwner) {
-                            <span class="workspace-member__owner">{{ 'account.owner' | translate }}</span>
-                          }
-                          @if (company.isPrimary) {
-                            <span class="workspace-chip workspace-chip--muted">
-                              {{ 'account.primary' | translate }}
-                            </span>
-                          }
-                        </div>
-                        @if (company.jobTitle) {
-                          <span class="workspace-company-row__job">{{ company.jobTitle }}</span>
+          <app-panel-section
+            [title]="'account.companies' | translate"
+            [description]="'account.companiesLead' | translate"
+          >
+            @if (companies().length === 0) {
+              <app-empty-state [title]="'account.noCompanies' | translate" />
+            } @else {
+              <ul class="m-0 flex list-none flex-col gap-2 p-0" role="list">
+                @for (company of companies(); track company.tenantMembershipId) {
+                  <li
+                    class="flex flex-wrap items-center justify-between gap-3 rounded-lg border-[1.468px] border-border-button bg-surface px-3 py-3"
+                    [class.border-info]="company.isCurrent"
+                    [class.bg-primary-light]="company.isCurrent"
+                    role="listitem"
+                  >
+                    <div class="min-w-0">
+                      <strong class="block text-[13px] font-semibold text-text">
+                        {{ language.pick(company.companyNameAr, company.companyNameEn) }}
+                      </strong>
+                      <div class="mt-1 flex flex-wrap gap-1.5">
+                        @if (company.isCurrent) {
+                          <span
+                            class="rounded-md bg-info px-1.5 py-0.5 text-[11px] font-semibold text-on-primary"
+                            >{{ 'account.current' | translate }}</span
+                          >
+                        }
+                        @if (company.isOwner) {
+                          <span
+                            class="rounded-md bg-primary-light px-1.5 py-0.5 text-[11px] font-semibold text-info-text"
+                            >{{ 'account.owner' | translate }}</span
+                          >
+                        }
+                        @if (company.isPrimary) {
+                          <span
+                            class="rounded-md bg-surface-muted px-1.5 py-0.5 text-[11px] font-semibold text-text-muted"
+                            >{{ 'account.primary' | translate }}</span
+                          >
                         }
                       </div>
-
-                      @if (!company.isCurrent && company.isSelectable) {
-                        <button
-                          type="button"
-                          class="ui-btn ui-btn--primary"
-                          [disabled]="switching()"
-                          [attr.aria-busy]="switching()"
-                          (click)="switchTo(company.tenantMembershipId)"
-                        >
-                          {{ 'account.switch' | translate }}
-                        </button>
-                      } @else if (!company.isSelectable && !company.isCurrent) {
-                        <span class="workspace-chip workspace-chip--muted">
-                          {{ 'account.unavailable' | translate }}
-                        </span>
+                      @if (company.jobTitle) {
+                        <span class="mt-1 block text-[12px] text-text-muted">{{
+                          company.jobTitle
+                        }}</span>
                       }
-                    </article>
-                  }
-                </div>
-              }
-            </div>
-          </section>
+                    </div>
 
-          <section class="workspace-panel" aria-labelledby="account-sessions-heading">
-            <header class="workspace-panel__head">
-              <h2 class="workspace-panel__title" id="account-sessions-heading">
-                {{ 'account.sessions' | translate }}
-              </h2>
-              <p class="workspace-panel__lead">{{ 'account.sessionsLead' | translate }}</p>
-            </header>
+                    @if (!company.isCurrent && company.isSelectable) {
+                      <button
+                        type="button"
+                        class="btn-primary inline-flex h-9 shrink-0 cursor-pointer items-center rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary disabled:opacity-50"
+                        [disabled]="switching()"
+                        [attr.aria-busy]="switching()"
+                        (click)="switchTo(company.tenantMembershipId)"
+                      >
+                        {{ 'account.switch' | translate }}
+                      </button>
+                    } @else if (!company.isSelectable && !company.isCurrent) {
+                      <span
+                        class="rounded-md bg-surface-muted px-2 py-0.5 text-[11px] font-semibold text-text-muted"
+                        >{{ 'account.unavailable' | translate }}</span
+                      >
+                    }
+                  </li>
+                }
+              </ul>
+            }
+          </app-panel-section>
 
-            <div class="workspace-panel__body">
-              @if (sessions().length === 0) {
-                <p class="workspace-panel__empty" role="status">{{ 'account.noSessions' | translate }}</p>
-              } @else {
-                <ul class="workspace-session-list">
-                  @for (row of sessions(); track row.sessionRef) {
-                    <li class="workspace-session-row">
-                      <span class="workspace-session-row__body">
-                        <span class="workspace-session-row__id">{{ row.sessionRef }}</span>
-                        <span class="workspace-session-row__label">
-                          {{ 'account.sessionLabel' | translate }}
-                        </span>
+          <app-panel-section
+            [title]="'account.sessions' | translate"
+            [description]="'account.sessionsLead' | translate"
+          >
+            @if (sessions().length === 0) {
+              <app-empty-state [title]="'account.noSessions' | translate" />
+            } @else {
+              <ul class="m-0 mb-4 flex list-none flex-col gap-2 p-0">
+                @for (row of sessions(); track row.sessionRef) {
+                  <li
+                    class="flex flex-wrap items-center justify-between gap-2 rounded-lg border-[1.468px] border-border-subtle px-3 py-2.5"
+                  >
+                    <span class="min-w-0">
+                      <span class="block truncate text-[13px] font-semibold text-text ltr-text">{{
+                        row.sessionRef
+                      }}</span>
+                      <span class="text-[12px] text-text-muted">{{
+                        'account.sessionLabel' | translate
+                      }}</span>
+                    </span>
+                    @if (isKnownSessionStage(row.stage)) {
+                      <span [class]="sessionStageClass(row.stage)">
+                        {{ sessionStageLabel(row.stage) | translate }}
                       </span>
-                      @if (isKnownSessionStage(row.stage)) {
-                        <span [class]="sessionStageClass(row.stage)">
-                          {{ sessionStageLabel(row.stage) | translate }}
-                        </span>
-                      } @else {
-                        <span class="workspace-status-pill">{{ row.stage }}</span>
-                      }
-                    </li>
-                  }
-                </ul>
-              }
+                    } @else {
+                      <span class="workspace-status-pill">{{ row.stage }}</span>
+                    }
+                  </li>
+                }
+              </ul>
+            }
 
-              <div class="workspace-actions">
-                <button
-                  type="button"
-                  class="ui-btn ui-btn--ghost"
-                  [disabled]="busy()"
-                  [attr.aria-busy]="busy()"
-                  (click)="logout()"
-                >
-                  {{ 'account.logout' | translate }}
-                </button>
-                <button
-                  type="button"
-                  class="ui-btn ui-btn--danger"
-                  [disabled]="busy()"
-                  [attr.aria-busy]="busy()"
-                  (click)="logoutAll()"
-                >
-                  {{ 'account.logoutAll' | translate }}
-                </button>
-              </div>
+            <div class="flex flex-wrap gap-2">
+              <button
+                type="button"
+                class="inline-flex h-9 cursor-pointer items-center rounded-lg border-[1.468px] border-border-button bg-surface px-3.5 text-[13px] font-semibold text-text disabled:opacity-50"
+                [disabled]="busy()"
+                [attr.aria-busy]="busy()"
+                (click)="logout()"
+              >
+                {{ 'account.logout' | translate }}
+              </button>
+              <button
+                type="button"
+                class="inline-flex h-9 cursor-pointer items-center rounded-lg border-0 bg-error px-3.5 text-[13px] font-semibold text-on-primary disabled:opacity-50"
+                [disabled]="busy()"
+                [attr.aria-busy]="busy()"
+                (click)="logoutAll()"
+              >
+                {{ 'account.logoutAll' | translate }}
+              </button>
             </div>
-          </section>
+          </app-panel-section>
         </div>
       }
     </div>
@@ -211,11 +219,10 @@ export class AccountPage {
   private readonly accountService = inject(AccountService);
   private readonly router = inject(Router);
   protected readonly language = inject(LanguageService);
-  /** Injected directly rather than reached through AccountService. */
+  private readonly translate = inject(TranslateService);
   protected readonly session = inject(SessionStore);
 
   private readonly accountData = rxResource({
-    // Keyed on the active company: `isCurrent` on the company rows changes with it.
     params: () => this.session.currentTenant()?.tenantMembershipId,
     stream: () => this.accountService.loadAccountData(),
     defaultValue: { companies: [], sessions: [] } as {
@@ -227,13 +234,10 @@ export class AccountPage {
   protected readonly companies = computed(() => this.accountData.value().companies);
   protected readonly sessions = computed(() => this.accountData.value().sessions);
   protected readonly loading = this.accountData.isLoading;
-  /** The error interceptor already raised the banner; this only offers the retry. */
   protected readonly loadFailed = computed(() => this.accountData.status() === 'error');
-
   protected readonly busy = signal(false);
   protected readonly switching = signal(false);
 
-  /** Sign-out and company switch both invalidate the page, so they block it. */
   protected readonly blockingMessageKey = computed(() => {
     if (this.busy()) {
       return 'shell.signingOut';
@@ -245,6 +249,24 @@ export class AccountPage {
   protected readonly userInitial = computed(() => {
     const me = this.session.current()?.user;
     return me ? nameInitials(this.language.pick(me.nameAr, me.nameEn), me.email) : '';
+  });
+
+  protected readonly accountStats = computed((): ListStatCard[] => {
+    this.language.current();
+    return [
+      {
+        label: this.translate.instant('account.stats.companies'),
+        value: this.companies().length,
+        accent: '#2b5bf9',
+        icon: 'apps',
+      },
+      {
+        label: this.translate.instant('account.stats.sessions'),
+        value: this.sessions().length,
+        accent: '#1e00b0',
+        icon: 'info',
+      },
+    ];
   });
 
   protected reload(): void {
@@ -288,10 +310,6 @@ export class AccountPage {
     await this.signOut(() => this.accountService.logoutAll());
   }
 
-  /**
-   * Wait for the logout API (cookie clear), then soft-navigate with replaceUrl.
-   * Overlay stays up until this page is destroyed — same pattern as shell logout.
-   */
   private async signOut(request: () => Observable<unknown>): Promise<void> {
     if (this.busy()) {
       return;

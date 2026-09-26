@@ -52,28 +52,36 @@ import { ApplicationsSkeleton } from './applications.skeleton';
         </section>
       } @else {
         <div
-          class="app-launcher-grid"
+          class="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr))]"
           role="list"
           [attr.aria-label]="'applications.title' | translate"
         >
           @for (app of apps(); track app.key) {
             <article
-              class="app-launcher-card"
+              class="flex min-h-full flex-col gap-3.5 rounded-[10px] border-[1.468px] border-border-button bg-surface p-4 font-[family-name:var(--font-family)] shadow-[var(--shadow-card)]"
               role="listitem"
-              [class.app-launcher-card--current]="app.isCurrent"
-              [class.app-launcher-card--locked]="isLocked(app)"
+              [class.border-info]="app.isCurrent"
+              [class.bg-primary-light]="app.isCurrent"
+              [class.bg-surface-muted]="isLocked(app)"
+              [class.opacity-90]="isLocked(app)"
             >
-              <div class="app-launcher-card__head">
+              <div class="flex items-start gap-3">
                 <span
                   [class]="
-                    'app-launcher-card__icon app-launcher-card__icon--' +
+                    'grid size-11 shrink-0 place-items-center rounded-[12px] border-[1.468px] border-border-button bg-surface-muted text-info app-launcher-card__icon--' +
                     applicationModifier(app.key)
                   "
                   aria-hidden="true"
                 >
                   @switch (app.key) {
                     @case ('account') {
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.75"
+                        class="size-5"
+                      >
                         <path d="M12 3 4 7v6c0 5 3.5 7.7 8 8 4.5-.3 8-3 8-8V7l-8-4Z" />
                       </svg>
                     }
@@ -83,6 +91,7 @@ import { ApplicationsSkeleton } from './applications.skeleton';
                         fill="none"
                         stroke="currentColor"
                         stroke-width="1.75"
+                        class="size-5"
                       >
                         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
                         <circle cx="9" cy="7" r="3.5" />
@@ -95,6 +104,7 @@ import { ApplicationsSkeleton } from './applications.skeleton';
                         fill="none"
                         stroke="currentColor"
                         stroke-width="1.75"
+                        class="size-5"
                       >
                         <rect x="3" y="7" width="18" height="13" rx="2" />
                         <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
@@ -107,6 +117,7 @@ import { ApplicationsSkeleton } from './applications.skeleton';
                         fill="none"
                         stroke="currentColor"
                         stroke-width="1.75"
+                        class="size-5"
                       >
                         <rect x="3" y="3" width="7" height="7" rx="1.5" />
                         <rect x="14" y="3" width="7" height="7" rx="1.5" />
@@ -116,23 +127,30 @@ import { ApplicationsSkeleton } from './applications.skeleton';
                     }
                   }
                 </span>
-                <div class="app-launcher-card__body">
-                  <h2 class="app-launcher-card__name">
+                <div class="min-w-0 flex-1">
+                  <h2 class="m-0 text-[15px] leading-snug font-bold text-text">
                     {{ language.pick(app.nameAr, app.nameEn) }}
                   </h2>
-                  <p class="app-launcher-card__key">{{ app.key }}</p>
+                  <p
+                    class="mt-0.5 mb-0 text-[11px] font-semibold tracking-wide text-text-muted uppercase"
+                  >
+                    {{ app.key }}
+                  </p>
                 </div>
               </div>
 
-              <div class="app-launcher-card__foot">
+              <div class="mt-auto flex items-center justify-between gap-2.5">
                 @if (app.isCurrent) {
-                  <span class="app-launcher-card__badge">
+                  <span
+                    class="inline-flex items-center gap-1 rounded-md bg-primary-light px-2 py-0.5 text-[11px] font-semibold text-info-text"
+                  >
                     <svg
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
                       stroke-width="2"
                       aria-hidden="true"
+                      class="size-3.5"
                     >
                       <path d="m5 12 5 5L19 7" />
                     </svg>
@@ -140,7 +158,7 @@ import { ApplicationsSkeleton } from './applications.skeleton';
                   </span>
                 } @else if (canLaunch(app.url)) {
                   <a
-                    class="btn-primary inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary no-underline"
+                    class="btn-primary ms-auto inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary no-underline"
                     [href]="app.url"
                     rel="noopener"
                     [attr.aria-busy]="launching() === app.key || null"
@@ -168,7 +186,9 @@ import { ApplicationsSkeleton } from './applications.skeleton';
                     }
                   </a>
                 } @else {
-                  <span class="app-launcher-card__locked">
+                  <span
+                    class="inline-flex items-center gap-1 rounded-md border-[1.468px] border-warning bg-warning-bg px-2 py-0.5 text-[11px] font-semibold text-warning-text"
+                  >
                     <svg
                       viewBox="0 0 24 24"
                       fill="none"
@@ -177,6 +197,7 @@ import { ApplicationsSkeleton } from './applications.skeleton';
                       stroke-linecap="round"
                       stroke-linejoin="round"
                       aria-hidden="true"
+                      class="size-3.5"
                     >
                       <rect x="4.5" y="10.5" width="15" height="9.5" rx="2" />
                       <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" />

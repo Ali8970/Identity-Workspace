@@ -730,6 +730,10 @@
       "administration": "الإدارة",
       "tenant": "الشركة",
       "other": "أخرى"
+    },
+    "stats": {
+      "roles": "الأدوار",
+      "permissions": "الصلاحيات"
     }
   },
   "account": {
@@ -759,6 +763,10 @@
       "Active": "نشطة",
       "Selection": "اختيار شركة",
       "Anonymous": "غير مسجّل"
+    },
+    "stats": {
+      "companies": "الشركات",
+      "sessions": "الجلسات"
     }
   },
   "onboarding": {

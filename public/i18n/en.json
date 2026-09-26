@@ -730,6 +730,10 @@
       "administration": "Administration",
       "tenant": "Company",
       "other": "Other"
+    },
+    "stats": {
+      "roles": "Roles",
+      "permissions": "Permissions"
     }
   },
   "account": {
@@ -759,6 +763,10 @@
       "Active": "Active",
       "Selection": "Selecting company",
       "Anonymous": "Signed out"
+    },
+    "stats": {
+      "companies": "Companies",
+      "sessions": "Sessions"
     }
   },
   "onboarding": {

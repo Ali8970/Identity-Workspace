@@ -36,7 +36,7 @@ import { PasswordService } from '../../services/password.service';
             <li>{{ 'auth.forgot.stepSignIn' | translate }}</li>
           </ol>
 
-          <a class="ui-btn ui-btn--primary auth-form__submit" routerLink="/login">
+          <a class="btn-primary auth-form__submit inline-flex h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border-0 px-4 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50" routerLink="/login">
             {{ 'auth.forgot.goToLogin' | translate }}
           </a>
         </div>
@@ -85,7 +85,7 @@ import { PasswordService } from '../../services/password.service';
 
           <div class="auth-form__actions">
             <button
-              class="ui-btn ui-btn--primary auth-form__submit"
+              class="btn-primary auth-form__submit inline-flex h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border-0 px-4 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
               type="submit"
               [disabled]="busy() || forgotForm().invalid()"
             >

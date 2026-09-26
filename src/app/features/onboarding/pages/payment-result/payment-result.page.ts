@@ -70,7 +70,7 @@ type ResultView =
             {{ 'onboarding.result.doNotClose' | translate }}
           </p>
           <button
-            class="ui-btn ui-btn--primary auth-form__submit"
+            class="btn-primary auth-form__submit inline-flex h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border-0 px-4 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
             type="button"
             [disabled]="busy()"
             (click)="refresh()"
@@ -83,7 +83,7 @@ type ResultView =
             {{ 'onboarding.result.doNotClose' | translate }}
           </p>
           <button
-            class="ui-btn ui-btn--primary auth-form__submit"
+            class="btn-primary auth-form__submit inline-flex h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border-0 px-4 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
             type="button"
             [disabled]="busy()"
             (click)="refresh()"
@@ -102,7 +102,7 @@ type ResultView =
             <p class="auth-success__message">{{ 'onboarding.result.reauthNote' | translate }}</p>
           </div>
           <button
-            class="ui-btn ui-btn--primary auth-form__submit"
+            class="btn-primary auth-form__submit inline-flex h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border-0 px-4 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
             type="button"
             (click)="finish()"
           >
@@ -111,7 +111,7 @@ type ResultView =
         }
         @case ('provisioningFailed') {
           <button
-            class="ui-btn ui-btn--primary auth-form__submit"
+            class="btn-primary auth-form__submit inline-flex h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border-0 px-4 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
             type="button"
             [disabled]="busy()"
             (click)="resumeSetup()"
@@ -122,7 +122,7 @@ type ResultView =
         @case ('failed') {
           @if (canRetryPayment()) {
             <button
-              class="ui-btn ui-btn--primary auth-form__submit"
+              class="btn-primary auth-form__submit inline-flex h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border-0 px-4 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
               type="button"
               [disabled]="busy()"
               (click)="retryPayment()"
@@ -142,7 +142,7 @@ type ResultView =
         }
         @default {
           <button
-            class="ui-btn ui-btn--primary auth-form__submit"
+            class="btn-primary auth-form__submit inline-flex h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border-0 px-4 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
             type="button"
             (click)="startAgain()"
           >

@@ -127,13 +127,13 @@ function emptyInvite(): AddMemberFormValue {
                     </div>
                   </header>
 
-                  <div class="auth-field">
-                    <label class="auth-field__label" for="invite-email">
+                  <div class="mb-3.5 flex flex-col gap-1">
+                    <label class="text-[12px] font-semibold text-text-muted" for="invite-email">
                       {{ 'members.email' | translate }}
-                      <span class="auth-field__required" aria-hidden="true">*</span>
+                      <span class="text-danger" aria-hidden="true">*</span>
                     </label>
-                    <div class="auth-field__control">
-                      <span class="auth-field__icon" aria-hidden="true">
+                    <div class="relative flex items-center">
+                      <span class="pointer-events-none absolute start-3.5 grid size-[1.1rem] place-items-center text-text-muted" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
                           <path d="M4 6h16v12H4z" />
                           <path d="m4 7 8 6 8-6" />
@@ -141,8 +141,8 @@ function emptyInvite(): AddMemberFormValue {
                       </span>
                       <input
                         id="invite-email"
-                        class="auth-field__input"
-                        [class.auth-field__input--invalid]="errors().email"
+                        class="field-control ps-10"
+                        [class.border-danger]="errors().email"
                         type="email"
                         dir="ltr"
                         autocomplete="email"
@@ -154,19 +154,19 @@ function emptyInvite(): AddMemberFormValue {
                       />
                     </div>
                     @if (errors().email; as message) {
-                      <p class="auth-field__error" id="invite-email-error" role="alert">
+                      <p class="m-0 text-[12px] text-danger" id="invite-email-error" role="alert">
                         {{ message | translate: { max: emailMax } }}
                       </p>
                     }
                   </div>
 
                   <div class="workspace-form__row workspace-invite__names">
-                    <div class="auth-field">
-                      <label class="auth-field__label" for="invite-name-ar">
+                    <div class="mb-3.5 flex flex-col gap-1">
+                      <label class="text-[12px] font-semibold text-text-muted" for="invite-name-ar">
                         {{ 'members.nameAr' | translate }}
                       </label>
-                      <div class="auth-field__control">
-                        <span class="auth-field__icon" aria-hidden="true">
+                      <div class="relative flex items-center">
+                        <span class="pointer-events-none absolute start-3.5 grid size-[1.1rem] place-items-center text-text-muted" aria-hidden="true">
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
                             <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" />
                             <path d="M4 20a8 8 0 0 1 16 0" />
@@ -174,8 +174,8 @@ function emptyInvite(): AddMemberFormValue {
                         </span>
                         <input
                           id="invite-name-ar"
-                          class="auth-field__input"
-                          [class.auth-field__input--invalid]="nameInvalid()"
+                          class="field-control ps-10"
+                          [class.border-danger]="nameInvalid()"
                           type="text"
                           dir="rtl"
                           lang="ar"
@@ -188,12 +188,12 @@ function emptyInvite(): AddMemberFormValue {
                       </div>
                     </div>
 
-                    <div class="auth-field">
-                      <label class="auth-field__label" for="invite-name-en">
+                    <div class="mb-3.5 flex flex-col gap-1">
+                      <label class="text-[12px] font-semibold text-text-muted" for="invite-name-en">
                         {{ 'members.nameEn' | translate }}
                       </label>
-                      <div class="auth-field__control">
-                        <span class="auth-field__icon" aria-hidden="true">
+                      <div class="relative flex items-center">
+                        <span class="pointer-events-none absolute start-3.5 grid size-[1.1rem] place-items-center text-text-muted" aria-hidden="true">
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
                             <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" />
                             <path d="M4 20a8 8 0 0 1 16 0" />
@@ -201,8 +201,8 @@ function emptyInvite(): AddMemberFormValue {
                         </span>
                         <input
                           id="invite-name-en"
-                          class="auth-field__input"
-                          [class.auth-field__input--invalid]="nameInvalid()"
+                          class="field-control ps-10"
+                          [class.border-danger]="nameInvalid()"
                           type="text"
                           dir="ltr"
                           lang="en"
@@ -216,7 +216,7 @@ function emptyInvite(): AddMemberFormValue {
                     </div>
                   </div>
                   @if (nameError(); as message) {
-                    <p class="auth-field__error" id="invite-name-error" role="alert">
+                    <p class="m-0 text-[12px] text-danger" id="invite-name-error" role="alert">
                       {{ message | translate: { max: nameMax } }}
                     </p>
                   }
@@ -231,7 +231,7 @@ function emptyInvite(): AddMemberFormValue {
                     <div>
                       <h3 class="workspace-team-details__section-title" id="invite-apps-heading">
                         {{ 'members.invite.appsSection' | translate }}
-                        <span class="auth-field__required" aria-hidden="true">*</span>
+                        <span class="text-danger" aria-hidden="true">*</span>
                       </h3>
                       <p class="workspace-team-details__section-lead" id="invite-apps-lead">
                         {{ 'members.invite.appsLead' | translate }}
@@ -327,7 +327,7 @@ function emptyInvite(): AddMemberFormValue {
                   }
 
                   @if (errors().applications; as message) {
-                    <p class="auth-field__error" id="invite-apps-error" role="alert">
+                    <p class="m-0 text-[12px] text-danger" id="invite-apps-error" role="alert">
                       {{ message | translate }}
                     </p>
                   }
@@ -507,7 +507,7 @@ function emptyInvite(): AddMemberFormValue {
                   }
 
                   @if (errors().roles; as message) {
-                    <p class="auth-field__error" id="invite-roles-error" role="alert">
+                    <p class="m-0 text-[12px] text-danger" id="invite-roles-error" role="alert">
                       {{ message | translate }}
                     </p>
                   } @else {
@@ -640,12 +640,12 @@ function emptyInvite(): AddMemberFormValue {
               }}
             </span>
             <div class="workspace-actions">
-              <button type="button" class="ui-btn ui-btn--ghost" [disabled]="saving()" (click)="close()">
+              <button type="button" class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface px-3.5 text-[13px] font-semibold text-text hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50" [disabled]="saving()" (click)="close()">
                 {{ 'members.inviteCancel' | translate }}
               </button>
               <button
                 type="submit"
-                class="ui-btn ui-btn--primary"
+                class="btn-primary inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
                 [disabled]="saving() || grantScopeLoading()"
                 [attr.aria-busy]="saving()"
               >

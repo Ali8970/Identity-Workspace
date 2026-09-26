@@ -235,7 +235,7 @@ export type RoleDetailsTab = 'overview' | 'permissions' | 'members';
                     </div>
                     <button
                       type="button"
-                      class="ui-btn ui-btn--primary"
+                      class="btn-primary inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
                       [disabled]="busy()"
                       (click)="edit.emit()"
                     >
@@ -246,7 +246,7 @@ export type RoleDetailsTab = 'overview' | 'permissions' | 'members';
                         stroke-width="1.75"
                         stroke-linecap="round"
                         aria-hidden="true"
-                        class="ui-btn__icon"
+                        class="size-4 shrink-0"
                       >
                         <path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-4-4L4 16v4Z" />
                       </svg>
@@ -278,7 +278,7 @@ export type RoleDetailsTab = 'overview' | 'permissions' | 'members';
                     </div>
                     <button
                       type="button"
-                      class="ui-btn ui-btn--ghost"
+                      class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface px-3.5 text-[13px] font-semibold text-text hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
                       [disabled]="busy()"
                       [attr.aria-busy]="busy()"
                       (click)="role().isActive ? deactivate.emit() : activate.emit()"
@@ -314,7 +314,7 @@ export type RoleDetailsTab = 'overview' | 'permissions' | 'members';
                   @if (canEdit()) {
                     <button
                       type="button"
-                      class="ui-btn ui-btn--ghost"
+                      class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface px-3.5 text-[13px] font-semibold text-text hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
                       [disabled]="busy()"
                       (click)="edit.emit()"
                     >

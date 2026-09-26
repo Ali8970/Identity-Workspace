@@ -5,12 +5,14 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  min-height: 2.625rem;
-  padding: 0.55rem 1.1rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid transparent;
+  min-height: 2.25rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.5rem;
+  border: 1.468px solid transparent;
   cursor: pointer;
   text-decoration: none;
+  font-family: var(--font-family);
+  font-size: 13px;
   font-weight: 600;
   transition:
     background var(--transition),
@@ -40,19 +42,19 @@
   color: var(--on-primary);
   box-shadow: var(--shadow-primary-button);
 
-  &:hover:not(:disabled) {
+  &:hover:not(:disabled):not([aria-disabled='true']) {
     background-image: var(--primary-gradient-hover);
   }
 }
 
 .ui-btn--ghost {
-  background: var(--surface);
-  border-color: var(--line);
+  background: var(--bg-surface, var(--surface));
+  border-color: var(--border-button, var(--line));
   color: var(--text);
 
   &:hover:not(:disabled) {
-    background: var(--surface-2);
-    border-color: var(--line-strong);
+    background: var(--bg-surface-secondary, var(--surface-2));
+    border-color: var(--border-button, var(--line-strong));
   }
 }
 

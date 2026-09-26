@@ -218,17 +218,21 @@
 
 .auth-form__title {
   margin: 0 0 0.35rem;
-  font-family: var(--font-display);
-  font-size: 1.55rem;
-  letter-spacing: -0.03em;
+  font-family: var(--font-family);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
   color: var(--text);
 }
 
 .auth-form__lead {
   margin: 0;
-  color: var(--text-2);
+  color: var(--text-muted, var(--text-2));
   line-height: 1.5;
-  font-size: 0.95rem;
+  font-family: var(--font-family);
+  font-size: 13px;
+  font-weight: 400;
 }
 
 .auth-form {
@@ -375,9 +379,10 @@
 .auth-field__label {
   display: block;
   margin-bottom: 0.4rem;
-  color: var(--text-2);
-  font-size: 0.875rem;
-  font-weight: 650;
+  color: var(--text-muted, var(--text-2));
+  font-family: var(--font-family);
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .auth-field__required {
@@ -426,44 +431,48 @@
 
 .auth-field__input {
   width: 100%;
-  min-height: 2.85rem;
-  padding: 0.6rem 0.85rem 0.6rem 2.55rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--line);
-  background: var(--surface-2);
+  min-height: 2.5rem;
+  padding: 0.5rem 0.875rem 0.5rem 2.55rem;
+  border-radius: 0.5rem;
+  border: 1.468px solid var(--border, var(--line));
+  background: var(--bg-surface, var(--surface));
   color: var(--text);
+  font-family: var(--font-family);
+  font-size: 13px;
+  line-height: 1.4;
   transition:
-    border-color var(--transition),
-    box-shadow var(--transition),
-    background var(--transition);
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
 
   [dir='rtl'] & {
-    padding: 0.6rem 2.55rem 0.6rem 0.85rem;
+    padding: 0.5rem 2.55rem 0.5rem 0.875rem;
   }
 
   &::placeholder {
-    color: var(--muted);
-    opacity: 0.85;
+    color: var(--text-muted, var(--muted));
+    opacity: 1;
   }
 
-  &:focus {
+  &:focus,
+  &:focus-visible {
     outline: none;
-    border-color: var(--primary);
-    background: var(--surface);
-    box-shadow: 0 0 0 3px var(--primary-soft);
+    border-color: var(--info, var(--primary));
+    background: var(--bg-surface, var(--surface));
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--info, var(--primary)) 22%, transparent);
   }
 
   &--password {
     padding-inline-end: 2.75rem;
 
     [dir='rtl'] & {
-      padding-inline-end: 0.85rem;
+      padding-inline-end: 0.875rem;
       padding-inline-start: 2.75rem;
     }
   }
 
   &--invalid {
-    border-color: color-mix(in srgb, var(--danger) 55%, var(--line));
+    border-color: color-mix(in srgb, var(--danger) 55%, var(--border, var(--line)));
     box-shadow: 0 0 0 3px var(--danger-soft);
   }
 }
@@ -899,22 +908,21 @@ button.auth-form__link {
   gap: 0.85rem;
   width: 100%;
   padding: 0.9rem 1rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
+  border: 1.468px solid var(--border-button, var(--line));
+  border-radius: 10px;
+  background: var(--bg-surface, var(--surface));
   color: var(--text);
+  font-family: var(--font-family);
   cursor: pointer;
   text-align: start;
+  box-shadow: var(--shadow-card, none);
   transition:
     border-color var(--transition),
-    background var(--transition),
-    box-shadow var(--transition),
-    transform var(--transition);
+    background var(--transition);
 
   &:hover:not(:disabled) {
-    border-color: color-mix(in srgb, var(--primary) 35%, var(--line));
-    box-shadow: var(--shadow-sm);
-    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--primary) 28%, var(--border-button, var(--line)));
+    background: color-mix(in srgb, var(--bg-surface-secondary, var(--surface-2)) 55%, var(--bg-surface, var(--surface)));
   }
 
   &:focus-visible {
@@ -923,9 +931,9 @@ button.auth-form__link {
   }
 
   &--selected {
-    border-color: var(--primary);
-    background: var(--primary-soft);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+    border-color: var(--info, var(--primary));
+    background: var(--primary-light, var(--primary-soft));
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--info, var(--primary)) 18%, transparent);
   }
 
   &:disabled {
@@ -940,10 +948,10 @@ button.auth-form__link {
   height: 2.35rem;
   display: grid;
   place-items: center;
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  color: var(--primary);
+  border-radius: 0.5rem;
+  background: var(--bg-surface-secondary, var(--surface-2));
+  border: 1.468px solid var(--border-button, var(--line));
+  color: var(--info, var(--primary));
 
   svg {
     width: 1.2rem;
@@ -959,21 +967,22 @@ button.auth-form__link {
 }
 
 .auth-package-card__name {
-  font-size: 0.98rem;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text);
 }
 
 .auth-package-card__desc {
-  font-size: 0.84rem;
+  font-size: 13px;
+  font-weight: 400;
   line-height: 1.45;
-  color: var(--text-2);
+  color: var(--text-muted, var(--text-2));
 }
 
 .auth-package-card__price {
-  font-size: 0.9rem;
-  font-weight: 650;
-  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--info, var(--primary));
 }
 
 .auth-package-card__apps {

@@ -27,7 +27,7 @@ import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
           {{ 'auth.denied.hint' | translate }}
         </p>
 
-        <a class="ui-btn ui-btn--primary auth-form__submit" routerLink="/applications">
+        <a class="btn-primary auth-form__submit inline-flex h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border-0 px-4 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50" routerLink="/applications">
           {{ 'auth.denied.goToApplications' | translate }}
         </a>
 
