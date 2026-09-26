@@ -130,22 +130,78 @@ interface TeamRow {
             <h2 class="m-0 text-[14px] font-bold text-text" id="teams-structure-heading">
               {{ 'teams.structureTitle' | translate }}
             </h2>
+            <div
+              class="inline-flex rounded-lg border-[1.468px] border-border-button p-0.5"
+              role="group"
+              [attr.aria-label]="'teams.viewMode' | translate"
+            >
+              <button
+                type="button"
+                class="cursor-pointer rounded-md px-3 py-1.5 text-[12px] font-semibold"
+                [class.bg-primary-light]="viewMode() === 'chart'"
+                [class.text-info]="viewMode() === 'chart'"
+                [class.text-text-muted]="viewMode() !== 'chart'"
+                [attr.aria-pressed]="viewMode() === 'chart'"
+                (click)="viewMode.set('chart')"
+              >
+                {{ 'teams.viewChart' | translate }}
+              </button>
+              <button
+                type="button"
+                class="cursor-pointer rounded-md px-3 py-1.5 text-[12px] font-semibold"
+                [class.bg-primary-light]="viewMode() === 'list'"
+                [class.text-info]="viewMode() === 'list'"
+                [class.text-text-muted]="viewMode() !== 'list'"
+                [attr.aria-pressed]="viewMode() === 'list'"
+                (click)="viewMode.set('list')"
+              >
+                {{ 'teams.viewList' | translate }}
+              </button>
+            </div>
           </div>
 
-          <div
-            class="workspace-org-chart__viewport"
-            role="region"
-            tabindex="0"
-            aria-labelledby="teams-structure-heading"
-          >
-            <ul class="workspace-org-chart__tree">
-              @for (team of teams(); track team.id) {
-                <ng-container
-                  *ngTemplateOutlet="teamBranch; context: { $implicit: team, depth: 0 }"
-                />
+          @if (viewMode() === 'list') {
+            <ul class="m-0 list-none divide-y-[1.468px] divide-border-subtle p-0">
+              @for (row of rows(); track row.node.id) {
+                <li>
+                  <button
+                    type="button"
+                    class="flex w-full cursor-pointer items-start gap-3 px-[18px] py-3 text-start hover:bg-surface-muted/60"
+                    [style.padding-inline-start.rem]="1.125 + row.depth * 1.1"
+                    [class.bg-primary-light]="selectedId() === row.node.id"
+                    (click)="select(row.node.id)"
+                  >
+                    <span class="min-w-0 flex-1">
+                      <span class="block text-[13px] font-semibold text-text">{{
+                        row.node.name
+                      }}</span>
+                      <span class="mt-0.5 block text-[12px] text-text-muted">
+                        {{ row.node.kind }}
+                        @if (row.node.memberCount != null) {
+                          · {{ row.node.memberCount }}
+                        }
+                      </span>
+                    </span>
+                  </button>
+                </li>
               }
             </ul>
-          </div>
+          } @else {
+            <div
+              class="workspace-org-chart__viewport"
+              role="region"
+              tabindex="0"
+              aria-labelledby="teams-structure-heading"
+            >
+              <ul class="workspace-org-chart__tree">
+                @for (team of teams(); track team.id) {
+                  <ng-container
+                    *ngTemplateOutlet="teamBranch; context: { $implicit: team, depth: 0 }"
+                  />
+                }
+              </ul>
+            </div>
+          }
         </section>
       }
     </div>
@@ -565,6 +621,7 @@ export class TeamsPage {
   private readonly injector = inject(Injector);
 
   protected readonly maxDepth = MAX_TEAM_DEPTH;
+  protected readonly viewMode = signal<'chart' | 'list'>('chart');
 
   private readonly tree = rxResource({
     // Keyed on the active company so a company switch re-fetches automatically.

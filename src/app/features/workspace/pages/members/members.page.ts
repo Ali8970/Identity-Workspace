@@ -151,6 +151,7 @@ import { MembersSkeleton } from './members.skeleton';
           @if (members().length === 0) {
             <app-empty-state
               [title]="'members.empty' | translate"
+              [detail]="canCreate() ? ('members.emptyBody' | translate) : undefined"
               [actionLabel]="canCreate() ? ('members.add' | translate) : undefined"
               (action)="openInvite()"
             />
@@ -496,6 +497,13 @@ import { MembersSkeleton } from './members.skeleton';
           </header>
 
           <div class="workspace-dialog__body">
+            <section class="mb-5" aria-labelledby="member-overview-heading">
+              <h3
+                class="m-0 mb-3 text-[13px] font-semibold tracking-wide text-text-muted uppercase"
+                id="member-overview-heading"
+              >
+                {{ 'members.detailOverview' | translate }}
+              </h3>
             <dl class="workspace-dl">
               <div class="workspace-dl__row">
                 <dt class="workspace-dl__label">{{ 'members.colStatus' | translate }}</dt>
@@ -527,10 +535,23 @@ import { MembersSkeleton } from './members.skeleton';
               @if (member.isOwner) {
                 <div class="workspace-dl__row">
                   <dt class="workspace-dl__label">{{ 'members.owner' | translate }}</dt>
-                  <dd class="workspace-dl__value">{{ 'common.yes' | translate }}</dd>
+                  <dd class="workspace-dl__value">
+                    <span class="workspace-status-pill workspace-status-pill--active">{{
+                      'members.owner' | translate
+                    }}</span>
+                  </dd>
                 </div>
               }
             </dl>
+            </section>
+
+            <section class="mb-5" aria-labelledby="member-access-heading">
+              <h3
+                class="m-0 mb-3 text-[13px] font-semibold tracking-wide text-text-muted uppercase"
+                id="member-access-heading"
+              >
+                {{ 'members.detailAccess' | translate }}
+              </h3>
 
             @if (detailTeamsLoading()) {
               <div
@@ -578,6 +599,7 @@ import { MembersSkeleton } from './members.skeleton';
                 </p>
               }
             }
+            </section>
 
             <div class="workspace-form__actions workspace-dialog__actions">
               <button type="button" class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface px-3.5 text-[13px] font-semibold text-text hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50" (click)="closeDetail()">

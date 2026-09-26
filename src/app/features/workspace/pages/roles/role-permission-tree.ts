@@ -135,7 +135,7 @@ function isKeyLike(name: string, key: string): boolean {
     } @else {
       <div class="workspace-perm-tree__modules" [id]="idPrefix() + '-modules'">
         @for (module of visibleModules(); track module.module) {
-          @let open = searching() || !collapsed().has(module.module);
+          @let open = isModuleOpen(module.module);
           @let moduleId = idPrefix() + '-module-' + $index;
           <section class="workspace-perm-tree__module">
             <header class="workspace-perm-tree__module-head">
@@ -301,10 +301,22 @@ export class RolePermissionTree {
   readonly idPrefix = input('role-perm');
 
   protected readonly search = signal('');
-  protected readonly collapsed = signal<ReadonlySet<string>>(new Set());
+  /** Modules start collapsed so the tree is scannable; expand on demand. */
+  protected readonly collapsed = signal<ReadonlySet<string> | 'all'>('all');
 
   protected readonly searching = computed(() => this.search().trim().length > 0);
   protected readonly selectedSet = computed(() => new Set(this.selected()));
+
+  protected isModuleOpen(moduleKey: string): boolean {
+    if (this.searching()) {
+      return true;
+    }
+    const state = this.collapsed();
+    if (state === 'all') {
+      return false;
+    }
+    return !state.has(moduleKey);
+  }
 
   private readonly catalogByKey = computed(
     () => new Map(this.catalog().map((item) => [item.key, item])),
@@ -460,7 +472,10 @@ export class RolePermissionTree {
 
   protected toggleCollapsed(module: string): void {
     this.collapsed.update((current) => {
-      const next = new Set(current);
+      const next =
+        current === 'all'
+          ? new Set(this.modules().map((item) => item.module))
+          : new Set(current);
       if (!next.delete(module)) {
         next.add(module);
       }
@@ -473,7 +488,7 @@ export class RolePermissionTree {
   }
 
   protected collapseAll(): void {
-    this.collapsed.set(new Set(this.modules().map((module) => module.module)));
+    this.collapsed.set('all');
   }
 
   private apply(add: string[], remove: string[]): void {

@@ -22,13 +22,15 @@
       "passwordRequired": "Password is required.",
       "redirecting": "Redirecting you securely…",
       "selectionRestart": "Please sign in again to choose a company.",
-      "intentBanner": "You are signing in to open another Brooch application.",
+      "intentBanner": "After you sign in, we will open the application you came from.",
       "retryIn": "Try again in {{seconds}}s",
-      "onboardedBanner": "Your workspace is ready. Sign in again to pick up your new access."
+      "onboardedBanner": "Your workspace is ready. Sign in again to pick up your new access.",
+      "titleContinue": "Continue to your app",
+      "subtitleContinue": "Sign in to open the Brooch application you requested."
     },
     "register": {
       "title": "Register company",
-      "subtitle": "Create your company — no password yet",
+      "subtitle": "Step 1 of 2 — create your company. We email a set-password link next (no password here).",
       "sectionCompany": "Company details",
       "sectionOwner": "Owner account",
       "companyHint": "Company names are optional — add Arabic, English, or both.",
@@ -55,7 +57,8 @@
       "stepMailbox": "Check your email for the set-password link.",
       "stepSetPassword": "Open the link and choose a secure password.",
       "stepSignIn": "Return here and sign in with your new password.",
-      "goToLogin": "Go to sign in"
+      "goToLogin": "Go to sign in",
+      "progress": "Step 1 of 2"
     },
     "setPassword": {
       "title": "Set your password",
@@ -78,7 +81,9 @@
       "needAccount": "Need an account?",
       "stepRegister": "Register a company first.",
       "stepMailbox": "Check your email for the activation link.",
-      "stepOpenLink": "Open the set-password link from that email."
+      "stepOpenLink": "Open the set-password link from that email.",
+      "codeLabel": "Email code",
+      "codeHint": "Enter the 4-digit code from your Brooch email."
     },
     "forgot": {
       "title": "Forgot password",
@@ -95,7 +100,8 @@
       "stepMailbox": "Check your email for the password reset link.",
       "stepResetLink": "Open the link and choose a new password.",
       "stepSignIn": "Sign in with your new password when finished.",
-      "goToLogin": "Back to sign in"
+      "goToLogin": "Back to sign in",
+      "codeLabel": "Email code"
     },
     "reset": {
       "title": "Choose a new password",
@@ -115,12 +121,13 @@
       "goToLogin": "Go to sign in",
       "invalidLinkTitle": "Link expired or invalid",
       "invalidLink": "This reset link is not valid or has already been used. Request a fresh link.",
-      "requestNew": "Request a new link"
+      "requestNew": "Request a new link",
+      "codeHint": "This is not a one-time login code — it is the reset code from your email."
     },
     "selectCompany": {
       "title": "Select company",
-      "subtitle": "Choose which company to continue with",
-      "chooseHint": "Pick the workspace you want to open.",
+      "subtitle": "Choose the company workspace to continue with.",
+      "chooseHint": "Tap a company to open it. Only companies available for this sign-in are listed.",
       "continue": "Continue",
       "intentBanner": "After selection you will continue to the requested Brooch application.",
       "ownerBadge": "Owner",
@@ -129,14 +136,14 @@
       "redirecting": "Opening your application…"
     },
     "denied": {
-      "title": "Access denied",
-      "body": "You do not have permission to open this resource with your current role in this company.",
+      "title": "You cannot open this page",
+      "body": "Your role in this company does not include permission for that action.",
       "hint": "If you believe this is a mistake, contact your workspace administrator or review your assigned access.",
       "goToApplications": "Back to applications",
       "viewMyAccess": "View my access"
     },
     "accessDenied": {
-      "title": "Application access denied",
+      "title": "That application is closed to this account",
       "body": "Your account does not have permission to open the requested Brooch application.",
       "hint": "Try signing in with a different account or company, or contact your workspace administrator.",
       "signIn": "Sign in with another account",
@@ -151,8 +158,8 @@
       "featureTeams": "Unified members, roles, and permissions"
     },
     "sessionExpired": {
-      "title": "Session expired",
-      "body": "Your session has ended for security. Sign in again to continue where you left off.",
+      "title": "Your session timed out",
+      "body": "For security, Brooch signed you out. Sign in again to continue.",
       "returnHint": "After signing in, you will return to the page you were viewing.",
       "signIn": "Sign in again"
     }
@@ -161,7 +168,7 @@
     "applications": "Applications",
     "members": "Members",
     "roles": "Roles",
-    "permissions": "Permissions",
+    "permissions": "Permission dictionary",
     "teams": "Organization",
     "myAccess": "My access",
     "account": "Account",
@@ -185,23 +192,23 @@
     "userMenu": "Account menu",
     "signOutConfirm": "Sign out of Brooch on all devices for this account?",
     "nav": {
-      "workspace": "Workspace",
-      "directory": "Directory"
+      "workspace": "Your work",
+      "directory": "Admin"
     }
   },
   "applications": {
     "title": "Applications",
     "eyebrow": "Launcher",
-    "subtitle": "Open Brooch apps you are eligible for in this company. Your session stays signed in across apps.",
+    "subtitle": "Open the Brooch apps included for this company. You stay signed in across apps.",
     "open": "Open app",
     "opening": "Opening…",
     "current": "Current app",
-    "unavailable": "Not available",
+    "unavailable": "Not in your plan",
     "appCount": "{{count}} apps",
     "justOnboarded": "Company activated. Welcome to your workspace.",
     "emptyTitle": "No applications yet",
-    "emptyBody": "You do not have access to any Brooch applications in this company. Contact your administrator if you need access.",
-    "ssoHint": "Opening an app uses your existing Brooch session — you will not need to sign in again.",
+    "emptyBody": "No Brooch apps are available here yet. If you expect access, ask your company admin.",
+    "ssoHint": "Opening an app continues your Brooch session — no second sign-in.",
     "loading": "Loading your applications…",
     "stats": {
       "total": "Apps",
@@ -212,7 +219,7 @@
   "members": {
     "title": "Members",
     "eyebrow": "People",
-    "subtitle": "View and invite people in this company. Invites send a set-password email for new users.",
+    "subtitle": "Find people, invite teammates, and manage who can access each app.",
     "memberCount": "{{count}} members",
     "loading": "Loading members…",
     "listTitle": "Directory",
@@ -240,7 +247,7 @@
     "colActions": "Actions",
     "owner": "Owner",
     "noRoles": "No roles",
-    "empty": "No members yet — invite someone to get started.",
+    "empty": "Invite your first teammate",
     "invitedSetPassword": "Invite sent — the user will receive a set-password email.",
     "invitedExisting": "Existing user linked to this company.",
     "editRoles": "Edit roles",
@@ -349,12 +356,15 @@
       "resultExistingSetup": "{{email}} already had a Brooch account and was added to this company. They will receive an email to set their password before signing in.",
       "resultExistingReady": "{{email}} already had a Brooch account and was added to this company. They can sign in right away — a welcome-back email was sent.",
       "viewMember": "View member"
-    }
+    },
+    "emptyBody": "Send an invite with email and roles. New users get a set-password email.",
+    "detailOverview": "Overview",
+    "detailAccess": "Access"
   },
   "roles": {
     "title": "Roles",
     "eyebrow": "Roles & access",
-    "subtitle": "Create and manage roles and their permissions across your applications.",
+    "subtitle": "Define what each role can do. Owner and system roles cannot be edited.",
     "subtitleReadOnly": "Review roles and the permissions they grant across your applications.",
     "summary": "Roles summary",
     "roleCount": "{{count}} roles",
@@ -535,17 +545,26 @@
       "applications": "Applications",
       "active": "Active",
       "inactive": "Inactive"
-    }
+    },
+    "legendOwner": "Owner — full access for that app",
+    "legendSystem": "System — seeded by Brooch",
+    "legendCustom": "Custom — you can edit",
+    "colName": "Name",
+    "colApplication": "Application",
+    "colType": "Type",
+    "colStatus": "Status",
+    "colPermissions": "Permissions",
+    "colActions": "Actions"
   },
   "permissions": {
-    "title": "Permissions",
+    "title": "Permission dictionary",
     "eyebrow": "Catalog",
-    "subtitle": "Reference catalog of permission keys available across Brooch applications, grouped by app and feature area.",
+    "subtitle": "Reference of permissions your apps can grant. Assign them through Roles — this page does not change access.",
     "permissionCount": "{{count}} permissions",
     "groupCount": "{{count}} items",
     "groupPermissionCount": "{{count}} permissions",
     "loading": "Loading permission catalog…",
-    "catalogHint": "This catalog is read-only. Permissions are assigned through roles in each application.",
+    "catalogHint": "Use this list when building roles. Day-to-day access is managed on Members and Roles.",
     "keyLabel": "Permission key",
     "emptyTitle": "No permissions in catalog",
     "emptyBody": "The permission catalog is empty. Entries will appear here once configured.",
@@ -588,7 +607,7 @@
   "teams": {
     "title": "Organization",
     "eyebrow": "Teams",
-    "subtitle": "Browse your company team hierarchy and nested sub-teams.",
+    "subtitle": "See how teams are structured. Open a team to add people or create subteams.",
     "teamCount": "{{count}} teams",
     "subteamCount": "{{count}} sub-teams",
     "memberCount": "{{count}} members",
@@ -710,12 +729,15 @@
       "total": "Teams",
       "applications": "Applications",
       "missingManagers": "Missing managers"
-    }
+    },
+    "viewChart": "Org chart",
+    "viewList": "List",
+    "viewMode": "View mode"
   },
   "myAccess": {
     "title": "My access",
     "eyebrow": "Your access",
-    "subtitle": "Roles and effective permissions assigned to you in the current company.",
+    "subtitle": "What you can do in each Brooch app in this company.",
     "rolesTitle": "Assigned roles",
     "rolesLead": "Roles determine which permission bundles apply to your account.",
     "permissionsTitle": "Effective permissions",
@@ -726,7 +748,7 @@
     "permissionCount": "{{count}} permissions",
     "groupCount": "{{count}} items",
     "loading": "Loading your access…",
-    "accessHint": "This view reflects your access in the selected company only. Switch company to review access elsewhere.",
+    "accessHint": "This is your own access only. Admins change access on Members and Roles.",
     "noRoles": "You have no roles assigned in this company.",
     "noPermissions": "You have no permissions in this company.",
     "apps": {
@@ -746,7 +768,7 @@
   "account": {
     "title": "Account",
     "eyebrow": "Settings",
-    "subtitle": "Manage your profile, switch companies, and control active sessions.",
+    "subtitle": "Your profile, companies, and signed-in devices.",
     "loading": "Loading account…",
     "profile": "Profile",
     "profileLead": "Your Brooch account details for this signed-in user.",
@@ -777,14 +799,14 @@
     }
   },
   "onboarding": {
-    "title": "Set up your workspace",
-    "subtitle": "Finish company details, then choose the plan that fits your team.",
+    "title": "Activate your workspace",
+    "subtitle": "Name your company, choose a plan, then finish setup.",
     "stepsLabel": "Onboarding progress",
     "stepCompany": "Company",
     "stepPackage": "Package",
     "stepPayment": "Payment",
-    "companyTitle": "Company profile",
-    "companyHint": "These names appear across Brooch apps and on invoices.",
+    "companyTitle": "Name your company",
+    "companyHint": "Add Arabic, English, or both — this appears across Brooch apps.",
     "packageTitle": "Choose a package",
     "packageHint": "Pick the plan that fits your team. You can change it later.",
     "arabicName": "Company name (Arabic)",
@@ -876,24 +898,24 @@
         "body": "We are checking the result with your payment provider."
       },
       "pending": {
-        "title": "Still processing",
-        "body": "Your provider has not finished this payment yet. Nothing will be charged twice."
+        "title": "Confirming your payment…",
+        "body": "Hang tight — we have not finished verifying yet. Keep this page open."
       },
       "provisioning": {
         "title": "Payment confirmed",
         "body": "We are finishing your workspace setup now."
       },
       "completed": {
-        "title": "You are all set",
-        "body": "Your payment was verified and your subscription is active."
+        "title": "Your workspace is ready",
+        "body": "Payment and setup are done. Sign in again to continue."
       },
       "provisioningFailed": {
         "title": "Almost there",
         "body": "Your payment went through and will not be taken again. Setting up your workspace did not finish — you can resume it here."
       },
       "failed": {
-        "title": "Payment not completed",
-        "body": "Your payment did not go through, so nothing was charged and your plan is unchanged."
+        "title": "Payment did not go through",
+        "body": "Nothing reliable was charged here. You can try again."
       },
       "closed": {
         "title": "This purchase is closed",

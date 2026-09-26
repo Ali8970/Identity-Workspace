@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Skeleton, SkeletonHost, times } from '../../../../shared/ui/skeleton/skeleton';
 
-/** Mirrors the roles page: list panel chrome above, role cards below. */
+/** Mirrors the roles page: list panel chrome above, role table rows below. */
 @Component({
   selector: 'app-roles-skeleton',
   imports: [Skeleton],
@@ -23,42 +23,21 @@ import { Skeleton, SkeletonHost, times } from '../../../../shared/ui/skeleton/sk
         <app-skeleton variant="input" />
       </div>
 
-      <ul
-        class="m-0 grid list-none gap-3 p-[18px] [grid-template-columns:repeat(auto-fill,minmax(min(100%,19rem),1fr))]"
-      >
-        @for (card of cards; track card) {
-          <li
-            class="relative flex min-w-0 flex-col gap-2.5 rounded-[10px] border-[1.468px] border-border-button bg-surface p-4 shadow-[var(--shadow-card)]"
-          >
-            <div class="flex items-center justify-between gap-2">
-              <div class="ui-skeleton-row">
-                <app-skeleton variant="icon" />
-                <app-skeleton variant="text" width="4.5rem" />
-              </div>
-              <app-skeleton variant="pill" width="3.5rem" />
-            </div>
-            <app-skeleton variant="title" [width]="nameWidth($index)" />
-            <app-skeleton variant="pill" width="6rem" />
-            <div class="ui-skeleton-col">
-              <app-skeleton variant="text" width="100%" />
-              <app-skeleton variant="text" width="65%" />
-            </div>
-            <div
-              class="mt-auto flex items-center justify-between gap-2 border-t-[1.468px] border-border-subtle pt-3"
-            >
-              <app-skeleton variant="text" width="6.5rem" />
-              <app-skeleton variant="text" width="5rem" />
-            </div>
-          </li>
+      <div class="overflow-x-auto p-[18px]">
+        @for (row of rows; track row) {
+          <div class="mb-3 flex items-center gap-4 border-b-[1.468px] border-border-subtle pb-3">
+            <app-skeleton variant="text" width="28%" />
+            <app-skeleton variant="text" width="14%" />
+            <app-skeleton variant="pill" width="5rem" />
+            <app-skeleton variant="pill" width="4rem" />
+            <app-skeleton variant="text" width="2rem" />
+            <app-skeleton variant="icon" />
+          </div>
         }
-      </ul>
+      </div>
     </section>
   `,
 })
 export class RolesSkeleton extends SkeletonHost {
-  protected readonly cards = times(6);
-
-  protected nameWidth(index: number): string {
-    return ['62%', '48%', '70%', '55%', '66%', '44%'][index % 6];
-  }
+  protected readonly rows = times(6);
 }

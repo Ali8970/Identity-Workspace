@@ -55,6 +55,9 @@ import { RegisterService } from '../../services/register.service';
         </div>
       } @else {
         <header class="auth-form__head">
+          <p class="mb-2 text-[12px] font-semibold tracking-wide text-text-muted uppercase">
+            {{ 'auth.register.progress' | translate }}
+          </p>
           <h1 class="auth-form__title" id="main-content-header" tabindex="-1">
             {{ 'auth.register.title' | translate }}
           </h1>

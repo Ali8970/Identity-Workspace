@@ -23,44 +23,38 @@ import { LoginService } from '../../services/login.service';
     <app-auth-layout>
       <header class="auth-form__head">
         <h1 class="auth-form__title" id="main-content-header" tabindex="-1">
-          {{ 'auth.login.title' | translate }}
+          {{ loginTitleKey() | translate }}
         </h1>
-        <p class="auth-form__lead">{{ 'auth.login.subtitle' | translate }}</p>
+        <p class="auth-form__lead">{{ loginLeadKey() | translate }}</p>
       </header>
 
-      @if (flow.intentId()) {
-        <div class="auth-status auth-status--info" role="status">
+      @if (statusBanner(); as banner) {
+        <div class="auth-status" [class]="banner.toneClass" role="status">
           <span class="auth-status__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-              <circle cx="12" cy="12" r="9" />
-              <path d="M12 10v6M12 7h.01" />
-            </svg>
+            @switch (banner.kind) {
+              @case ('intent') {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 10v6M12 7h.01" />
+                </svg>
+              }
+              @case ('onboarded') {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                  <path d="m9 12 2 2 4-4" />
+                  <circle cx="12" cy="12" r="9" />
+                </svg>
+              }
+              @default {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                  <path d="M12 8v5M12 16h.01" />
+                  <path
+                    d="M10.3 4.5 2.6 18a1 1 0 0 0 .9 1.5h16.9a1 1 0 0 0 .9-1.5L13.7 4.5a1 1 0 0 0-1.8 0Z"
+                  />
+                </svg>
+              }
+            }
           </span>
-          <span class="auth-status__body">{{ 'auth.login.intentBanner' | translate }}</span>
-        </div>
-      }
-      @if (justOnboarded()) {
-        <div class="auth-status auth-status--success" role="status">
-          <span class="auth-status__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-              <path d="m9 12 2 2 4-4" />
-              <circle cx="12" cy="12" r="9" />
-            </svg>
-          </span>
-          <span class="auth-status__body">{{ 'auth.login.onboardedBanner' | translate }}</span>
-        </div>
-      }
-      @if (selectionRestartRequired()) {
-        <div class="auth-status auth-status--warning" role="status">
-          <span class="auth-status__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-              <path d="M12 8v5M12 16h.01" />
-              <path
-                d="M10.3 4.5 2.6 18a1 1 0 0 0 .9 1.5h16.9a1 1 0 0 0 .9-1.5L13.7 4.5a1 1 0 0 0-1.8 0Z"
-              />
-            </svg>
-          </span>
-          <span class="auth-status__body">{{ 'auth.login.selectionRestart' | translate }}</span>
+          <span class="auth-status__body">{{ banner.messageKey | translate }}</span>
         </div>
       }
 
@@ -211,6 +205,40 @@ export class LoginPage {
   );
   protected readonly passwordInvalid = computed(
     () => this.submitted() && this.loginForm.password().invalid(),
+  );
+
+  /** One banner only — intent wins, then onboarded, then selection restart. */
+  protected readonly statusBanner = computed(() => {
+    if (this.flow.intentId()) {
+      return {
+        kind: 'intent' as const,
+        toneClass: 'auth-status--info',
+        messageKey: 'auth.login.intentBanner',
+      };
+    }
+    if (this.justOnboarded()) {
+      return {
+        kind: 'onboarded' as const,
+        toneClass: 'auth-status--success',
+        messageKey: 'auth.login.onboardedBanner',
+      };
+    }
+    if (this.selectionRestartRequired()) {
+      return {
+        kind: 'restart' as const,
+        toneClass: 'auth-status--warning',
+        messageKey: 'auth.login.selectionRestart',
+      };
+    }
+    return null;
+  });
+
+  protected readonly loginTitleKey = computed(() =>
+    this.flow.intentId() ? 'auth.login.titleContinue' : 'auth.login.title',
+  );
+
+  protected readonly loginLeadKey = computed(() =>
+    this.flow.intentId() ? 'auth.login.subtitleContinue' : 'auth.login.subtitle',
   );
 
   private readonly returnUrl = signal<string | null>(null);

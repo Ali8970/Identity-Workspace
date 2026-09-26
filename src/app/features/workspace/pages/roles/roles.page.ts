@@ -192,114 +192,123 @@ interface RoleNotice {
               (action)="clearFilters()"
             />
           } @else {
-            <ul
-              class="m-0 grid list-none gap-3 p-[18px] [grid-template-columns:repeat(auto-fill,minmax(min(100%,19rem),1fr))]"
+            <div
+              class="flex flex-wrap gap-3 border-b-[1.468px] border-border-subtle px-[18px] py-2.5 text-[12px] text-text-muted"
+              role="note"
             >
-              @for (role of visibleRoles(); track role.id) {
-                @let name = roleName(role);
-                @let editable = canEditRole(role);
-                <li
-                  class="relative flex min-w-0 flex-col gap-2.5 rounded-[10px] border-[1.468px] border-border-button bg-surface p-4 font-[family-name:var(--font-family)] shadow-[var(--shadow-card)]"
-                  [class.border-info]="role.isOwnerRole"
-                  [class.bg-surface-muted]="!role.isActive"
-                >
-                  <div class="flex items-center justify-between gap-2">
-                    <span
-                      class="inline-flex min-w-0 items-center gap-2 text-[11px] font-semibold tracking-wide text-text-muted uppercase"
+              <span>{{ 'roles.legendOwner' | translate }}</span>
+              <span aria-hidden="true">·</span>
+              <span>{{ 'roles.legendSystem' | translate }}</span>
+              <span aria-hidden="true">·</span>
+              <span>{{ 'roles.legendCustom' | translate }}</span>
+            </div>
+            <div class="list-table-body overflow-x-auto">
+              <table class="w-full border-collapse text-start">
+                <thead class="bg-table-head">
+                  <tr>
+                    <th scope="col" class="px-[18px] py-3 text-[11px] font-bold tracking-wide text-text-muted uppercase">
+                      {{ 'roles.colName' | translate }}
+                    </th>
+                    <th scope="col" class="px-3 py-3 text-[11px] font-bold tracking-wide text-text-muted uppercase">
+                      {{ 'roles.colApplication' | translate }}
+                    </th>
+                    <th scope="col" class="px-3 py-3 text-[11px] font-bold tracking-wide text-text-muted uppercase">
+                      {{ 'roles.colType' | translate }}
+                    </th>
+                    <th scope="col" class="px-3 py-3 text-[11px] font-bold tracking-wide text-text-muted uppercase">
+                      {{ 'roles.colStatus' | translate }}
+                    </th>
+                    <th scope="col" class="px-3 py-3 text-[11px] font-bold tracking-wide text-text-muted uppercase">
+                      {{ 'roles.colPermissions' | translate }}
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-[18px] py-3 text-center text-[11px] font-bold tracking-wide text-text-muted uppercase"
                     >
-                      <span
-                        [class]="
-                          'grid size-6 shrink-0 place-items-center rounded-md bg-primary-light text-info workspace-app-group__icon--' +
-                          applicationModifier(role.applicationKey)
-                        "
-                        aria-hidden="true"
-                      >
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="1.75"
-                          class="size-3.5"
+                      {{ 'roles.colActions' | translate }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (role of visibleRoles(); track role.id) {
+                    @let name = roleName(role);
+                    @let editable = canEditRole(role);
+                    <tr
+                      class="border-t-[1.468px] border-border-subtle hover:bg-surface-muted/60"
+                      [class.bg-surface-muted]="!role.isActive"
+                    >
+                      <td class="px-[18px] py-[15px]">
+                        <div class="flex min-w-0 flex-col gap-0.5">
+                          <span class="text-[13px] font-semibold text-text">{{ name }}</span>
+                          @if (role.description) {
+                            <span class="line-clamp-1 text-[12px] text-text-muted">{{
+                              role.description
+                            }}</span>
+                          }
+                        </div>
+                      </td>
+                      <td class="px-3 py-[15px] text-[13px] text-text">
+                        <bdi>{{ appLabel(role.applicationKey) }}</bdi>
+                      </td>
+                      <td class="px-3 py-[15px]">
+                        @if (role.isOwnerRole) {
+                          <span
+                            class="inline-flex rounded-md bg-primary-light px-2 py-0.5 text-[11px] font-semibold text-info-text"
+                            >{{ 'roles.ownerRole' | translate }}</span
+                          >
+                        } @else if (role.isSystem) {
+                          <span
+                            class="inline-flex rounded-md bg-surface-muted px-2 py-0.5 text-[11px] font-semibold text-text-muted"
+                            >{{ 'roles.systemRole' | translate }}</span
+                          >
+                        } @else {
+                          <span
+                            class="inline-flex rounded-md border-[1.468px] border-border-button px-2 py-0.5 text-[11px] font-semibold text-text"
+                            >{{ 'roles.customRole' | translate }}</span
+                          >
+                        }
+                      </td>
+                      <td class="px-3 py-[15px]">
+                        <span
+                          class="workspace-status-pill"
+                          [class.workspace-status-pill--active]="role.isActive"
+                          [class.workspace-role-status--inactive]="!role.isActive"
                         >
-                          <rect x="3" y="3" width="7" height="7" rx="1.5" />
-                          <rect x="14" y="3" width="7" height="7" rx="1.5" />
-                          <rect x="3" y="14" width="7" height="7" rx="1.5" />
-                          <rect x="14" y="14" width="7" height="7" rx="1.5" />
-                        </svg>
-                      </span>
-                      <bdi class="truncate">{{ appLabel(role.applicationKey) }}</bdi>
-                    </span>
-                    <span
-                      class="workspace-status-pill"
-                      [class.workspace-status-pill--active]="role.isActive"
-                      [class.workspace-role-status--inactive]="!role.isActive"
-                    >
-                      {{ (role.isActive ? 'roles.active' : 'roles.inactive') | translate }}
-                    </span>
-                  </div>
-
-                  <h3 class="m-0 text-[15px] leading-snug font-bold text-text">{{ name }}</h3>
-
-                  <div class="flex flex-wrap gap-1.5">
-                    @if (role.isOwnerRole) {
-                      <span
-                        class="inline-flex items-center gap-1 rounded-md bg-primary-light px-2 py-0.5 text-[11px] font-semibold text-info-text"
-                      >
-                        {{ 'roles.ownerRole' | translate }}
-                      </span>
-                    } @else if (role.isSystem) {
-                      <span
-                        class="inline-flex items-center gap-1 rounded-md bg-surface-muted px-2 py-0.5 text-[11px] font-semibold text-text-muted"
-                      >
-                        {{ 'roles.systemRole' | translate }}
-                      </span>
-                    } @else {
-                      <span
-                        class="rounded-md border-[1.468px] border-border-button px-2 py-0.5 text-[11px] font-semibold text-text"
-                      >
-                        {{ 'roles.customRole' | translate }}
-                      </span>
-                    }
-                  </div>
-
-                  <p
-                    class="m-0 min-h-[2.6em] text-[13px] leading-normal text-text-muted"
-                    [class.italic]="!role.description"
-                  >
-                    {{ role.description || ('roles.noDescription' | translate) }}
-                  </p>
-
-                  <div class="mt-auto flex items-center justify-between gap-2 border-t-[1.468px] border-border-subtle pt-3">
-                    <span class="text-[12px] font-medium text-text-muted">
-                      {{
-                        'roles.permissionCount' | translate: { count: role.permissionKeys.length }
-                      }}
-                    </span>
-
-                    <button
-                      type="button"
-                      class="table-row-action-icon"
-                      aria-haspopup="dialog"
-                      [id]="'role-card-' + role.id"
-                      [attr.aria-label]="
-                        (editable ? 'roles.manageRoleFor' : 'roles.viewRoleFor')
-                          | translate: { name: name }
-                      "
-                      [attr.title]="(editable ? 'roles.manageRole' : 'roles.viewRole') | translate"
-                      (click)="openDetails(role)"
-                    >
-                      <img
-                        class="table-row-action-glyph"
-                        src="/images/table-actions/eye.svg"
-                        width="16"
-                        height="16"
-                        alt=""
-                      />
-                    </button>
-                  </div>
-                </li>
-              }
-            </ul>
+                          {{ (role.isActive ? 'roles.active' : 'roles.inactive') | translate }}
+                        </span>
+                      </td>
+                      <td class="px-3 py-[15px] text-[13px] text-text-muted">
+                        {{ role.permissionKeys.length }}
+                      </td>
+                      <td class="px-[18px] py-[15px] text-center">
+                        <button
+                          type="button"
+                          class="table-row-action-icon"
+                          aria-haspopup="dialog"
+                          [id]="'role-row-' + role.id"
+                          [attr.aria-label]="
+                            (editable ? 'roles.manageRoleFor' : 'roles.viewRoleFor')
+                              | translate: { name: name }
+                          "
+                          [attr.title]="
+                            (editable ? 'roles.manageRole' : 'roles.viewRole') | translate
+                          "
+                          (click)="openDetails(role)"
+                        >
+                          <img
+                            class="table-row-action-glyph"
+                            src="/images/table-actions/eye.svg"
+                            width="16"
+                            height="16"
+                            alt=""
+                          />
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
           }
         </section>
       }
