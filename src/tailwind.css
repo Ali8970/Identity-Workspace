@@ -484,6 +484,88 @@ select.list-filter-control {
   background-image: var(--primary-gradient-hover);
 }
 
+/* CRM table row icon actions (Figma 10:6083) */
+.table-row-action-icon {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.75rem;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  min-height: 1.75rem;
+  padding: 0.125rem;
+  margin: 0;
+  overflow: visible;
+  appearance: none;
+  cursor: pointer;
+  border: 1.468px solid var(--border);
+  border-radius: 100px;
+  background: var(--surface-muted);
+  color: var(--text-muted);
+  box-shadow: none;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.table-row-action-icon:active:not(:disabled) {
+  background: var(--table-head);
+}
+
+.table-row-action-icon:focus {
+  box-shadow: none;
+}
+
+.table-row-action-icon:focus-visible {
+  outline: 2px solid var(--info);
+  outline-offset: 2px;
+}
+
+.table-row-action-icon:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.table-row-action-glyph {
+  display: block;
+  width: 1rem;
+  height: 1rem;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+[dir='rtl'] .table-row-action-glyph--edit {
+  transform: scaleX(-1);
+}
+
+.list-table-body {
+  font-family: var(--font-family);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.list-table-body th {
+  font-family: var(--font-family);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+}
+
+.list-table-body td {
+  font-family: var(--font-family);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.list-table-body .list-table-name {
+  font-weight: 600;
+}
+
 app-shell-sidebar {
   background: var(--sidebar-bg);
   color: var(--sidebar-text);

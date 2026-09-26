@@ -163,39 +163,39 @@ import { MembersSkeleton } from './members.skeleton';
             />
           } @else {
             <div class="list-table-body overflow-x-auto">
-              <table class="w-full border-collapse text-start text-[13px]">
+              <table class="w-full border-collapse text-start">
                 <thead class="bg-table-head">
                   <tr>
-                    <th scope="col" class="px-[18px] py-3 text-[11px] font-bold tracking-wide text-text-muted uppercase">{{ 'members.colName' | translate }}</th>
-                    <th scope="col" class="px-3 py-3 text-[11px] font-bold tracking-wide text-text-muted uppercase">{{ 'members.colRoles' | translate }}</th>
-                    <th scope="col" class="px-3 py-3 text-[11px] font-bold tracking-wide text-text-muted uppercase">{{ 'members.colStatus' | translate }}</th>
-                    <th scope="col" class="px-[18px] py-3 text-end text-[11px] font-bold tracking-wide text-text-muted uppercase">{{ 'members.colActions' | translate }}</th>
+                    <th scope="col" class="px-[18px] py-3 text-text-muted uppercase">{{ 'members.colName' | translate }}</th>
+                    <th scope="col" class="px-3 py-3 text-text-muted uppercase">{{ 'members.colRoles' | translate }}</th>
+                    <th scope="col" class="px-3 py-3 text-text-muted uppercase">{{ 'members.colStatus' | translate }}</th>
+                    <th scope="col" class="px-[18px] py-3 text-center text-text-muted uppercase">{{ 'members.colActions' | translate }}</th>
                   </tr>
                 </thead>
                 <tbody>
                   @for (row of visibleMembers(); track row.tenantMembershipId) {
                     <tr class="border-t-[1.468px] border-border-subtle hover:bg-surface-muted/60">
-                      <td class="px-[18px] py-3">
+                      <td class="px-[18px] py-[15px]">
                         <div class="flex items-center gap-3">
-                          <span class="grid size-9 shrink-0 place-items-center rounded-2xl text-xs font-bold text-white" style="background: var(--primary-gradient)" aria-hidden="true">{{ initials(row) }}</span>
+                          <span class="grid size-9 shrink-0 place-items-center rounded-2xl text-xs font-bold text-on-primary" style="background: var(--primary-gradient)" aria-hidden="true">{{ initials(row) }}</span>
                           <span class="min-w-0">
                             <span class="flex flex-wrap items-center gap-1.5">
-                              <span class="font-semibold text-text">{{ language.pick(row.arabicName, row.englishName) }}</span>
+                              <span class="list-table-name text-text">{{ language.pick(row.arabicName, row.englishName) }}</span>
                               @if (row.isOwner) {
-                                <span class="rounded-md bg-primary-light px-1.5 py-0.5 text-[10px] font-bold text-info-text">{{ 'members.owner' | translate }}</span>
+                                <span class="rounded-md bg-primary-light px-1.5 py-0.5 text-[11px] font-semibold leading-[16.5px] text-info-text">{{ 'members.owner' | translate }}</span>
                               }
                               @if (isPending(row)) {
-                                <span class="rounded-md bg-warning-bg px-1.5 py-0.5 text-[10px] font-bold text-warning-text">{{ 'members.pendingActivation' | translate }}</span>
+                                <span class="rounded-md bg-warning-bg px-1.5 py-0.5 text-[11px] font-semibold leading-[16.5px] text-warning-text">{{ 'members.pendingActivation' | translate }}</span>
                               }
                             </span>
-                            <span class="mt-0.5 block truncate text-[12px] text-text-muted ltr-text">{{ row.email }}</span>
+                            <span class="mt-0.5 block truncate text-[12px] font-normal text-text-muted ltr-text">{{ row.email }}</span>
                           </span>
                         </div>
                       </td>
-                      <td class="px-3 py-3">
+                      <td class="px-3 py-[15px]">
                         <div class="flex flex-wrap gap-1">
                           @if (row.roles.length === 0) {
-                            <span class="text-[12px] text-text-muted">{{ 'members.noRoles' | translate }}</span>
+                            <span class="text-[12px] font-normal text-text-muted">{{ 'members.noRoles' | translate }}</span>
                           } @else {
                             @for (role of row.roles; track role.roleId) {
                               <span class="rounded-md border-[1.468px] border-border-button bg-surface-muted px-2 py-0.5 text-[11px] font-medium text-text">{{ language.pick(role.nameAr, role.nameEn) }}</span>
@@ -203,27 +203,59 @@ import { MembersSkeleton } from './members.skeleton';
                           }
                         </div>
                       </td>
-                      <td class="px-3 py-3">
+                      <td class="px-3 py-[15px]">
                         @if (isKnownStatus(row.tenantMembershipStatus)) {
                           <span [class]="statusClass(row.tenantMembershipStatus)">{{ statusLabel(row.tenantMembershipStatus) | translate }}</span>
                         } @else {
                           <span class="workspace-status-pill">{{ row.tenantMembershipStatus }}</span>
                         }
                       </td>
-                      <td class="px-[18px] py-3">
-                        <div class="flex flex-wrap items-center justify-end gap-1">
-                          <button type="button" class="inline-flex h-8 cursor-pointer items-center rounded-lg px-2.5 text-[12px] font-semibold text-info hover:bg-primary-light" (click)="openDetail(row)">{{ 'members.details' | translate }}</button>
+                      <td class="px-[18px] py-[15px]">
+                        <div class="flex flex-nowrap items-center justify-center gap-2">
+                          <button
+                            type="button"
+                            class="table-row-action-icon"
+                            [attr.aria-label]="'members.details' | translate"
+                            [attr.title]="'members.details' | translate"
+                            (click)="openDetail(row)"
+                          >
+                            <img class="table-row-action-glyph" src="/images/table-actions/eye.svg" width="16" height="16" alt="" />
+                          </button>
                           @if (canManage()) {
                             @if (isPending(row)) {
-                              <button type="button" class="inline-flex h-8 cursor-pointer items-center rounded-lg px-2.5 text-[12px] font-semibold text-text hover:bg-surface-muted disabled:opacity-50" [disabled]="resendingId() !== null" [attr.aria-busy]="resendingId() === row.tenantMembershipId" [attr.aria-label]="'members.resendFor' | translate: { name: language.pick(row.arabicName, row.englishName) }" (click)="resend(row)">
-                                @if (resendingId() === row.tenantMembershipId) { {{ 'members.resending' | translate }} } @else { {{ 'members.resend' | translate }} }
+                              <button
+                                type="button"
+                                class="table-row-action-icon"
+                                [disabled]="resendingId() !== null"
+                                [attr.aria-busy]="resendingId() === row.tenantMembershipId"
+                                [attr.aria-label]="'members.resendFor' | translate: { name: language.pick(row.arabicName, row.englishName) }"
+                                [attr.title]="'members.resend' | translate"
+                                (click)="resend(row)"
+                              >
+                                <img class="table-row-action-glyph" src="/images/table-actions/mail.svg" width="16" height="16" alt="" />
                               </button>
                             }
                             @if (isActive(row)) {
-                              <button type="button" class="inline-flex h-8 cursor-pointer items-center rounded-lg px-2.5 text-[12px] font-semibold text-text hover:bg-surface-muted" [attr.aria-label]="'members.editRolesFor' | translate: { name: language.pick(row.arabicName, row.englishName) }" (click)="openEditRoles(row)">{{ 'members.editRoles' | translate }}</button>
+                              <button
+                                type="button"
+                                class="table-row-action-icon"
+                                [attr.aria-label]="'members.editRolesFor' | translate: { name: language.pick(row.arabicName, row.englishName) }"
+                                [attr.title]="'members.editRoles' | translate"
+                                (click)="openEditRoles(row)"
+                              >
+                                <img class="table-row-action-glyph table-row-action-glyph--edit" src="/images/table-actions/edit.svg" width="16" height="16" alt="" />
+                              </button>
                             }
                             @if (!row.isOwner) {
-                              <button type="button" class="inline-flex h-8 cursor-pointer items-center rounded-lg px-2.5 text-[12px] font-semibold text-danger-text hover:bg-danger-bg" [attr.aria-label]="'members.removeFor' | translate: { name: language.pick(row.arabicName, row.englishName) }" (click)="askRemove(row)">{{ 'members.remove' | translate }}</button>
+                              <button
+                                type="button"
+                                class="table-row-action-icon"
+                                [attr.aria-label]="'members.removeFor' | translate: { name: language.pick(row.arabicName, row.englishName) }"
+                                [attr.title]="'members.remove' | translate"
+                                (click)="askRemove(row)"
+                              >
+                                <img class="table-row-action-glyph" src="/images/table-actions/trash.svg" width="16" height="16" alt="" />
+                              </button>
                             }
                           }
                         </div>
