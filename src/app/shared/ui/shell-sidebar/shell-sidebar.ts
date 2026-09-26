@@ -3,20 +3,27 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ShellNavGroup } from '../../layouts/shell-nav.model';
 
+/**
+ * Shell sidebar — visual parity with Brooch CRM:
+ * Lama Sans, white labels on brand gradient, 13px / 19.5px nav items,
+ * 10px uppercase section titles, 12px / 11px footer copy.
+ */
 @Component({
   selector: 'app-shell-sidebar',
   imports: [RouterLink, RouterLinkActive, TranslatePipe],
   host: {
-    class: 'flex h-full min-h-dvh w-full flex-col text-[var(--sidebar-text,#ffffff)]',
-    style: 'background: var(--sidebar-bg); color: var(--sidebar-text); font-family: var(--font-family);',
+    class: 'flex h-full min-h-dvh w-full flex-col',
+    style:
+      "background: var(--sidebar-bg); color: var(--sidebar-text, #ffffff); font-family: 'Lama Sans', var(--font-family), sans-serif;",
   },
   template: `
     <div
-      class="m-0 flex shrink-0 items-center justify-center border-b-[1.468px] border-solid border-[var(--sidebar-line)] px-5 pt-[22px] pb-[18px]"
+      class="m-0 flex shrink-0 items-center justify-center border-b-[1.468px] border-solid border-white/10 px-5 pt-[22px] pb-[18px]"
     >
       <a
         routerLink="/applications"
-        class="block text-[var(--sidebar-text,#ffffff)] no-underline"
+        class="block text-inherit no-underline"
+        style="color: var(--sidebar-text, #ffffff)"
         (click)="navigate.emit()"
         [attr.aria-label]="'shell.applications' | translate"
       >
@@ -31,7 +38,7 @@ import { ShellNavGroup } from '../../layouts/shell-nav.model';
       @if (showClose()) {
         <button
           type="button"
-          class="ms-2 inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border-[1.468px] border-solid border-[var(--sidebar-line)] text-[var(--sidebar-text,#ffffff)] hover:bg-[var(--sidebar-hover)]"
+          class="ms-2 inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border-[1.468px] border-solid border-white/10 text-white hover:bg-white/10"
           [attr.aria-label]="'shell.closeSidebar' | translate"
           (click)="closed.emit()"
         >
@@ -48,16 +55,17 @@ import { ShellNavGroup } from '../../layouts/shell-nav.model';
     </div>
 
     <nav
-      class="min-h-0 flex-1 overflow-y-auto px-2.5 py-3 font-[family-name:var(--font-family)] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-[3px] [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent"
+      class="min-h-0 flex-1 overflow-y-auto px-2.5 py-3 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-[3px] [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent"
+      style="font-family: 'Lama Sans', var(--font-family), sans-serif"
       [attr.aria-label]="'shell.workspace' | translate"
     >
       @for (group of groups(); track group.labelKey) {
         <div
-          class="m-0 p-0 [&+&]:mt-2.5 [&+&]:border-t-[0.993px] [&+&]:border-solid [&+&]:border-[var(--sidebar-line)] [&+&]:pt-3.5"
+          class="m-0 p-0 [&+&]:mt-2.5 [&+&]:border-t-[0.993px] [&+&]:border-solid [&+&]:border-white/10 [&+&]:pt-3.5"
         >
           <div class="flex items-center px-2.5 pt-1 pb-2">
             <span
-              class="text-[length:10px] leading-[15px] font-semibold tracking-[0.8px] text-[var(--sidebar-text,#ffffff)] uppercase"
+              class="text-[10px] leading-[15px] font-semibold tracking-[0.8px] text-white uppercase"
             >
               {{ group.labelKey | translate }}
             </span>
@@ -66,14 +74,16 @@ import { ShellNavGroup } from '../../layouts/shell-nav.model';
             @for (item of group.items; track item.route) {
               <li>
                 <a
-                  class="relative flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-3 py-[9px] text-start text-[length:13px] leading-[19.5px] font-normal text-[var(--sidebar-text,#ffffff)] no-underline transition-colors duration-200 hover:bg-[var(--sidebar-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  class="relative flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-3 py-[9px] text-start text-[13px] leading-[19.5px] font-normal text-white no-underline transition-colors duration-200 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  style="color: #ffffff; font-family: 'Lama Sans', var(--font-family), sans-serif"
                   [routerLink]="item.route"
-                  routerLinkActive="is-active bg-[var(--sidebar-active)] font-semibold after:ms-auto after:size-[5px] after:shrink-0 after:rounded-full after:bg-[var(--sidebar-dot)] after:content-['']"
+                  routerLinkActive="is-active bg-white/20 font-semibold after:ms-auto after:size-[5px] after:shrink-0 after:rounded-full after:bg-white/70 after:content-['']"
                   ariaCurrentWhenActive="page"
                   (click)="navigate.emit()"
                 >
                   <svg
-                    class="size-4 shrink-0 text-[var(--sidebar-text,#ffffff)]"
+                    class="size-4 shrink-0 text-white"
+                    style="color: var(--sidebar-text, #ffffff)"
                     viewBox="0 0 16 16"
                     width="16"
                     height="16"
@@ -116,7 +126,10 @@ import { ShellNavGroup } from '../../layouts/shell-nav.model';
                       }
                     }
                   </svg>
-                  <span class="flex-1 text-[length:13px] leading-[19.5px] text-[var(--sidebar-text,#ffffff)]">
+                  <span
+                    class="flex-1 text-[13px] leading-[19.5px] text-white"
+                    style="color: var(--sidebar-text, #ffffff)"
+                  >
                     {{ item.labelKey | translate }}
                   </span>
                 </a>
@@ -128,25 +141,22 @@ import { ShellNavGroup } from '../../layouts/shell-nav.model';
     </nav>
 
     @if (userName()) {
-      <div
-        class="shrink-0 border-t-[1.468px] border-solid border-[var(--sidebar-line)] px-2.5 py-3"
-      >
+      <div class="shrink-0 border-t-[1.468px] border-solid border-white/10 px-2.5 py-3">
         <div class="flex items-center gap-2.5 rounded-lg px-3 py-2.5">
           <div
-            class="grid size-8 shrink-0 place-items-center rounded-2xl bg-surface text-[length:13px] leading-[19.5px] font-bold text-[#2a52f2]"
+            class="grid size-8 shrink-0 place-items-center rounded-2xl bg-white text-[13px] leading-[19.5px] font-bold text-[#2a52f2]"
             aria-hidden="true"
           >
             {{ userInitial() }}
           </div>
           <div class="min-w-0 flex-1 text-start">
             <p
-              class="m-0 truncate text-[length:0.75rem] leading-[18px] font-semibold text-[var(--sidebar-text,#ffffff)]"
+              class="m-0 truncate text-xs leading-[18px] font-semibold text-white"
+              style="color: #ffffff; font-family: 'Lama Sans', var(--font-family), sans-serif"
             >
               {{ userName() }}
             </p>
-            <p
-              class="m-0 truncate text-[length:11px] leading-[16.5px] font-normal text-[var(--sidebar-muted)]"
-            >
+            <p class="shell-sidebar-muted m-0 truncate text-[11px] leading-[16.5px] font-normal">
               {{ 'auth.layout.product' | translate }}
             </p>
           </div>

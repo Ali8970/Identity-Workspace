@@ -1,10 +1,37 @@
-/* Tailwind + shared Brooch tokens must load first. */
 @use './styles/tokens';
 @use './styles/components';
 @use './styles/loading';
 @use './styles/shell';
 @use './styles/auth';
 @use './styles/workspace';
+
+/* Sidebar must match CRM: Lama Sans + sidebar-text on the brand rail.
+   Global `a { color: primary }` was painting nav links indigo. Keep last. */
+app-shell-sidebar {
+  color: var(--sidebar-text, #ffffff) !important;
+  font-family: 'Lama Sans', var(--font-family), sans-serif;
+}
+
+app-shell-sidebar a,
+app-shell-sidebar a:link,
+app-shell-sidebar a:visited,
+app-shell-sidebar a:hover,
+app-shell-sidebar a:active,
+app-shell-sidebar a:focus,
+app-shell-sidebar a:focus-visible,
+app-shell-sidebar .is-active,
+app-shell-sidebar .is-active span {
+  color: var(--sidebar-text, #ffffff) !important;
+}
+
+app-shell-sidebar svg {
+  color: var(--sidebar-text, #ffffff) !important;
+  stroke: currentColor;
+}
+
+app-shell-sidebar .shell-sidebar-muted {
+  color: var(--sidebar-muted, rgba(255, 255, 255, 0.85)) !important;
+}
 
 /* ==========================================================================
    Reduced motion — global guard
