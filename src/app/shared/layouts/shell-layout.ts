@@ -27,7 +27,7 @@ const MOBILE_BREAKPOINT = 1025;
   },
   template: `
     <div
-      class="flex min-h-dvh bg-surface-muted text-text [--sidebar-rail:280px] max-md:[--sidebar-rail:0px] min-[1801px]:[--sidebar-rail:320px]"
+      class="flex min-h-dvh bg-surface-muted text-text [--sidebar-rail:300px] max-md:[--sidebar-rail:0px] min-[1801px]:[--sidebar-rail:328px]"
       [style.--sidebar-rail]="desktopSidebarCollapsed() ? '0px' : null"
       [attr.data-desktop-sidebar-collapsed]="desktopSidebarCollapsed() || null"
     >
@@ -52,7 +52,7 @@ const MOBILE_BREAKPOINT = 1025;
             [attr.aria-label]="'shell.closeSidebar' | translate"
             (click)="closeMobileNav()"
           ></button>
-          <div class="relative h-full w-[280px] overflow-hidden shadow-xl">
+          <div class="relative h-full w-[min(86vw,300px)] overflow-hidden shadow-xl">
             <app-shell-sidebar
               [showClose]="true"
               [groups]="navGroups()"

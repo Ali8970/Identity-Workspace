@@ -11,7 +11,7 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
   imports: [TranslatePipe, ConfirmDialog, RouterLink],
   template: `
     <header
-      class="sticky top-0 z-20 flex h-[52px] items-center gap-3 border-b-[1.468px] border-border-button bg-surface px-4 md:px-6"
+      class="sticky top-0 z-20 flex h-[56px] items-center gap-3 border-b-[1.468px] border-border-button bg-surface px-4 md:px-6"
     >
       <button
         type="button"
@@ -71,9 +71,9 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
         }
       </button>
 
-      <div class="ms-auto flex items-center gap-2">
+      <div class="ms-auto flex min-w-0 items-center gap-2.5 md:gap-3">
         <!-- Account-only: company switcher (tenant context is this app's job). -->
-        <div class="relative">
+        <div class="relative min-w-0">
           @if (tenantMenuOpen()) {
             <button
               type="button"
@@ -85,11 +85,12 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
 
           <button
             type="button"
-            class="relative z-20 inline-flex max-w-[14rem] cursor-pointer items-center gap-2 rounded-lg border-[1.468px] border-border-button bg-surface-muted px-2 py-1.5 text-start text-[13px] font-semibold text-text hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-60"
+            class="relative z-20 inline-flex w-[min(100%,18rem)] min-w-[12.5rem] max-w-[22rem] cursor-pointer items-center gap-2.5 rounded-lg border-[1.468px] border-border-button bg-surface-muted px-3 py-2 text-start text-[13px] font-semibold text-text hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-60 sm:w-[18rem] md:w-[20rem] md:max-w-[24rem]"
             [disabled]="switching() || companies().length === 0"
             [attr.aria-busy]="switching()"
             [attr.aria-expanded]="tenantMenuOpen()"
             [attr.aria-label]="'shell.companyMenu' | translate"
+            [attr.title]="tenantName()"
             aria-haspopup="menu"
             (click)="toggleTenantMenu()"
           >
@@ -97,7 +98,7 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
               <span class="ui-spinner" aria-hidden="true"></span>
             } @else {
               <span
-                class="grid size-7 shrink-0 place-items-center rounded-xl text-[11px] font-bold text-white"
+                class="grid size-8 shrink-0 place-items-center rounded-xl text-[12px] font-bold text-white"
                 style="background: var(--primary-gradient)"
                 aria-hidden="true"
               >
@@ -111,7 +112,7 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
               </span>
             </span>
             <svg
-              class="size-3.5 shrink-0 text-text-muted"
+              class="size-4 shrink-0 text-text-muted"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -124,7 +125,7 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
 
           @if (tenantMenuOpen()) {
             <div
-              class="absolute end-0 z-30 mt-2 w-72 overflow-hidden rounded-lg border-[1.468px] border-border-button bg-surface shadow-[var(--shadow-card)]"
+              class="absolute end-0 z-30 mt-2 w-[min(100vw-2rem,24rem)] overflow-hidden rounded-lg border-[1.468px] border-border-button bg-surface shadow-[var(--shadow-card)]"
               role="menu"
             >
               @if (companies().length > 7) {
@@ -190,7 +191,7 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
 
         <button
           type="button"
-          class="inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border-[1.468px] border-border-button bg-surface-muted text-text-muted hover:bg-surface-hover"
+          class="inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border-[1.468px] border-border-button bg-surface-muted text-text-muted hover:bg-surface-hover"
           [attr.aria-pressed]="isDark()"
           [attr.aria-label]="(isDark() ? 'shell.themeLight' : 'shell.themeDark') | translate"
           (click)="theme.toggle()"
@@ -227,29 +228,47 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
 
         <button
           type="button"
-          class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface-muted px-2.5 text-xs font-semibold text-text hover:bg-surface-hover"
+          class="inline-flex h-10 min-w-[3.25rem] cursor-pointer items-center justify-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface-muted px-3 text-xs font-semibold text-text hover:bg-surface-hover"
           [attr.aria-label]="'shell.language' | translate"
           (click)="toggleLanguage()"
         >
           {{ currentLanguage() === 'en' ? 'EN' : 'عربي' }}
         </button>
 
-        <div class="relative">
+        <div class="relative shrink-0">
           <button
             type="button"
-            class="inline-flex cursor-pointer items-center gap-2 rounded-lg border-0 bg-transparent px-1 py-1 text-[13px] font-semibold text-text hover:bg-surface-muted"
+            class="inline-flex max-w-[16rem] cursor-pointer items-center gap-2.5 rounded-lg border-[1.468px] border-border-button bg-surface-muted px-2.5 py-1.5 text-start text-[13px] font-semibold text-text hover:bg-surface-hover sm:max-w-[18rem] md:max-w-[20rem]"
             [attr.aria-expanded]="userMenuOpen()"
             [attr.aria-label]="'shell.userMenu' | translate"
+            [attr.title]="userEmail() || userName()"
             (click)="userMenuOpen.update((open) => !open)"
           >
             <span
-              class="grid size-8 place-items-center rounded-2xl text-xs font-bold text-white"
+              class="grid size-8 shrink-0 place-items-center rounded-2xl text-xs font-bold text-white"
               style="background: var(--primary-gradient)"
               aria-hidden="true"
             >
               {{ userInitial() }}
             </span>
-            <span class="hidden max-w-[8rem] truncate sm:inline">{{ userName() }}</span>
+            <span class="hidden min-w-0 flex-1 sm:block">
+              <span class="block truncate leading-tight">{{ userName() }}</span>
+              @if (userEmail()) {
+                <span class="block truncate text-[11px] font-medium text-text-muted ltr-text">
+                  {{ userEmail() }}
+                </span>
+              }
+            </span>
+            <svg
+              class="hidden size-4 shrink-0 text-text-muted sm:block"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="m5 9 7 7 7-7" />
+            </svg>
           </button>
           @if (userMenuOpen()) {
             <button
@@ -259,7 +278,7 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
               (click)="userMenuOpen.set(false)"
             ></button>
             <div
-              class="absolute end-0 z-20 mt-2 w-44 overflow-hidden rounded-lg border-[1.468px] border-border-button bg-surface shadow-[var(--shadow-card)]"
+              class="absolute end-0 z-20 mt-2 min-w-[16rem] w-max max-w-[min(100vw-2rem,22rem)] overflow-hidden rounded-lg border-[1.468px] border-border-button bg-surface shadow-[var(--shadow-card)]"
               role="menu"
             >
               <a

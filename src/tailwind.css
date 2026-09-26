@@ -116,8 +116,8 @@
   --radius: 10px;
   --shadow: var(--shadow-card);
   --shadow-sm: var(--shadow-card);
-  --header-h: 52px;
-  --nav-w: 280px;
+  --header-h: 56px;
+  --nav-w: 300px;
   --nav-w-collapsed: 0px;
   --transition: 160ms ease;
 }
