@@ -688,6 +688,11 @@
       "level": "المستوى {{level}} من {{max}}",
       "summary": "تحت {{parent}}",
       "tooLong": "يجب ألا يتجاوز {{max}} حرفاً."
+    },
+    "stats": {
+      "total": "الفرق",
+      "applications": "التطبيقات",
+      "missingManagers": "بدون مدير"
     }
   },
   "myAccess": {

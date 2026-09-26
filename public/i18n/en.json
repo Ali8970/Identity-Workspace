@@ -688,6 +688,11 @@
       "level": "Level {{level}} of {{max}}",
       "summary": "Under {{parent}}",
       "tooLong": "Keep this under {{max}} characters."
+    },
+    "stats": {
+      "total": "Teams",
+      "applications": "Applications",
+      "missingManagers": "Missing managers"
     }
   },
   "myAccess": {

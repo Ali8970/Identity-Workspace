@@ -1,13 +1,18 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, Injector, afterNextRender, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { SessionStore } from '../../../../core/auth/session.store';
 import { ApplicationLabels } from '../../../../core/i18n/application-labels.service';
 import { LanguageService } from '../../../../core/i18n/language.service';
 import { ConfirmDialog } from '../../../../shared/ui/confirm-dialog/confirm-dialog';
+import { EmptyState } from '../../../../shared/ui/empty-state/empty-state';
+import { ErrorPanel } from '../../../../shared/ui/error-panel/error-panel';
 import { FocusTrap } from '../../../../shared/ui/focus-trap/focus-trap';
+import type { ListStatCard } from '../../../../shared/ui/list-stats/list-stat-card';
+import { ListStats } from '../../../../shared/ui/list-stats/list-stats';
+import { PageHeader } from '../../../../shared/ui/page-header/page-header';
 import {
   MemberListItem,
   TeamMembershipDdlItem,
@@ -42,53 +47,53 @@ interface TeamRow {
     TeamDetailsDialog,
     TeamFormDialog,
     TeamsSkeleton,
+    PageHeader,
+    ListStats,
+    EmptyState,
+    ErrorPanel,
   ],
   template: `
-    <div class="workspace-page">
-      <header class="workspace-page__head">
-        <div class="workspace-page__intro">
-          <p class="workspace-page__eyebrow">{{ 'teams.eyebrow' | translate }}</p>
-          <h1 class="workspace-page__title" id="main-content-header" tabindex="-1">
-            {{ 'teams.title' | translate }}
-          </h1>
-          <p class="workspace-page__lead">{{ 'teams.subtitle' | translate }}</p>
-        </div>
+    <div>
+      <app-page-header
+        [title]="'teams.title' | translate"
+        [description]="'teams.subtitle' | translate"
+      >
+        @if (canManage() && applicationRows().length > 0) {
+          <button
+            type="button"
+            class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg bg-primary px-3.5 text-[13px] font-semibold text-on-primary shadow-[var(--shadow-primary-button)] hover:bg-primary-hover"
+            (click)="openCreate(null)"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              aria-hidden="true"
+              class="size-4"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            {{ 'teams.create' | translate }}
+          </button>
+        }
+      </app-page-header>
 
-        <div class="workspace-page__meta">
-          <span class="workspace-chip workspace-chip--muted">
-            {{ 'teams.teamCount' | translate: { count: teamCount() } }}
-          </span>
-          @if (missingManagerCount() > 0) {
-            <span class="workspace-chip">
-              {{ 'teams.missingManagerCount' | translate: { count: missingManagerCount() } }}
-            </span>
-          }
-          @if (canManage() && applicationRows().length > 0) {
-            <button type="button" class="ui-btn ui-btn--primary" (click)="openCreate(null)">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                aria-hidden="true"
-                class="ui-btn__icon"
-              >
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-              {{ 'teams.create' | translate }}
-            </button>
-          }
-        </div>
-      </header>
+      <div class="mb-4">
+        <app-list-stats [stats]="teamStats()" [loading]="loading()" />
+      </div>
 
-      <aside class="workspace-note">
+      <aside
+        class="mb-4 flex items-start gap-2.5 rounded-[10px] border-[1.468px] border-border-subtle bg-surface-muted px-4 py-3 text-[13px] leading-normal text-text-muted"
+      >
         <svg
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           stroke-width="1.75"
           aria-hidden="true"
+          class="mt-0.5 size-4 shrink-0 text-info"
         >
           <circle cx="12" cy="12" r="9" />
           <path d="M12 10v6M12 7h.01" />
@@ -99,49 +104,49 @@ interface TeamRow {
       @if (loading()) {
         <app-teams-skeleton [label]="'teams.loading' | translate" />
       } @else if (loadFailed()) {
-        <section class="workspace-empty" role="status">
-          <p class="workspace-empty__body">{{ 'common.loadFailed' | translate }}</p>
-          <button type="button" class="ui-btn ui-btn--ghost" (click)="reload()">
-            {{ 'common.retry' | translate }}
-          </button>
+        <app-error-panel
+          [title]="'common.loadFailed' | translate"
+          [retryLabel]="'common.retry' | translate"
+          (retry)="reload()"
+        />
+      } @else if (teams().length === 0) {
+        <section
+          class="list-table-panel overflow-hidden rounded-[10px] border-[1.468px] border-border-button bg-surface shadow-[var(--shadow-card)]"
+        >
+          <app-empty-state
+            [title]="'teams.emptyTitle' | translate"
+            [detail]="'teams.emptyBody' | translate"
+            [actionLabel]="
+              canManage() && applicationRows().length > 0 ? ('teams.create' | translate) : undefined
+            "
+            (action)="openCreate(null)"
+          />
         </section>
       } @else {
-        @if (teams().length === 0) {
-          <section class="workspace-empty" role="status">
-            <div class="workspace-empty__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <circle cx="7" cy="8" r="2.5" />
-                <circle cx="17" cy="8" r="2.5" />
-                <path d="M3 19c1.2-2.8 3.4-4.5 7-4.5s5.8 1.7 7 4.5" />
-              </svg>
-            </div>
-            <h2 class="workspace-empty__title">{{ 'teams.emptyTitle' | translate }}</h2>
-            <p class="workspace-empty__body">{{ 'teams.emptyBody' | translate }}</p>
-          </section>
-        } @else {
-          <section class="workspace-org-chart" aria-labelledby="teams-structure-heading">
-            <header class="workspace-org-chart__head">
-              <h2 class="workspace-org-chart__title" id="teams-structure-heading">
-                {{ 'teams.structureTitle' | translate }}
-              </h2>
-            </header>
+        <section class="workspace-org-chart" aria-labelledby="teams-structure-heading">
+          <div
+            class="flex flex-wrap items-center justify-between gap-2 border-b-[1.468px] border-border-subtle px-[18px] py-3"
+          >
+            <h2 class="m-0 text-[14px] font-bold text-text" id="teams-structure-heading">
+              {{ 'teams.structureTitle' | translate }}
+            </h2>
+          </div>
 
-            <div
-              class="workspace-org-chart__viewport"
-              role="region"
-              tabindex="0"
-              aria-labelledby="teams-structure-heading"
-            >
-              <ul class="workspace-org-chart__tree">
-                @for (team of teams(); track team.id) {
-                  <ng-container
-                    *ngTemplateOutlet="teamBranch; context: { $implicit: team, depth: 0 }"
-                  />
-                }
-              </ul>
-            </div>
-          </section>
-        }
+          <div
+            class="workspace-org-chart__viewport"
+            role="region"
+            tabindex="0"
+            aria-labelledby="teams-structure-heading"
+          >
+            <ul class="workspace-org-chart__tree">
+              @for (team of teams(); track team.id) {
+                <ng-container
+                  *ngTemplateOutlet="teamBranch; context: { $implicit: team, depth: 0 }"
+                />
+              }
+            </ul>
+          </div>
+        </section>
       }
     </div>
 
@@ -556,6 +561,7 @@ export class TeamsPage {
   private readonly session = inject(SessionStore);
   private readonly applicationLabels = inject(ApplicationLabels);
   protected readonly language = inject(LanguageService);
+  private readonly translate = inject(TranslateService);
   private readonly injector = inject(Injector);
 
   protected readonly maxDepth = MAX_TEAM_DEPTH;
@@ -625,6 +631,32 @@ export class TeamsPage {
   protected readonly missingManagerCount = computed(
     () => this.rows().filter((row) => row.node.isMissingManager).length,
   );
+
+  protected readonly teamStats = computed((): ListStatCard[] => {
+    this.language.current();
+    const missing = this.missingManagerCount();
+    return [
+      {
+        label: this.translate.instant('teams.stats.total'),
+        value: this.teamCount(),
+        accent: '#2b5bf9',
+        icon: 'users',
+      },
+      {
+        label: this.translate.instant('teams.stats.applications'),
+        value: this.applicationRows().length,
+        accent: '#1e00b0',
+        icon: 'apps',
+      },
+      {
+        label: this.translate.instant('teams.stats.missingManagers'),
+        value: missing,
+        accent: '#f57c00',
+        icon: 'warning',
+        valueTone: missing > 0 ? 'danger' : 'default',
+      },
+    ];
+  });
 
   protected readonly canManage = computed(() => this.teamsService.canManageTeams());
 
