@@ -22,7 +22,6 @@ import {
 import { TranslatePipe } from '@ngx-translate/core';
 import { ApplicationLabels } from '../../../../core/i18n/application-labels.service';
 import { LanguageService } from '../../../../core/i18n/language.service';
-import { applicationModifier } from '../../../../shared/ui/display';
 import { FocusTrap } from '../../../../shared/ui/focus-trap/focus-trap';
 import { AddMemberFormValue, RoleListItem } from '../../models/workspace-feature.model';
 import { RoleGrantScope } from '../../services/roles.service';
@@ -282,24 +281,35 @@ function emptyInvite(): AddMemberFormValue {
               }
 
               @case ('access') {
-                <section aria-labelledby="invite-apps-heading">
-                  <h3 class="m-0 mb-1 text-[15px] font-bold text-text" id="invite-apps-heading" tabindex="-1">
+                <section aria-labelledby="invite-access-heading">
+                  <h3
+                    class="m-0 mb-1 font-[family-name:var(--font-family)] text-[15px] font-bold text-text"
+                    id="invite-access-heading"
+                    tabindex="-1"
+                  >
+                    {{ 'members.invite.accessSection' | translate }}
+                  </h3>
+                  <p class="m-0 mb-4 text-[13px] leading-normal text-text-muted" id="invite-apps-lead">
+                    {{ 'members.invite.accessLead' | translate }}
+                  </p>
+
+                  <p
+                    class="m-0 mb-2 text-[12px] font-semibold text-text-muted"
+                    id="invite-apps-label"
+                  >
                     {{ 'members.invite.appsSection' | translate }}
                     <span class="text-danger" aria-hidden="true">*</span>
-                  </h3>
-                  <p class="m-0 mb-4 text-[13px] text-text-muted" id="invite-apps-lead">
-                    {{ 'members.invite.appsLead' | translate }}
                   </p>
 
                   @if (applications().length === 0) {
-                    <p class="workspace-team-details__empty workspace-dialog__empty" role="status">
+                    <p class="workspace-invite__empty" role="status">
                       {{ 'members.invite.appsEmpty' | translate }}
                     </p>
                   } @else {
                     <div
-                      class="workspace-invite-apps mb-5"
+                      class="workspace-invite-apps"
                       role="group"
-                      aria-labelledby="invite-apps-heading"
+                      aria-labelledby="invite-apps-label"
                       aria-describedby="invite-apps-lead"
                     >
                       @for (app of applications(); track app.key) {
@@ -315,25 +325,6 @@ function emptyInvite(): AddMemberFormValue {
                             [attr.aria-invalid]="errors().applications ? true : null"
                             (change)="toggleApplication(app)"
                           />
-                          <span
-                            [class]="
-                              'workspace-app-group__icon workspace-invite-app__icon workspace-app-group__icon--' +
-                              modifier(app.key)
-                            "
-                            aria-hidden="true"
-                          >
-                            <svg
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="1.75"
-                            >
-                              <rect x="3" y="3" width="7" height="7" rx="1.5" />
-                              <rect x="14" y="3" width="7" height="7" rx="1.5" />
-                              <rect x="3" y="14" width="7" height="7" rx="1.5" />
-                              <rect x="14" y="14" width="7" height="7" rx="1.5" />
-                            </svg>
-                          </span>
                           <span class="workspace-invite-app__body">
                             <span class="workspace-invite-app__name">
                               <bdi>{{ app.label }}</bdi>
@@ -345,53 +336,239 @@ function emptyInvite(): AddMemberFormValue {
                               }}
                             </span>
                           </span>
+                          @if (isApplicationSelected(app.key)) {
+                            <span class="workspace-invite-app__tick" aria-hidden="true">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="m5 12 5 5L19 7" />
+                              </svg>
+                            </span>
+                          }
                         </label>
                       }
                     </div>
                   }
 
                   @if (errors().applications; as message) {
-                    <p class="m-0 mb-3 text-[12px] text-danger" id="invite-apps-error" role="alert">
+                    <p class="m-0 mt-2 text-[12px] text-danger" id="invite-apps-error" role="alert">
                       {{ message | translate }}
                     </p>
                   }
                   @if (deselectNotice(); as notice) {
-                    <p class="workspace-invite__notice mb-3" role="status" aria-live="polite">
+                    <p class="workspace-invite__notice mt-2" role="status" aria-live="polite">
                       {{ 'members.invite.deselected' | translate: notice }}
                     </p>
                   }
 
-                  <h3 class="m-0 mb-1 text-[15px] font-bold text-text" id="invite-access-heading">
-                    {{ 'members.invite.accessSection' | translate }}
+                  <div class="workspace-invite-access-stack">
+                    @if (grantScopeLoading()) {
+                      <div
+                        class="workspace-loading workspace-loading--compact"
+                        role="status"
+                        aria-live="polite"
+                      >
+                        <span class="workspace-loading__spinner" aria-hidden="true"></span>
+                        <span>{{ 'members.invite.checkingAccess' | translate }}</span>
+                      </div>
+                    } @else if (selectedApplications().length === 0) {
+                      <p class="workspace-invite__empty" role="status">
+                        {{ 'members.invite.accessEmpty' | translate }}
+                      </p>
+                    } @else {
+                      @for (app of selectedApplications(); track app.key) {
+                        <section
+                          class="workspace-invite-access"
+                          [attr.aria-labelledby]="'invite-access-' + app.key"
+                        >
+                          <header class="workspace-invite-access__head">
+                            <h4
+                              class="workspace-invite-access__title"
+                              [id]="'invite-access-' + app.key"
+                            >
+                              <bdi>{{ app.label }}</bdi>
+                            </h4>
+                            <span class="workspace-invite-access__counts">
+                              {{
+                                'members.invite.appCounts'
+                                  | translate
+                                    : {
+                                        roles: selectedRoleCount(app),
+                                        teams: selectedTeamCount(app),
+                                      }
+                              }}
+                            </span>
+                          </header>
+
+                          <div class="workspace-invite-access__grid">
+                            <div
+                              class="workspace-invite-access__column"
+                              role="group"
+                              [attr.aria-labelledby]="'invite-roles-' + app.key"
+                            >
+                              <p
+                                class="workspace-invite-access__label"
+                                [id]="'invite-roles-' + app.key"
+                              >
+                                {{ 'members.roles' | translate }}
+                                <span class="text-danger" aria-hidden="true">*</span>
+                              </p>
+                              @for (role of app.roles; track role.id) {
+                                <label
+                                  class="workspace-invite-choice"
+                                  [class.workspace-invite-choice--checked]="isRoleSelected(role.id)"
+                                  [class.workspace-invite-choice--disabled]="!canGrant(role)"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    [checked]="isRoleSelected(role.id)"
+                                    [disabled]="saving() || !canGrant(role)"
+                                    [attr.aria-invalid]="errors().roles ? true : null"
+                                    (change)="toggleRole(role)"
+                                  />
+                                  <span class="workspace-invite-choice__body">
+                                    <span class="workspace-invite-choice__name">
+                                      <span class="workspace-invite-choice__label">{{
+                                        roleName(role)
+                                      }}</span>
+                                      @if (role.isOwnerRole) {
+                                        <span
+                                          class="workspace-invite-badge workspace-invite-badge--owner"
+                                        >
+                                          {{ 'roles.ownerRole' | translate }}
+                                        </span>
+                                      } @else if (role.isSystem) {
+                                        <span class="workspace-invite-badge">
+                                          {{ 'roles.systemRole' | translate }}
+                                        </span>
+                                      }
+                                    </span>
+                                    <span class="workspace-invite-choice__meta">
+                                      <code dir="ltr">{{ role.code }}</code>
+                                      @if (!canGrant(role)) {
+                                        · {{ 'members.invite.roleNotGrantable' | translate }}
+                                      }
+                                    </span>
+                                  </span>
+                                </label>
+                              } @empty {
+                                <p class="m-0 text-[12px] text-text-muted">
+                                  {{ 'members.invite.noRolesInApp' | translate: { app: app.label } }}
+                                </p>
+                              }
+
+                              @for (role of selectedOwnerRoles(app); track role.id) {
+                                <aside
+                                  class="workspace-invite__warning"
+                                  role="note"
+                                >
+                                  {{
+                                    'members.invite.ownerWarning'
+                                      | translate: { role: roleName(role), app: app.label }
+                                  }}
+                                </aside>
+                              }
+                            </div>
+
+                            <div
+                              class="workspace-invite-access__column"
+                              role="group"
+                              [attr.aria-labelledby]="'invite-teams-' + app.key"
+                            >
+                              <p
+                                class="workspace-invite-access__label"
+                                [id]="'invite-teams-' + app.key"
+                              >
+                                {{ 'members.teams' | translate }}
+                                <span class="workspace-invite-access__optional">
+                                  {{ 'members.invite.optional' | translate }}
+                                </span>
+                              </p>
+                              @for (team of app.teams; track team.id) {
+                                <label
+                                  class="workspace-invite-choice"
+                                  [class.workspace-invite-choice--checked]="isTeamSelected(team.id)"
+                                  [style.padding-inline-start.rem]="0.55 + team.depth * 0.85"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    [checked]="isTeamSelected(team.id)"
+                                    [disabled]="saving()"
+                                    (change)="toggleTeam(team)"
+                                  />
+                                  <span class="workspace-invite-choice__body">
+                                    <span class="workspace-invite-choice__name">
+                                      <span class="workspace-invite-choice__label">{{
+                                        team.name
+                                      }}</span>
+                                    </span>
+                                    @if (team.trail.length > 0) {
+                                      <span class="workspace-invite-choice__meta">
+                                        <bdi>{{ teamTrail(team) }}</bdi>
+                                      </span>
+                                    }
+                                  </span>
+                                </label>
+                              } @empty {
+                                <p class="m-0 text-[12px] text-text-muted">
+                                  {{ 'members.invite.noTeamsInApp' | translate: { app: app.label } }}
+                                </p>
+                              }
+                            </div>
+                          </div>
+                        </section>
+                      }
+                    }
+                  </div>
+
+                  @if (errors().roles; as message) {
+                    <p class="m-0 mt-3 text-[12px] text-danger" id="invite-roles-error" role="alert">
+                      {{ message | translate }}
+                    </p>
+                  } @else if (selectedApplications().length > 0) {
+                    <p class="m-0 mt-3 text-[12px] leading-normal text-text-muted">
+                      {{ 'members.invite.accessHint' | translate }}
+                    </p>
+                  }
+                </section>
+              }
+
+              @case ('review') {
+                <section class="mx-auto w-full max-w-lg" aria-labelledby="invite-review-heading">
+                  <h3
+                    class="m-0 mb-1 font-[family-name:var(--font-family)] text-[15px] font-bold text-text"
+                    id="invite-review-heading"
+                    tabindex="-1"
+                  >
+                    {{ 'members.invite.reviewSection' | translate }}
                   </h3>
-                  <p class="m-0 mb-4 text-[13px] text-text-muted">
-                    {{ 'members.invite.accessLead' | translate }}
+                  <p class="m-0 mb-4 text-[13px] leading-normal text-text-muted">
+                    {{ 'members.invite.reviewLead' | translate }}
                   </p>
 
-                  @if (grantScopeLoading()) {
-                    <div
-                      class="workspace-loading workspace-loading--compact"
-                      role="status"
-                      aria-live="polite"
-                    >
-                      <span class="workspace-loading__spinner" aria-hidden="true"></span>
-                      <span>{{ 'members.invite.checkingAccess' | translate }}</span>
+                  <div class="workspace-invite-review__person">
+                    <div>
+                      <p class="workspace-invite-review__kicker">{{ 'members.email' | translate }}</p>
+                      <p class="workspace-invite-review__value">
+                        <bdi class="ltr-text">{{ reviewEmail() }}</bdi>
+                      </p>
                     </div>
-                  } @else if (selectedApplications().length === 0) {
-                    <p class="workspace-team-details__empty workspace-dialog__empty">
-                      {{ 'members.invite.accessEmpty' | translate }}
-                    </p>
-                  } @else {
+                    <div>
+                      <p class="workspace-invite-review__kicker">{{ 'members.invite.name' | translate }}</p>
+                      <p class="workspace-invite-review__value workspace-invite-review__names">
+                        @for (name of reviewNames(); track name.lang) {
+                          <span [attr.lang]="name.lang" [attr.dir]="name.dir">{{ name.value }}</span>
+                        }
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="workspace-invite-review__access">
                     @for (app of selectedApplications(); track app.key) {
-                      <section
-                        class="workspace-invite-access"
-                        [attr.aria-labelledby]="'invite-access-' + app.key"
-                      >
-                        <header class="workspace-invite-access__head">
-                          <h4 class="workspace-app-group__title" [id]="'invite-access-' + app.key">
+                      <section class="workspace-invite-review__app" [attr.aria-label]="app.label">
+                        <header class="workspace-invite-review__app-head">
+                          <p class="workspace-invite-review__app-name">
                             <bdi>{{ app.label }}</bdi>
-                          </h4>
-                          <span class="workspace-chip workspace-chip--muted">
+                          </p>
+                          <span class="workspace-invite-access__counts">
                             {{
                               'members.invite.appCounts'
                                 | translate
@@ -403,216 +580,58 @@ function emptyInvite(): AddMemberFormValue {
                           </span>
                         </header>
 
-                        <div class="workspace-invite-access__grid">
-                          <div
-                            class="workspace-invite-access__column"
-                            role="group"
-                            [attr.aria-labelledby]="'invite-roles-' + app.key"
-                          >
-                            <p
-                              class="workspace-invite-access__label"
-                              [id]="'invite-roles-' + app.key"
-                            >
+                        <div class="workspace-invite-review__cols">
+                          <div>
+                            <p class="workspace-invite-review__label">
                               {{ 'members.roles' | translate }}
                             </p>
-                            @for (role of app.roles; track role.id) {
-                              <label class="workspace-role-choice workspace-invite-choice">
-                                <input
-                                  type="checkbox"
-                                  [checked]="isRoleSelected(role.id)"
-                                  [disabled]="saving() || !canGrant(role)"
-                                  [attr.aria-invalid]="errors().roles ? true : null"
-                                  (change)="toggleRole(role)"
-                                />
-                                <span class="workspace-role-choice__body">
-                                  <span class="workspace-invite-choice__name">
-                                    <span class="workspace-role-choice__name">{{
-                                      roleName(role)
-                                    }}</span>
-                                    @if (role.isOwnerRole) {
-                                      <span
-                                        class="workspace-invite-badge workspace-invite-badge--owner"
-                                      >
-                                        {{ 'roles.ownerRole' | translate }}
-                                      </span>
-                                    } @else if (role.isSystem) {
-                                      <span class="workspace-invite-badge">
-                                        {{ 'roles.systemRole' | translate }}
-                                      </span>
-                                    }
-                                  </span>
-                                  <span class="workspace-role-choice__meta">
-                                    <code dir="ltr">{{ role.code }}</code>
-                                    @if (!canGrant(role)) {
-                                      · {{ 'members.invite.roleNotGrantable' | translate }}
-                                    }
-                                  </span>
-                                </span>
-                              </label>
-                            } @empty {
-                              <p class="workspace-field-hint">
-                                {{ 'members.invite.noRolesInApp' | translate: { app: app.label } }}
-                              </p>
-                            }
-
-                            @for (role of selectedOwnerRoles(app); track role.id) {
-                              <aside
-                                class="workspace-note workspace-invite__warning"
-                                role="note"
-                              >
-                                <span>
-                                  {{
-                                    'members.invite.ownerWarning'
-                                      | translate: { role: roleName(role), app: app.label }
-                                  }}
-                                </span>
-                              </aside>
-                            }
+                            <ul class="workspace-invite-review__list">
+                              @for (role of selectedRolesOf(app); track role.id) {
+                                <li
+                                  class="workspace-invite-review__pill"
+                                  [class.workspace-invite-review__pill--owner]="role.isOwnerRole"
+                                >
+                                  {{ roleName(role) }}
+                                </li>
+                              } @empty {
+                                <li class="workspace-invite-review__pill workspace-invite-review__pill--empty">
+                                  {{ 'members.noRoles' | translate }}
+                                </li>
+                              }
+                            </ul>
                           </div>
-
-                          <div
-                            class="workspace-invite-access__column"
-                            role="group"
-                            [attr.aria-labelledby]="'invite-teams-' + app.key"
-                          >
-                            <p
-                              class="workspace-invite-access__label"
-                              [id]="'invite-teams-' + app.key"
-                            >
+                          <div>
+                            <p class="workspace-invite-review__label">
                               {{ 'members.teams' | translate }}
-                              <span class="workspace-invite-access__optional">
-                                {{ 'members.invite.optional' | translate }}
-                              </span>
                             </p>
-                            @for (team of app.teams; track team.id) {
-                              <label
-                                class="workspace-role-choice workspace-invite-choice"
-                                [style.padding-inline-start.rem]="0.5 + team.depth * 1.1"
-                              >
-                                <input
-                                  type="checkbox"
-                                  [checked]="isTeamSelected(team.id)"
-                                  [disabled]="saving()"
-                                  (change)="toggleTeam(team)"
-                                />
-                                <span class="workspace-role-choice__body">
-                                  <span class="workspace-invite-choice__name">
-                                    <span class="workspace-role-choice__name">{{
-                                      team.name
-                                    }}</span>
-                                  </span>
-                                  @if (team.trail.length > 0) {
-                                    <span class="workspace-role-choice__meta">
-                                      <bdi>{{ teamTrail(team) }}</bdi>
-                                    </span>
-                                  }
-                                </span>
-                              </label>
-                            } @empty {
-                              <p class="workspace-field-hint">
-                                {{ 'members.invite.noTeamsInApp' | translate: { app: app.label } }}
-                              </p>
-                            }
+                            <ul class="workspace-invite-review__list">
+                              @for (team of selectedTeamsOf(app); track team.id) {
+                                <li class="workspace-invite-review__pill workspace-invite-review__pill--team">
+                                  <bdi>{{ teamPath(team) }}</bdi>
+                                </li>
+                              } @empty {
+                                <li class="workspace-invite-review__pill workspace-invite-review__pill--empty">
+                                  {{ 'members.noTeams' | translate }}
+                                </li>
+                              }
+                            </ul>
                           </div>
                         </div>
-                      </section>
-                    }
-                  }
-
-                  @if (errors().roles; as message) {
-                    <p class="m-0 text-[12px] text-danger" id="invite-roles-error" role="alert">
-                      {{ message | translate }}
-                    </p>
-                  } @else {
-                    <p class="workspace-field-hint">{{ 'members.invite.accessHint' | translate }}</p>
-                  }
-                </section>
-              }
-
-              @case ('review') {
-                <section class="mx-auto max-w-xl" aria-labelledby="invite-review-heading">
-                  <h3 class="m-0 mb-1 text-[15px] font-bold text-text" id="invite-review-heading" tabindex="-1">
-                    {{ 'members.invite.reviewSection' | translate }}
-                  </h3>
-                  <p class="m-0 mb-4 text-[13px] text-text-muted">
-                    {{ 'members.invite.reviewLead' | translate }}
-                  </p>
-
-                  <dl class="workspace-invite-review__facts mb-4">
-                    <div>
-                      <dt>{{ 'members.email' | translate }}</dt>
-                      <dd>
-                        <bdi class="ltr-text">{{ reviewEmail() }}</bdi>
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>{{ 'members.invite.name' | translate }}</dt>
-                      <dd>
-                        @for (name of reviewNames(); track name.lang) {
-                          <span
-                            class="workspace-invite-review__name"
-                            [attr.lang]="name.lang"
-                            [attr.dir]="name.dir"
-                          >
-                            {{ name.value }}
-                          </span>
-                        }
-                      </dd>
-                    </div>
-                  </dl>
-
-                  <div class="workspace-invite-review__access">
-                    @for (app of selectedApplications(); track app.key) {
-                      <section class="workspace-invite-review__app" [attr.aria-label]="app.label">
-                        <p class="workspace-invite-review__app-name">
-                          <bdi>{{ app.label }}</bdi>
-                        </p>
-                        <p class="workspace-invite-review__label">
-                          {{ 'members.roles' | translate }}
-                        </p>
-                        <ul class="workspace-invite-review__list">
-                          @for (role of selectedRolesOf(app); track role.id) {
-                            <li
-                              class="workspace-role-pill"
-                              [class.workspace-invite-review__owner]="role.isOwnerRole"
-                            >
-                              {{ roleName(role) }}
-                            </li>
-                          } @empty {
-                            <li class="workspace-role-pill workspace-role-pill--empty">
-                              {{ 'members.noRoles' | translate }}
-                            </li>
-                          }
-                        </ul>
-                        <p class="workspace-invite-review__label">
-                          {{ 'members.teams' | translate }}
-                        </p>
-                        <ul class="workspace-invite-review__list">
-                          @for (team of selectedTeamsOf(app); track team.id) {
-                            <li class="workspace-role-pill workspace-invite-review__team">
-                              <bdi>{{ teamPath(team) }}</bdi>
-                            </li>
-                          } @empty {
-                            <li class="workspace-role-pill workspace-role-pill--empty">
-                              {{ 'members.noTeams' | translate }}
-                            </li>
-                          }
-                        </ul>
                       </section>
                     }
                   </div>
 
                   @if (ownerRoleCount() > 0) {
-                    <aside class="workspace-note workspace-invite__warning mt-4" role="note">
-                      <span>{{
+                    <aside class="workspace-invite__warning mt-3" role="note">
+                      {{
                         'members.invite.reviewOwner' | translate: { count: ownerRoleCount() }
-                      }}</span>
+                      }}
                     </aside>
                   }
 
-                  <aside class="workspace-note mt-3">
-                    <span>{{ 'members.invite.emailNote' | translate }}</span>
-                  </aside>
+                  <p class="m-0 mt-3 text-[12px] leading-normal text-text-muted">
+                    {{ 'members.invite.emailNote' | translate }}
+                  </p>
                 </section>
               }
             }
@@ -703,7 +722,6 @@ export class MemberInviteDialog {
 
   protected readonly emailMax = EMAIL_MAX;
   protected readonly nameMax = NAME_MAX;
-  protected readonly modifier = applicationModifier;
 
   protected readonly step = signal<InviteStep>('identity');
   protected readonly stepItems = [
