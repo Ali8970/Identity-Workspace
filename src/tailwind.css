@@ -116,7 +116,7 @@
   --radius: 10px;
   --shadow: var(--shadow-card);
   --shadow-sm: var(--shadow-card);
-  --header-h: 56px;
+  --header-h: 64px;
   --nav-w: 300px;
   --nav-w-collapsed: 0px;
   --transition: 160ms ease;
@@ -473,8 +473,19 @@ select.list-filter-control {
   min-height: 0;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .animate-pulse {
-    animation: none;
-  }
+app-shell-sidebar {
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  font-family: var(--font-family);
 }
+
+/* Global `a { color: var(--primary) }` must not paint nav links indigo on the blue rail. */
+app-shell-sidebar a {
+  color: var(--sidebar-text);
+}
+
+app-shell-sidebar a:hover,
+app-shell-sidebar a:focus-visible {
+  color: var(--sidebar-text);
+}
+

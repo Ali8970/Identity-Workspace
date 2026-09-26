@@ -1,5 +1,4 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MyCompanyDto } from '../../../models/auth.model';
 import { LanguageService } from '../../../core/i18n/language.service';
@@ -8,71 +7,59 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-shell-header',
-  imports: [TranslatePipe, ConfirmDialog, RouterLink],
+  imports: [TranslatePipe, ConfirmDialog],
   template: `
     <header
-      class="sticky top-0 z-20 flex h-[56px] items-center gap-3 border-b-[1.468px] border-border-button bg-surface px-4 md:px-6"
+      class="sticky top-0 z-20 mx-4 mt-3 mb-3 flex min-h-16 items-center justify-between gap-4 rounded-[12px] border-[1.468px] border-border-button bg-surface/95 px-3.5 py-2.5 shadow-[var(--shadow-card)] backdrop-blur-[10px] md:mx-6 font-[family-name:var(--font-family)]"
     >
-      <button
-        type="button"
-        class="inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border-[1.468px] border-border-button bg-surface-muted text-text-muted md:hidden"
-        [attr.aria-label]="'shell.openSidebar' | translate"
-        (click)="menu.emit()"
-      >
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path
-            d="M2 4h12M2 8h12M2 12h12"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-          />
-        </svg>
-      </button>
+      <div class="flex min-w-0 items-center gap-3">
+        <button
+          type="button"
+          class="inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border-[1.468px] border-border-button bg-surface text-text-muted hover:bg-surface-muted md:hidden"
+          [attr.aria-label]="'shell.openSidebar' | translate"
+          (click)="menu.emit()"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+        </button>
 
-      <button
-        type="button"
-        class="hidden size-9 cursor-pointer items-center justify-center rounded-lg border-[1.468px] border-border-button bg-surface-muted text-text-muted hover:bg-surface-hover md:inline-flex"
-        [attr.aria-expanded]="!desktopSidebarCollapsed()"
-        aria-controls="app-main-sidebar"
-        [attr.aria-label]="
-          (desktopSidebarCollapsed() ? 'shell.openSidebar' : 'shell.closeSidebar') | translate
-        "
-        (click)="toggleDesktopSidebar.emit()"
-      >
-        @if (desktopSidebarCollapsed()) {
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path
-              d="M2 4h12M2 8h12M2 12h12"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-            />
-          </svg>
-        } @else if (currentLanguage() === 'ar') {
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path
-              d="M5 3.5 9.5 8 5 12.5M10.5 3.5 15 8l-4.5 4.5"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        } @else {
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path
-              d="M11 3.5 6.5 8 11 12.5M5.5 3.5 1 8l4.5 4.5"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        }
-      </button>
+        <button
+          type="button"
+          class="hidden size-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border-[1.468px] border-border-button bg-surface text-text-muted hover:bg-surface-muted md:inline-flex"
+          [attr.aria-expanded]="!desktopSidebarCollapsed()"
+          aria-controls="app-main-sidebar"
+          [attr.aria-label]="
+            (desktopSidebarCollapsed() ? 'shell.openSidebar' : 'shell.closeSidebar') | translate
+          "
+          (click)="toggleDesktopSidebar.emit()"
+        >
+          @if (desktopSidebarCollapsed()) {
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+          } @else if (currentLanguage() === 'ar') {
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M5 3.5 9.5 8 5 12.5M10.5 3.5 15 8l-4.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          } @else {
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M11 3.5 6.5 8 11 12.5M5.5 3.5 1 8l4.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          }
+        </button>
 
-      <div class="ms-auto flex min-w-0 items-center gap-2.5 md:gap-3">
-        <!-- Account-only: company switcher (tenant context is this app's job). -->
+        <div class="min-w-0">
+          <p class="m-0 text-[length:0.72rem] font-bold tracking-[0.08em] text-text-muted uppercase">
+            {{ 'shell.workspace' | translate }}
+          </p>
+          <h1 class="mt-0.5 mb-0 truncate text-[length:1rem] font-bold tracking-[-0.02em] text-text">
+            {{ tenantName() }}
+          </h1>
+        </div>
+      </div>
+
+      <div class="flex min-w-0 flex-wrap items-center justify-end gap-2.5 md:gap-3">
         <div class="relative min-w-0">
           @if (tenantMenuOpen()) {
             <button
@@ -85,7 +72,7 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
 
           <button
             type="button"
-            class="relative z-20 inline-flex w-[min(100%,18rem)] min-w-[12.5rem] max-w-[22rem] cursor-pointer items-center gap-2.5 rounded-lg border-[1.468px] border-border-button bg-surface-muted px-3 py-2 text-start text-[13px] font-semibold text-text hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-60 sm:w-[18rem] md:w-[20rem] md:max-w-[24rem]"
+            class="relative z-20 inline-flex w-[min(100%,16rem)] min-w-[11rem] max-w-[20rem] cursor-pointer items-center gap-2.5 rounded-lg border-[1.468px] border-border-button bg-surface-muted px-3 py-2 text-start text-[length:13px] font-semibold text-text hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-60 sm:w-[16rem] md:w-[18rem]"
             [disabled]="switching() || companies().length === 0"
             [attr.aria-busy]="switching()"
             [attr.aria-expanded]="tenantMenuOpen()"
@@ -98,7 +85,7 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
               <span class="ui-spinner" aria-hidden="true"></span>
             } @else {
               <span
-                class="grid size-8 shrink-0 place-items-center rounded-xl text-[12px] font-bold text-white"
+                class="grid size-8 shrink-0 place-items-center rounded-xl text-[length:12px] font-bold text-white"
                 style="background: var(--primary-gradient)"
                 aria-hidden="true"
               >
@@ -107,25 +94,18 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
             }
             <span class="min-w-0 flex-1">
               <span class="block truncate leading-tight">{{ tenantName() }}</span>
-              <span class="block truncate text-[11px] font-medium text-text-muted">
+              <span class="block truncate text-[length:11px] font-medium text-text-muted">
                 {{ currentStanding() | translate }}
               </span>
             </span>
-            <svg
-              class="size-4 shrink-0 text-text-muted"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              aria-hidden="true"
-            >
+            <svg class="size-4 shrink-0 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path d="m5 9 7 7 7-7" />
             </svg>
           </button>
 
           @if (tenantMenuOpen()) {
             <div
-              class="absolute end-0 z-30 mt-2 w-[min(100vw-2rem,24rem)] overflow-hidden rounded-lg border-[1.468px] border-border-button bg-surface shadow-[var(--shadow-card)]"
+              class="absolute end-0 z-30 mt-2 w-[min(100vw-2rem,22rem)] overflow-hidden rounded-lg border-[1.468px] border-border-button bg-surface shadow-[var(--shadow-card)]"
               role="menu"
             >
               @if (companies().length > 7) {
@@ -145,7 +125,7 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
                   <button
                     type="button"
                     role="menuitemradio"
-                    class="flex w-full cursor-pointer items-center gap-2.5 px-3 py-2.5 text-start text-[13px] hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
+                    class="flex w-full cursor-pointer items-center gap-2.5 px-3 py-2.5 text-start text-[length:13px] hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
                     [class.bg-primary-light]="isCurrent(company)"
                     [attr.aria-checked]="isCurrent(company)"
                     [disabled]="!company.isSelectable || switching()"
@@ -159,28 +139,17 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
                       {{ initialFor(company) }}
                     </span>
                     <span class="min-w-0 flex-1">
-                      <span class="block truncate font-semibold text-text">
-                        {{ companyLabel(company) }}
-                      </span>
-                      <span class="block truncate text-[11px] text-text-muted">
-                        {{ companyMeta(company) }}
-                      </span>
+                      <span class="block truncate font-semibold text-text">{{ companyLabel(company) }}</span>
+                      <span class="block truncate text-[length:11px] text-text-muted">{{ companyMeta(company) }}</span>
                     </span>
                     @if (isCurrent(company)) {
-                      <svg
-                        class="size-4 shrink-0 text-info"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2.25"
-                        aria-hidden="true"
-                      >
+                      <svg class="size-4 shrink-0 text-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" aria-hidden="true">
                         <path d="m5 12.5 4.5 4.5L19 7" />
                       </svg>
                     }
                   </button>
                 } @empty {
-                  <p class="px-3 py-4 text-[13px] text-text-muted">
+                  <p class="px-3 py-4 text-[length:13px] text-text-muted">
                     {{ 'shell.noCompanyMatch' | translate }}
                   </p>
                 }
@@ -189,117 +158,83 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
           }
         </div>
 
+        <div
+          class="inline-flex h-10 overflow-hidden rounded-lg border-[1.468px] border-border-button bg-surface-muted"
+          role="group"
+          [attr.aria-label]="'shell.language' | translate"
+        >
+          <button
+            type="button"
+            class="inline-flex min-w-[2.75rem] cursor-pointer items-center justify-center px-3 text-[length:12px] font-semibold text-text-muted hover:bg-surface-hover"
+            [class.bg-primary]="currentLanguage() === 'en'"
+            [class.text-on-primary]="currentLanguage() === 'en'"
+            [class.text-text-muted]="currentLanguage() !== 'en'"
+            (click)="setLanguage('en')"
+          >
+            EN
+          </button>
+          <button
+            type="button"
+            class="inline-flex min-w-[2.75rem] cursor-pointer items-center justify-center px-3 text-[length:12px] font-semibold text-text-muted hover:bg-surface-hover"
+            [class.bg-primary]="currentLanguage() === 'ar'"
+            [class.text-on-primary]="currentLanguage() === 'ar'"
+            [class.text-text-muted]="currentLanguage() !== 'ar'"
+            (click)="setLanguage('ar')"
+          >
+            AR
+          </button>
+        </div>
+
         <button
           type="button"
-          class="inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border-[1.468px] border-border-button bg-surface-muted text-text-muted hover:bg-surface-hover"
+          class="inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border-[1.468px] border-border-button bg-surface text-text-muted hover:bg-surface-muted"
           [attr.aria-pressed]="isDark()"
           [attr.aria-label]="(isDark() ? 'shell.themeLight' : 'shell.themeDark') | translate"
           (click)="theme.toggle()"
         >
           @if (isDark()) {
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.9"
-              aria-hidden="true"
-            >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
               <circle cx="12" cy="12" r="4" />
-              <path
-                d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"
-              />
+              <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4" />
             </svg>
           } @else {
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.9"
-              aria-hidden="true"
-            >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
               <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" />
             </svg>
           }
         </button>
 
+        <div
+          class="hidden max-w-[14rem] items-center gap-2.5 sm:flex"
+          [attr.title]="userEmail()"
+        >
+          <span
+            class="grid size-8 shrink-0 place-items-center rounded-2xl text-[length:12px] font-bold text-white"
+            style="background: var(--primary-gradient)"
+            aria-hidden="true"
+          >
+            {{ userInitial() }}
+          </span>
+          <span class="truncate text-[length:13px] font-semibold text-text">{{ userName() }}</span>
+        </div>
+
         <button
           type="button"
-          class="inline-flex h-10 min-w-[3.25rem] cursor-pointer items-center justify-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface-muted px-3 text-xs font-semibold text-text hover:bg-surface-hover"
-          [attr.aria-label]="'shell.language' | translate"
-          (click)="toggleLanguage()"
+          class="inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border-[1.468px] border-error/30 bg-surface text-danger-text hover:bg-danger-bg disabled:cursor-not-allowed disabled:opacity-60"
+          [disabled]="loggingOut()"
+          [attr.aria-busy]="loggingOut()"
+          [attr.aria-label]="(loggingOut() ? 'shell.signingOut' : 'shell.logout') | translate"
+          (click)="askSignOut()"
         >
-          {{ currentLanguage() === 'en' ? 'EN' : 'عربي' }}
-        </button>
-
-        <div class="relative shrink-0">
-          <button
-            type="button"
-            class="inline-flex max-w-[16rem] cursor-pointer items-center gap-2.5 rounded-lg border-[1.468px] border-border-button bg-surface-muted px-2.5 py-1.5 text-start text-[13px] font-semibold text-text hover:bg-surface-hover sm:max-w-[18rem] md:max-w-[20rem]"
-            [attr.aria-expanded]="userMenuOpen()"
-            [attr.aria-label]="'shell.userMenu' | translate"
-            [attr.title]="userEmail() || userName()"
-            (click)="userMenuOpen.update((open) => !open)"
-          >
-            <span
-              class="grid size-8 shrink-0 place-items-center rounded-2xl text-xs font-bold text-white"
-              style="background: var(--primary-gradient)"
-              aria-hidden="true"
-            >
-              {{ userInitial() }}
-            </span>
-            <span class="hidden min-w-0 flex-1 sm:block">
-              <span class="block truncate leading-tight">{{ userName() }}</span>
-              @if (userEmail()) {
-                <span class="block truncate text-[11px] font-medium text-text-muted ltr-text">
-                  {{ userEmail() }}
-                </span>
-              }
-            </span>
-            <svg
-              class="hidden size-4 shrink-0 text-text-muted sm:block"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              aria-hidden="true"
-            >
-              <path d="m5 9 7 7 7-7" />
+          @if (loggingOut()) {
+            <span class="ui-spinner ui-spinner--current" aria-hidden="true"></span>
+          } @else {
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+              <path d="M10 17l-1 1H5a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1h4l1 1" />
+              <path d="M14 12H8M18 8l3 4-3 4" />
             </svg>
-          </button>
-          @if (userMenuOpen()) {
-            <button
-              type="button"
-              class="fixed inset-0 z-10 cursor-default border-0 bg-transparent"
-              [attr.aria-label]="'common.close' | translate"
-              (click)="userMenuOpen.set(false)"
-            ></button>
-            <div
-              class="absolute end-0 z-20 mt-2 min-w-[16rem] w-max max-w-[min(100vw-2rem,22rem)] overflow-hidden rounded-lg border-[1.468px] border-border-button bg-surface shadow-[var(--shadow-card)]"
-              role="menu"
-            >
-              <a
-                routerLink="/account"
-                class="flex w-full cursor-pointer items-center px-4 py-3 text-start text-sm text-text no-underline hover:bg-surface-muted"
-                role="menuitem"
-                (click)="userMenuOpen.set(false)"
-              >
-                {{ 'shell.account' | translate }}
-              </a>
-              <button
-                type="button"
-                class="flex w-full cursor-pointer items-center px-4 py-3 text-start text-sm hover:bg-surface-muted"
-                role="menuitem"
-                (click)="askSignOut()"
-              >
-                {{ 'shell.logout' | translate }}
-              </button>
-            </div>
           }
-        </div>
+        </button>
       </div>
     </header>
 
@@ -344,7 +279,6 @@ export class ShellHeader {
 
   protected readonly tenantMenuOpen = signal(false);
   protected readonly tenantSearch = signal('');
-  protected readonly userMenuOpen = signal(false);
   protected readonly confirmingSignOut = signal(false);
 
   protected readonly filteredCompanies = computed(() => {
@@ -386,8 +320,10 @@ export class ShellHeader {
     return new Set([...counts.entries()].filter(([, count]) => count > 1).map(([key]) => key));
   });
 
-  protected toggleLanguage(): void {
-    this.languageChange.emit(this.currentLanguage() === 'en' ? 'ar' : 'en');
+  protected setLanguage(lang: 'en' | 'ar'): void {
+    if (lang !== this.currentLanguage()) {
+      this.languageChange.emit(lang);
+    }
   }
 
   protected toggleTenantMenu(): void {
@@ -441,7 +377,6 @@ export class ShellHeader {
   }
 
   protected askSignOut(): void {
-    this.userMenuOpen.set(false);
     this.confirmingSignOut.set(true);
   }
 

@@ -40,6 +40,12 @@ a {
   color: var(--primary);
 }
 
+app-shell-sidebar a,
+app-shell-sidebar a:visited {
+  color: var(--sidebar-text, #ffffff);
+}
+
+
 :focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
