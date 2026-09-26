@@ -55,7 +55,7 @@ import { MembersSkeleton } from './members.skeleton';
         @if (canCreate()) {
           <button
             type="button"
-            class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg bg-info px-3.5 text-[13px] font-semibold text-on-primary shadow-[var(--shadow-primary-button)] hover:bg-info-hover"
+            class="btn-primary inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary"
             (click)="openInvite()"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" class="size-4">

@@ -593,10 +593,6 @@
     5px 5px;
   background-repeat: no-repeat;
 
-  &:hover {
-    border-color: var(--line-strong);
-  }
-
   &:focus-visible {
     outline: none;
     border-color: var(--primary);

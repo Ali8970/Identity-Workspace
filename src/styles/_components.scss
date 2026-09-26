@@ -34,12 +34,14 @@
 }
 
 .ui-btn--primary {
-  background: var(--info);
+  background-image: var(--primary-gradient);
+  background-color: transparent;
+  border-color: transparent;
   color: var(--on-primary);
   box-shadow: var(--shadow-primary-button);
 
   &:hover:not(:disabled) {
-    background: var(--info-hover);
+    background-image: var(--primary-gradient-hover);
   }
 }
 
@@ -520,10 +522,6 @@
     border-color var(--transition),
     box-shadow var(--transition),
     background var(--transition);
-
-  &:hover {
-    border-color: var(--line-strong);
-  }
 
   &:focus-visible {
     outline: none;

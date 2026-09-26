@@ -61,6 +61,7 @@
   --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
   --shadow-primary-button: 0 2px 4px 0 rgba(43, 91, 249, 0.35);
   --primary-gradient: linear-gradient(180deg, #1e00b0 0%, #2b5bf9 100%);
+  --primary-gradient-hover: linear-gradient(180deg, #160088 0%, #1e00b0 100%);
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 10px;
@@ -170,6 +171,7 @@
   --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.4);
   --shadow-primary-button: 0 2px 4px 0 rgba(146, 171, 255, 0.25);
   --primary-gradient: linear-gradient(180deg, #92abff 0%, #7fb2ff 100%);
+  --primary-gradient-hover: linear-gradient(180deg, #7fb2ff 0%, #92abff 100%);
   --border-button: #1e3350;
 
   --primary-ink: var(--on-primary);
@@ -467,6 +469,19 @@ select.list-filter-control {
   flex-direction: column;
   justify-content: center;
   min-height: 0;
+}
+
+/* CRM primary fill — brand gradient + blue shadow (same as brooch-crm .btn-primary) */
+.btn-primary {
+  background-image: var(--primary-gradient);
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--on-primary);
+  box-shadow: var(--shadow-primary-button);
+}
+
+.btn-primary:hover:not(:disabled):not([aria-disabled='true']) {
+  background-image: var(--primary-gradient-hover);
 }
 
 app-shell-sidebar {
