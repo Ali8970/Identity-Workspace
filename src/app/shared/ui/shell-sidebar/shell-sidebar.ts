@@ -1,116 +1,230 @@
 import { Component, input, output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ShellNavItem } from '../../layouts/shell-nav.model';
+import { ShellNavGroup } from '../../layouts/shell-nav.model';
 
 @Component({
   selector: 'app-shell-sidebar',
   imports: [RouterLink, RouterLinkActive, TranslatePipe],
+  host: {
+    class: 'flex h-full min-h-dvh w-full flex-col text-(--sidebar-text)',
+    style: 'background: var(--sidebar-bg)',
+  },
   template: `
-    <aside
-      class="shell-sidebar"
-      [class.shell-sidebar--collapsed]="collapsed()"
-      [class.shell-sidebar--mobile-open]="mobileOpen()"
-      aria-label="Main navigation"
+    <div
+      class="m-0 flex shrink-0 items-center justify-center border-b-[1.468px] border-solid border-(--sidebar-line) px-5 pt-[22px] pb-[18px]"
     >
-      <div class="shell-sidebar__head">
-        <a routerLink="/applications" class="shell-sidebar__brand" (click)="onNavigate()">
-          <span class="shell-sidebar__mark" aria-hidden="true">B</span>
-          <span class="shell-sidebar__brand-text">
-            <span class="shell-sidebar__brand-name">Brooch</span>
-            <span class="shell-sidebar__brand-sub">{{ 'auth.layout.product' | translate }}</span>
-          </span>
-        </a>
-      </div>
+      <a
+        routerLink="/applications"
+        class="block"
+        (click)="navigate.emit()"
+        [attr.aria-label]="'shell.applications' | translate"
+      >
+        <img
+          class="block h-10 w-[155px]"
+          src="images/brooch-logo.svg"
+          width="155"
+          height="40"
+          alt="Brooch"
+        />
+      </a>
+      @if (showClose()) {
+        <button
+          type="button"
+          class="ms-2 inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border-[1.468px] border-(--sidebar-line) text-(--sidebar-text) hover:bg-(--sidebar-hover)"
+          [attr.aria-label]="'shell.closeSidebar' | translate"
+          (click)="closed.emit()"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path
+              d="M4 4l8 8M12 4l-8 8"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+      }
+    </div>
 
-      <nav class="shell-sidebar__nav">
-        @for (item of items(); track item.route) {
-          @if (item.dividerBefore) {
-            <hr class="shell-sidebar__divider" />
-          }
-          <a
-            class="shell-sidebar__link"
-            [routerLink]="item.route"
-            routerLinkActive="shell-sidebar__link--active"
-            ariaCurrentWhenActive="page"
-            [attr.title]="collapsed() ? (item.labelKey | translate) : null"
-            (click)="onNavigate()"
-          >
-            <span class="shell-sidebar__icon" aria-hidden="true">
-              @switch (item.icon) {
-                @case ('applications') {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                    <rect x="3" y="3" width="7" height="7" rx="1.5" />
-                    <rect x="14" y="3" width="7" height="7" rx="1.5" />
-                    <rect x="3" y="14" width="7" height="7" rx="1.5" />
-                    <rect x="14" y="14" width="7" height="7" rx="1.5" />
-                  </svg>
-                }
-                @case ('members') {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                    <circle cx="9" cy="8" r="3.5" />
-                    <path d="M2.5 19.5c.8-3.2 3.4-5 6.5-5s5.7 1.8 6.5 5" />
-                    <path d="M16.5 11.5a2.5 2.5 0 1 1 0-5" />
-                    <path d="M19.5 19.5a5.5 5.5 0 0 0-4-4.8" />
-                  </svg>
-                }
-                @case ('roles') {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                    <path d="M12 3 4 7v6c0 5 3.5 7.7 8 8 4.5-.3 8-3 8-8V7l-8-4Z" />
-                    <path d="m9.5 12 1.8 1.8L15 10.2" />
-                  </svg>
-                }
-                @case ('permissions') {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                    <circle cx="8" cy="15" r="4.5" />
-                    <path d="M11.5 12.5 20.5 3.5" />
-                    <path d="M16.5 3.5h4v4" />
-                  </svg>
-                }
-                @case ('teams') {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                    <circle cx="12" cy="5" r="2.5" />
-                    <circle cx="5" cy="18" r="2.5" />
-                    <circle cx="19" cy="18" r="2.5" />
-                    <path d="M12 7.5v3M8.5 16.5 10 12M15.5 16.5 14 12" />
-                  </svg>
-                }
-                @case ('my-access') {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                    <circle cx="12" cy="8" r="3.5" />
-                    <path d="M5 20c1.2-3.2 3.8-5 7-5s5.8 1.8 7 5" />
-                    <path d="M17.5 8.5 19 10l2.5-3" />
-                  </svg>
-                }
-                @case ('account') {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                    <circle cx="12" cy="12" r="3" />
-                    <path
-                      d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"
-                    />
-                  </svg>
-                }
-              }
+    <nav
+      class="min-h-0 flex-1 overflow-y-auto px-2.5 py-3 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-[3px] [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent"
+      [attr.aria-label]="'shell.workspace' | translate"
+    >
+      @for (group of groups(); track group.labelKey) {
+        <div
+          class="m-0 p-0 [&+&]:mt-2.5 [&+&]:border-t-[0.993px] [&+&]:border-solid [&+&]:border-(--sidebar-line) [&+&]:pt-3.5"
+        >
+          <div class="flex items-center px-2.5 pt-1 pb-2">
+            <span
+              class="text-[10px] leading-[15px] font-semibold tracking-[0.8px] text-(--sidebar-text) uppercase"
+            >
+              {{ group.labelKey | translate }}
             </span>
-            <span class="shell-sidebar__label">{{ item.labelKey | translate }}</span>
-          </a>
-        }
-      </nav>
+          </div>
+          <ul class="m-0 flex list-none flex-col p-0">
+            @for (item of group.items; track item.route) {
+              <li>
+                <a
+                  class="relative flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-3 py-[9px] text-start text-[13px] leading-[19.5px] font-normal text-(--sidebar-text) no-underline transition-colors duration-200 hover:bg-(--sidebar-hover) focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  [routerLink]="item.route"
+                  routerLinkActive="is-active bg-(--sidebar-active) font-semibold after:ms-auto after:size-[5px] after:shrink-0 after:rounded-full after:bg-(--sidebar-dot) after:content-['']"
+                  ariaCurrentWhenActive="page"
+                  (click)="navigate.emit()"
+                >
+                  <svg
+                    class="size-4 shrink-0"
+                    viewBox="0 0 16 16"
+                    width="16"
+                    height="16"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    @switch (item.icon) {
+                      @case ('applications') {
+                        <rect
+                          x="2"
+                          y="2.5"
+                          width="5"
+                          height="5"
+                          rx="1.2"
+                          stroke="currentColor"
+                          stroke-width="1.4"
+                        />
+                        <rect
+                          x="9"
+                          y="2.5"
+                          width="5"
+                          height="5"
+                          rx="1.2"
+                          stroke="currentColor"
+                          stroke-width="1.4"
+                        />
+                        <rect
+                          x="2"
+                          y="9.5"
+                          width="5"
+                          height="4"
+                          rx="1.2"
+                          stroke="currentColor"
+                          stroke-width="1.4"
+                        />
+                        <rect
+                          x="9"
+                          y="9.5"
+                          width="5"
+                          height="4"
+                          rx="1.2"
+                          stroke="currentColor"
+                          stroke-width="1.4"
+                        />
+                      }
+                      @case ('members') {
+                        <circle cx="8" cy="5.5" r="2.25" stroke="currentColor" stroke-width="1.4" />
+                        <path
+                          d="M3.5 13c.6-2.2 2.2-3.3 4.5-3.3S11.9 10.8 12.5 13"
+                          stroke="currentColor"
+                          stroke-width="1.4"
+                          stroke-linecap="round"
+                        />
+                      }
+                      @case ('roles') {
+                        <path
+                          d="M8 2.5 13 4.5v4.2c0 2.8-2 4.6-5 5.3-3-.7-5-2.5-5-5.3V4.5L8 2.5Z"
+                          stroke="currentColor"
+                          stroke-width="1.4"
+                          stroke-linejoin="round"
+                        />
+                      }
+                      @case ('permissions') {
+                        <circle cx="6" cy="10" r="3" stroke="currentColor" stroke-width="1.4" />
+                        <path
+                          d="M8.5 7.5 13 3"
+                          stroke="currentColor"
+                          stroke-width="1.4"
+                          stroke-linecap="round"
+                        />
+                        <path
+                          d="M11 3h2.5V5.5"
+                          stroke="currentColor"
+                          stroke-width="1.4"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      }
+                      @case ('teams') {
+                        <circle cx="8" cy="3.5" r="1.75" stroke="currentColor" stroke-width="1.4" />
+                        <circle cx="3.5" cy="12" r="1.75" stroke="currentColor" stroke-width="1.4" />
+                        <circle cx="12.5" cy="12" r="1.75" stroke="currentColor" stroke-width="1.4" />
+                        <path
+                          d="M8 5.5v2M5.5 10.5 7 8M10.5 10.5 9 8"
+                          stroke="currentColor"
+                          stroke-width="1.4"
+                          stroke-linecap="round"
+                        />
+                      }
+                      @case ('my-access') {
+                        <circle cx="8" cy="5.5" r="2.25" stroke="currentColor" stroke-width="1.4" />
+                        <path
+                          d="M3.5 13c.6-2.2 2.2-3.3 4.5-3.3S11.9 10.8 12.5 13"
+                          stroke="currentColor"
+                          stroke-width="1.4"
+                          stroke-linecap="round"
+                        />
+                        <path
+                          d="M11.5 5.5 12.5 6.5 14.5 4.5"
+                          stroke="currentColor"
+                          stroke-width="1.4"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      }
+                      @case ('account') {
+                        <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.4" />
+                        <path
+                          d="M8 2.5v1.5M8 12v1.5M2.5 8h1.5M12 8h1.5M4.1 4.1l1.1 1.1M10.8 10.8l1.1 1.1M4.1 11.9l1.1-1.1M10.8 5.2l1.1-1.1"
+                          stroke="currentColor"
+                          stroke-width="1.4"
+                          stroke-linecap="round"
+                        />
+                      }
+                    }
+                  </svg>
+                  <span class="flex-1">{{ item.labelKey | translate }}</span>
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </nav>
 
-      <div class="shell-sidebar__foot">
-        <p class="shell-sidebar__hint">{{ 'shell.workspace' | translate }}</p>
+    @if (userName()) {
+      <div class="shrink-0 border-t-[1.468px] border-solid border-(--sidebar-line) px-2.5 py-3">
+        <div class="flex items-center gap-2.5 rounded-lg px-3 py-2.5">
+          <div
+            class="grid size-8 shrink-0 place-items-center rounded-2xl bg-surface text-[13px] font-bold text-[#2a52f2]"
+            aria-hidden="true"
+          >
+            {{ userInitial() }}
+          </div>
+          <div class="min-w-0 flex-1 text-start">
+            <p class="m-0 truncate text-xs font-semibold text-(--sidebar-text)">{{ userName() }}</p>
+            <p class="m-0 truncate text-[11px] text-(--sidebar-muted)">
+              {{ 'auth.layout.product' | translate }}
+            </p>
+          </div>
+        </div>
       </div>
-    </aside>
+    }
   `,
 })
 export class ShellSidebar {
-  readonly collapsed = input(false);
-  readonly mobileOpen = input(false);
-  readonly items = input.required<ShellNavItem[]>();
+  readonly showClose = input(false);
+  readonly groups = input.required<ShellNavGroup[]>();
+  readonly userName = input('');
+  readonly userInitial = input('?');
 
   readonly navigate = output<void>();
-
-  protected onNavigate(): void {
-    this.navigate.emit();
-  }
+  readonly closed = output<void>();
 }

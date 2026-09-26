@@ -181,7 +181,13 @@
     "noCompanyMatch": "No company matches that search.",
     "roleOwner": "You are an owner",
     "roleMember": "You are a member",
-    "companyUnavailable": "Unavailable"
+    "companyUnavailable": "Unavailable",
+    "userMenu": "Account menu",
+    "signOutConfirm": "Sign out of Brooch on all devices for this account?",
+    "nav": {
+      "workspace": "Workspace",
+      "directory": "Directory"
+    }
   },
   "applications": {
     "title": "Applications",
@@ -245,6 +251,9 @@
       "Removed": "Removed"
     },
     "search": "Search name or email",
+    "otherFilters": "Other filters",
+    "applyFilters": "Apply",
+    "clearFilters": "Clear",
     "filterAllRoles": "All roles",
     "filterAllStatuses": "Active & suspended",
     "filterRoleLabel": "Filter by role",
@@ -252,7 +261,12 @@
     "showing": "Showing {{shown}} of {{total}}",
     "noResults": "No members match those filters",
     "noResultsBody": "{{count}} members are hidden by your search and filters.",
-    "clearFilters": "Clear filters",
+    "stats": {
+      "total": "Members",
+      "active": "Active",
+      "suspended": "Suspended",
+      "pending": "Pending activation"
+    },
     "inviteCancel": "Cancel",
     "submitting": "Sending invite…",
     "details": "Details",
@@ -875,7 +889,9 @@
     "confirm": "Confirm",
     "working": "Working…",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "apply": "Apply",
+    "clear": "Clear"
   },
   "ui": {
     "skipToContent": "Skip to content",

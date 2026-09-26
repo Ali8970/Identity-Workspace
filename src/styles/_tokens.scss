@@ -1,205 +1,20 @@
 /* ==========================================================================
-   Design tokens — the only place in the app allowed to name a colour.
+   Account token shim
 
-   Two rules keep this file load-bearing:
-
-   1. Every semantic ships a triplet — `--x`, `--x-soft`, `--x-border` — so no
-      component ever calls `color-mix()` inline. The soft/border variants mix
-      against `var(--surface)`, and because custom properties resolve lazily,
-      redefining `--surface` in the dark block re-derives all of them for free.
-   2. A literal hex or rgba() outside this file is a bug. A teal palette once
-      survived a whole migration to indigo precisely because four rules in
-      `_shell.scss` held raw rgba().
+   Colour / theme tokens live in `src/tailwind.css` (shared Brooch language with
+   Administration + CRM). This file keeps global base rules and RTL guards that
+   the legacy SCSS screens still need until they migrate to Tailwind utilities.
    ========================================================================== */
-
-:root {
-  color-scheme: light;
-
-  /* Brand */
-  --primary: #1e00b0;
-  --primary-hover: #2a14d4;
-  --primary-ink: #ffffff;
-  --primary-soft: color-mix(in oklab, var(--primary) 10%, var(--surface));
-  --primary-border: color-mix(in oklab, var(--primary) 24%, var(--surface));
-
-  /* Ground and surfaces */
-  --ground: #f3f5f8;
-  --ground-accent: #e8eef6;
-  --surface: #ffffff;
-  --surface-2: #f7f9fc;
-  --surface-3: #eef2f7;
-  --line: #dce3ee;
-  --line-strong: #c5cfde;
-
-  /* Text */
-  --text: #152033;
-  --text-2: #3d4a5c;
-  --muted: #66758a;
-
-  /* The auth hero is a committed dark brand panel in *both* themes. It must not
-     take the dark-mode lightness lift below, or the white text sitting on it
-     would drop to roughly 2:1 contrast. Depth comes from lightness, not hue. */
-  --hero-from: #2a14d4;
-  --hero-mid: #1e00b0;
-  --hero-to: #150079;
-  --hero-ink: #ffffff;
-
-  /* Modal scrim. Deliberately *not* derived from `--text`: a scrim darkens
-     whatever is behind it, and `--text` inverts to near-white in dark mode,
-     which would turn every backdrop into a white wash. */
-  --scrim: rgba(21, 32, 51, 0.42);
-
-  /* Semantics */
-  --danger: #c23545;
-  --danger-ink: #ffffff;
-  --danger-soft: color-mix(in oklab, var(--danger) 10%, var(--surface));
-  --danger-border: color-mix(in oklab, var(--danger) 28%, var(--surface));
-  --success: #0f7a4f;
-  --success-soft: color-mix(in oklab, var(--success) 10%, var(--surface));
-  --success-border: color-mix(in oklab, var(--success) 28%, var(--surface));
-  --warning: #a15c07;
-  --warning-soft: color-mix(in oklab, var(--warning) 12%, var(--surface));
-  --warning-border: color-mix(in oklab, var(--warning) 28%, var(--surface));
-  --warning-ink: color-mix(in oklab, var(--warning) 85%, var(--text));
-  --info: #1d5bb8;
-  --info-soft: color-mix(in oklab, var(--info) 10%, var(--surface));
-  --info-border: color-mix(in oklab, var(--info) 28%, var(--surface));
-
-  /* Sibling application hues — were hardcoded in `_workspace.scss` */
-  --app-crm: var(--info);
-  --app-hr: #7c3aed;
-  --app-hr-soft: color-mix(in oklab, var(--app-hr) 12%, var(--surface));
-  --app-hr-border: color-mix(in oklab, var(--app-hr) 22%, var(--surface));
-
-  /* Loading system — kept here so the dark block can reach them. Declaring
-     them in `_loading.scss` put a plain `:root` after this file's dark
-     media query, and equal specificity means the later rule wins. */
-  --skeleton-base: #e4eaf2;
-  --skeleton-base-strong: #d8e0ec;
-  --skeleton-sheen: rgba(255, 255, 255, 0.78);
-  --skeleton-radius: 10px;
-  --skeleton-speed: 1.5s;
-
-  /* Type — three voices: display, body, and mono for machine identifiers.
-     `--font-mono` was referenced in three places but never defined, so every
-     permission key and session id fell back to the browser default. */
-  --font-sans: 'Segoe UI Variable Text', 'Segoe UI', -apple-system, 'Helvetica Neue',
-    system-ui, sans-serif;
-  --font-display: 'Segoe UI Variable Display', 'Segoe UI', -apple-system, system-ui,
-    sans-serif;
-  --font-mono: ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, monospace;
-  --font-arabic: 'Segoe UI', 'Noto Sans Arabic', 'IBM Plex Sans Arabic', 'Geeza Pro',
-    Tahoma, sans-serif;
-  --line-body: 1.55;
-
-  --radius: 12px;
-  --radius-sm: 8px;
-  --shadow: 0 12px 32px -16px rgba(21, 32, 51, 0.22);
-  --shadow-sm: 0 2px 8px rgba(21, 32, 51, 0.06);
-  --header-h: 64px;
-  --nav-w: 260px;
-  --nav-w-collapsed: 76px;
-  --transition: 160ms ease;
-}
-
-/* --------------------------------------------------------------------------
-   Dark theme
-
-   Only tokens are redefined — never a component rule. Anything that styles
-   through the tokens above themes itself.
-   -------------------------------------------------------------------------- */
-
-/* Palette is shared with the Brooch LandLord app (`_app-theme-tokens.scss`
-   `.theme-dark` + its PrimeNG `surfaceDark` preset) so moving between the two
-   apps in dark mode doesn't change the ground under the user. Keep in sync. */
-@mixin dark-tokens {
-  /* LandLord navy ramp: 950 / 900 / 700 / 600, plus preset surface 500 */
-  --dark-950: #0d1525;
-  --dark-900: #0e1929;
-  --dark-700: #122137;
-  --dark-600: #1e3350;
-  --dark-500: #4a5568;
-
-  --ground: var(--dark-900);
-  --ground-accent: var(--dark-950);
-  --surface: var(--dark-700);
-  /* LandLord has no step between card (700) and muted (600); these two are
-     mixed from that pair so inset panels stay on the same navy. */
-  --surface-2: color-mix(in oklab, var(--dark-700), var(--dark-600) 40%);
-  --surface-3: color-mix(in oklab, var(--dark-700), var(--dark-600) 75%);
-  --line: var(--dark-600);
-  --line-strong: var(--dark-500);
-
-  --text: #e2e1e7;
-  --text-2: #c5c4ca;
-  --muted: #8694a6;
-
-  /* #1e00b0 is unreadable on a dark ground. LandLord's primary ramp at 300/200
-     keeps the brand family while clearing AA as text on the navy surfaces. */
-  --primary: #92abff;
-  --primary-hover: #bccdff;
-  --primary-ink: var(--dark-950);
-
-  --danger: #ff8095;
-  --danger-ink: #2c0710;
-  --success: #4fd39b;
-  --warning: #e5ab5c;
-  --info: #7fb2ff;
-  --app-hr: #b39aff;
-
-  /* Deepened a touch so the panel doesn't glare against a dark workspace */
-  --hero-from: #23109f;
-  --hero-mid: #180089;
-  --hero-to: #0d0058;
-
-  /* Needs to be heavier here — a light scrim over a dark ground reads as fog */
-  --scrim: rgba(7, 14, 24, 0.62);
-
-  /* A 10% tint that reads clearly against white all but disappears against a
-     dark ground, so the soft fills carry more of the hue here. The border
-     ratios are unchanged — those already had enough separation. */
-  --primary-soft: color-mix(in oklab, var(--primary) 17%, var(--surface));
-  --danger-soft: color-mix(in oklab, var(--danger) 16%, var(--surface));
-  --success-soft: color-mix(in oklab, var(--success) 16%, var(--surface));
-  --warning-soft: color-mix(in oklab, var(--warning) 17%, var(--surface));
-  --info-soft: color-mix(in oklab, var(--info) 16%, var(--surface));
-  --app-hr-soft: color-mix(in oklab, var(--app-hr) 17%, var(--surface));
-
-  --skeleton-base: var(--dark-600);
-  --skeleton-base-strong: color-mix(in oklab, var(--dark-600), var(--dark-500) 30%);
-  --skeleton-sheen: rgba(255, 255, 255, 0.07);
-
-  --shadow: 0 12px 32px -16px rgba(0, 0, 0, 0.75);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
-}
-
-/* Theme is user-controlled only via `data-theme` — never `prefers-color-scheme`. */
-:root[data-theme='dark'] {
-  color-scheme: dark;
-  @include dark-tokens;
-}
 
 :root[data-theme='light'] {
   color-scheme: light;
 }
-
-/* --------------------------------------------------------------------------
-   Arabic
-
-   Rebinding the font tokens at the direction boundary re-types the entire app
-   without touching a single component. Arabic also needs more leading than
-   Latin at the same optical size.
-   -------------------------------------------------------------------------- */
 
 [dir='rtl'] {
   --font-sans: var(--font-arabic);
   --font-display: var(--font-arabic);
   --line-body: 1.75;
 }
-
-/* --------------------------------------------------------------------------
-   Base
-   -------------------------------------------------------------------------- */
 
 *,
 *::before,
@@ -217,10 +32,7 @@ body {
   font-family: var(--font-sans);
   line-height: var(--line-body);
   color: var(--text);
-  background:
-    radial-gradient(900px 420px at 8% -10%, color-mix(in oklab, var(--primary) 7%, transparent), transparent 55%),
-    radial-gradient(700px 380px at 100% 0%, color-mix(in oklab, var(--info) 6%, transparent), transparent 50%),
-    var(--ground);
+  background: var(--surface-muted);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -233,7 +45,6 @@ a {
   outline-offset: 2px;
 }
 
-/* Programmatic focus target after NavigationEnd — keep focus for a11y, no ring */
 #main-content-header:focus,
 #main-content-header:focus-visible {
   outline: none;
@@ -262,15 +73,6 @@ textarea {
   top: 0.75rem;
 }
 
-/* --------------------------------------------------------------------------
-   Arabic typography guards
-
-   `text-transform: uppercase` is a no-op on Arabic glyphs, so an uppercased
-   Latin label sitting beside an untransformed Arabic one stops reading as the
-   same element. Letter-spacing is worse — it breaks the cursive joins.
-   Hierarchy in RTL comes from size and colour instead.
-   -------------------------------------------------------------------------- */
-
 [dir='rtl'] {
   .workspace-page__eyebrow,
   .shell-header__eyebrow,
@@ -292,14 +94,6 @@ textarea {
   }
 }
 
-/* Machine identifiers never mirror. Permission keys, role codes, session refs,
-   emails and URLs are LTR strings — inside Arabic text the bidi algorithm
-   reorders them around their dots and at-signs, so `identity.roles.read` can
-   render as `read.roles.identity`. Isolating them fixes it at the source.
-   `.ltr-text` is for one-off use in templates; the rest are typed by class, so
-   the treatment cannot be forgotten on a new page.
-   Alignment is deliberately left alone — these live in flex rows whose own
-   `text-align` already places them. */
 .ltr-text,
 .workspace-perm-item:not(.workspace-perm-item--empty),
 .workspace-perm-catalog-item__key,
@@ -315,10 +109,6 @@ textarea {
   text-align: start;
 }
 
-/* --------------------------------------------------------------------------
-   Motion
-   -------------------------------------------------------------------------- */
-
 @keyframes fade-up {
   from {
     opacity: 0;
@@ -326,7 +116,7 @@ textarea {
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
   }
 }
 

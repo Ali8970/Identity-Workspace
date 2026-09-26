@@ -181,7 +181,13 @@
     "noCompanyMatch": "لا توجد شركة مطابقة للبحث.",
     "roleOwner": "أنت مالك",
     "roleMember": "أنت عضو",
-    "companyUnavailable": "غير متاحة"
+    "companyUnavailable": "غير متاحة",
+    "userMenu": "قائمة الحساب",
+    "signOutConfirm": "تسجيل الخروج من بروش على جميع الأجهزة لهذا الحساب؟",
+    "nav": {
+      "workspace": "مساحة العمل",
+      "directory": "الدليل"
+    }
   },
   "applications": {
     "title": "التطبيقات",
@@ -245,6 +251,9 @@
       "Removed": "محذوف"
     },
     "search": "ابحث بالاسم أو البريد",
+    "otherFilters": "تصفية إضافية",
+    "applyFilters": "تطبيق",
+    "clearFilters": "مسح",
     "filterAllRoles": "كل الأدوار",
     "filterAllStatuses": "النشط والموقوف",
     "filterRoleLabel": "تصفية حسب الدور",
@@ -252,7 +261,12 @@
     "showing": "عرض {{shown}} من {{total}}",
     "noResults": "لا يوجد أعضاء مطابقون للتصفية",
     "noResultsBody": "{{count}} عضواً مخفيون بسبب البحث والتصفية.",
-    "clearFilters": "مسح التصفية",
+    "stats": {
+      "total": "الأعضاء",
+      "active": "نشط",
+      "suspended": "موقوف",
+      "pending": "دعوة معلقة"
+    },
     "inviteCancel": "إلغاء",
     "submitting": "جارٍ إرسال الدعوة…",
     "details": "التفاصيل",
@@ -875,7 +889,9 @@
     "confirm": "تأكيد",
     "working": "جارٍ التنفيذ…",
     "yes": "نعم",
-    "no": "لا"
+    "no": "لا",
+    "apply": "تطبيق",
+    "clear": "مسح"
   },
   "ui": {
     "skipToContent": "تخطٍ إلى المحتوى",

@@ -11,5 +11,9 @@ export interface ShellNavItem {
   route: string;
   labelKey: string;
   icon: ShellNavIcon;
-  dividerBefore?: boolean;
+}
+
+export interface ShellNavGroup {
+  labelKey: string;
+  items: ShellNavItem[];
 }

@@ -11,53 +11,63 @@ import { BusyOverlay } from '../ui/busy-overlay/busy-overlay';
 import { GlobalErrorBanner } from '../ui/global-error-banner/global-error-banner';
 import { ShellHeader } from '../ui/shell-header/shell-header';
 import { ShellSidebar } from '../ui/shell-sidebar/shell-sidebar';
-import { ShellNavItem } from './shell-nav.model';
+import { ShellNavGroup, ShellNavItem } from './shell-nav.model';
 
 const SIDEBAR_STORAGE_KEY = 'brooch.shell.sidebarCollapsed';
-const MOBILE_BREAKPOINT = 860;
+const MOBILE_BREAKPOINT = 1025;
 
 @Component({
   selector: 'app-shell-layout',
-  imports: [
-    RouterOutlet,
-    TranslatePipe,
-    ShellSidebar,
-    ShellHeader,
-    GlobalErrorBanner,
-    BusyOverlay,
-  ],
+  imports: [RouterOutlet, TranslatePipe, ShellSidebar, ShellHeader, GlobalErrorBanner, BusyOverlay],
   host: {
-    class: 'shell-host',
+    class: 'block',
     '(document:keydown.escape)': 'onEscape()',
     '(window:resize)': 'onResize()',
     '(window:pageshow)': 'onPageShow($event)',
   },
   template: `
     <div
-      class="shell"
-      [class.shell--sidebar-collapsed]="sidebarCollapsed()"
-      [class.shell--mobile-nav-open]="mobileNavOpen()"
+      class="flex min-h-dvh bg-surface-muted text-text [--sidebar-rail:280px] max-md:[--sidebar-rail:0px] min-[1801px]:[--sidebar-rail:320px]"
+      [style.--sidebar-rail]="desktopSidebarCollapsed() ? '0px' : null"
+      [attr.data-desktop-sidebar-collapsed]="desktopSidebarCollapsed() || null"
     >
-      @if (mobileNavOpen()) {
-        <button
-          type="button"
-          class="shell__backdrop"
-          (click)="closeMobileNav()"
-          [attr.aria-label]="'shell.closeSidebar' | translate"
-        ></button>
+      <aside
+        id="app-main-sidebar"
+        class="sticky top-0 hidden h-dvh w-(--sidebar-rail) shrink-0 overflow-hidden transition-[width] duration-300 ease-in-out md:flex"
+        [attr.aria-hidden]="desktopSidebarCollapsed() ? 'true' : null"
+      >
+        <app-shell-sidebar
+          [groups]="navGroups()"
+          [userName]="userName()"
+          [userInitial]="userInitial()"
+          (navigate)="closeMobileNav()"
+        />
+      </aside>
+
+      @if (menuOpen()) {
+        <div class="fixed inset-0 z-30 md:hidden">
+          <button
+            type="button"
+            class="absolute inset-0 cursor-pointer border-0 bg-secondary/40"
+            [attr.aria-label]="'shell.closeSidebar' | translate"
+            (click)="closeMobileNav()"
+          ></button>
+          <div class="relative h-full w-[280px] overflow-hidden shadow-xl">
+            <app-shell-sidebar
+              [showClose]="true"
+              [groups]="navGroups()"
+              [userName]="userName()"
+              [userInitial]="userInitial()"
+              (navigate)="closeMobileNav()"
+              (closed)="closeMobileNav()"
+            />
+          </div>
+        </div>
       }
 
-      <app-shell-sidebar
-        [collapsed]="sidebarCollapsed() && !mobileNavOpen()"
-        [mobileOpen]="mobileNavOpen()"
-        [items]="navItems()"
-        (navigate)="closeMobileNav()"
-      />
-
-      <div class="shell__workspace">
+      <div class="flex min-w-0 flex-1 flex-col">
         <app-shell-header
-          [sidebarCollapsed]="sidebarCollapsed()"
-          [mobileNavOpen]="mobileNavOpen()"
+          [desktopSidebarCollapsed]="desktopSidebarCollapsed()"
           [companies]="companies()"
           [currentMembershipId]="currentMembershipId()"
           [tenantName]="tenantName()"
@@ -67,7 +77,8 @@ const MOBILE_BREAKPOINT = 860;
           [currentLanguage]="language.current()"
           [switching]="switching()"
           [loggingOut]="loggingOut()"
-          (toggleSidebar)="toggleSidebar()"
+          (menu)="openMenu()"
+          (toggleDesktopSidebar)="toggleDesktopSidebar()"
           (switchCompany)="onSwitch($event)"
           (languageChange)="setLanguage($event)"
           (logout)="logout()"
@@ -75,9 +86,11 @@ const MOBILE_BREAKPOINT = 860;
 
         <app-global-error-banner variant="shell" />
 
-        <main class="shell__main" id="main-content" [attr.aria-busy]="blocked()">
-          <router-outlet />
-        </main>
+        <div class="min-w-0 flex-1 px-4 py-4 md:px-6 md:py-[1.2rem]" [attr.aria-busy]="blocked()">
+          <main id="main-content" tabindex="-1">
+            <router-outlet />
+          </main>
+        </div>
       </div>
 
       @if (blockingMessageKey(); as messageKey) {
@@ -96,11 +109,10 @@ export class ShellLayout {
 
   protected readonly loggingOut = signal(false);
   protected readonly switching = signal(false);
-  protected readonly sidebarCollapsed = signal(this.readSidebarPreference());
-  protected readonly mobileNavOpen = signal(false);
+  protected readonly desktopSidebarCollapsed = signal(this.readSidebarPreference());
+  protected readonly menuOpen = signal(false);
   protected readonly isMobile = signal(this.queryIsMobile());
 
-  /** Both actions rebuild the session, so the workspace is unusable until they settle. */
   protected readonly blockingMessageKey = computed(() => {
     if (this.loggingOut()) {
       return 'shell.signingOut';
@@ -110,11 +122,6 @@ export class ShellLayout {
   protected readonly blocked = computed(() => this.blockingMessageKey() !== null);
 
   protected readonly companies = computed(() => this.session.companies());
-  /**
-   * Prefer the row /me/companies flags as current: it is the same string the options are
-   * keyed on, so the select can always match it. /me's own id is only a fallback for the
-   * window where the company list has not arrived yet.
-   */
   protected readonly currentMembershipId = computed(
     () =>
       this.session.currentCompany()?.tenantMembershipId ??
@@ -149,34 +156,37 @@ export class ShellLayout {
     return email ? email.charAt(0).toUpperCase() : '?';
   });
 
-  protected readonly navItems = computed(() => {
-    const items: ShellNavItem[] = [
+  protected readonly navGroups = computed((): ShellNavGroup[] => {
+    const personal: ShellNavItem[] = [
       { route: '/applications', labelKey: 'shell.applications', icon: 'applications' },
       { route: '/my-access', labelKey: 'shell.myAccess', icon: 'my-access' },
       { route: '/account', labelKey: 'shell.account', icon: 'account' },
     ];
-    const secondary: ShellNavItem[] = [];
+
+    const admin: ShellNavItem[] = [];
     if (this.canReadUsers()) {
-      secondary.push({ route: '/members', labelKey: 'shell.members', icon: 'members' });
+      admin.push({ route: '/members', labelKey: 'shell.members', icon: 'members' });
     }
     if (this.canReadRoles()) {
-      secondary.push({ route: '/roles', labelKey: 'shell.roles', icon: 'roles' });
+      admin.push({ route: '/roles', labelKey: 'shell.roles', icon: 'roles' });
     }
     if (this.canReadPermissions()) {
-      secondary.push({ route: '/permissions', labelKey: 'shell.permissions', icon: 'permissions' });
+      admin.push({ route: '/permissions', labelKey: 'shell.permissions', icon: 'permissions' });
     }
     if (this.canReadTeams()) {
-      secondary.push({ route: '/teams', labelKey: 'shell.teams', icon: 'teams' });
+      admin.push({ route: '/teams', labelKey: 'shell.teams', icon: 'teams' });
     }
-    if (secondary.length > 0) {
-      secondary[0] = { ...secondary[0], dividerBefore: true };
+
+    const groups: ShellNavGroup[] = [{ labelKey: 'shell.nav.workspace', items: personal }];
+    if (admin.length > 0) {
+      groups.push({ labelKey: 'shell.nav.directory', items: admin });
     }
-    return [...items, ...secondary];
+    return groups;
   });
 
   constructor() {
     effect(() => {
-      this.document.body.classList.toggle('shell-nav-open', this.mobileNavOpen());
+      this.document.body.classList.toggle('shell-nav-open', this.menuOpen());
     });
 
     this.router.events
@@ -190,7 +200,6 @@ export class ShellLayout {
       });
   }
 
-  /** bfcache restore can revive Active-without-/me; re-hydrate before painting empty UI. */
   protected onPageShow(event: PageTransitionEvent): void {
     if (!event.persisted && this.session.current()) {
       return;
@@ -216,19 +225,18 @@ export class ShellLayout {
     return this.session.hasPermission(PERMISSIONS.teamsRead);
   }
 
+  protected openMenu(): void {
+    this.menuOpen.set(true);
+  }
 
-  protected toggleSidebar(): void {
-    if (this.isMobile()) {
-      this.mobileNavOpen.update((open) => !open);
-      return;
-    }
-    this.sidebarCollapsed.update((collapsed) => !collapsed);
-    this.persistSidebarPreference(this.sidebarCollapsed());
+  protected toggleDesktopSidebar(): void {
+    this.desktopSidebarCollapsed.update((collapsed) => !collapsed);
+    this.persistSidebarPreference(this.desktopSidebarCollapsed());
   }
 
   protected closeMobileNav(): void {
-    if (this.mobileNavOpen()) {
-      this.mobileNavOpen.set(false);
+    if (this.menuOpen()) {
+      this.menuOpen.set(false);
     }
   }
 
@@ -256,8 +264,6 @@ export class ShellLayout {
     }
     this.switching.set(true);
     try {
-      // Workspace page data is keyed on the active company, so refreshing the session
-      // re-fetches every tenant-scoped list on its own — no route remount needed.
       await firstValueFrom(this.session.switchCompany(tenantMembershipId));
     } finally {
       this.switching.set(false);
@@ -270,12 +276,7 @@ export class ShellLayout {
     }
     this.loggingOut.set(true);
     try {
-      // Wait for the cookie to clear, then soft-navigate. A full reload would re-run
-      // APP_INITIALIZER (GET /me) before the login form paints — same as the 401 path,
-      // which already uses router.navigate after markAnonymous().
       await firstValueFrom(this.session.logoutAll());
-      // replaceUrl so Back does not revive a workspace route that would only bounce
-      // to /login again. Overlay stays up until ShellLayout is destroyed.
       await this.router.navigate(['/login'], { replaceUrl: true });
     } catch {
       this.loggingOut.set(false);

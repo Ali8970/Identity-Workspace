@@ -1,3 +1,4 @@
+/* Tailwind + shared Brooch tokens must load first. */
 @use './styles/tokens';
 @use './styles/components';
 @use './styles/loading';
