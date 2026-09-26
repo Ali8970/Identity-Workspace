@@ -9,6 +9,7 @@ import {
   input,
   linkedSignal,
   output,
+  signal,
   untracked,
 } from '@angular/core';
 import {
@@ -72,6 +73,9 @@ interface FieldStatus {
   errors(): readonly { kind: string }[];
 }
 
+type TeamFormStep = 'details' | 'placement';
+
+const STEPS: TeamFormStep[] = ['details', 'placement'];
 const NAME_MAX = 200;
 const DESCRIPTION_MAX = 1000;
 
@@ -101,20 +105,6 @@ function notBlank(value: string) {
         (dismiss)="close()"
       >
         <header class="workspace-team-details__head">
-          <span class="workspace-form-dialog__badge" aria-hidden="true">
-            @if (isEdit()) {
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <path d="M4 20h4L19 9l-4-4L4 16v4Z" />
-                <path d="m13.5 6.5 4 4" />
-              </svg>
-            } @else {
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <circle cx="9" cy="8" r="3" />
-                <path d="M3.5 19c.9-3 3-4.5 5.5-4.5s4.6 1.5 5.5 4.5" />
-                <path d="M18 8v6M15 11h6" stroke-linecap="round" />
-              </svg>
-            }
-          </span>
           <div class="workspace-team-details__heading">
             <h2 class="workspace-dialog__title" id="team-form-title">
               {{ (isEdit() ? 'teams.editTitle' : 'teams.createTitle') | translate }}
@@ -142,245 +132,314 @@ function notBlank(value: string) {
           </button>
         </header>
 
+        <nav
+          class="grid grid-cols-2 gap-1 border-b-[1.468px] border-border-subtle bg-surface-muted/50 px-4 py-3 max-w480:px-3"
+          [attr.aria-label]="'teams.form.stepsLabel' | translate"
+        >
+          @for (item of stepItems; track item.id; let i = $index) {
+            <div
+              class="relative flex min-w-0 flex-col items-center gap-1.5 text-center"
+              [attr.aria-current]="step() === item.id ? 'step' : null"
+            >
+              @if (i < stepItems.length - 1) {
+                <span
+                  class="pointer-events-none absolute top-3 start-1/2 h-0.5 w-full"
+                  [class.bg-info]="stepIndex() > i"
+                  [class.bg-border-button]="stepIndex() <= i"
+                  aria-hidden="true"
+                ></span>
+              }
+              <span
+                class="relative z-[1] grid size-7 place-items-center rounded-full text-[12px] font-bold"
+                [class.bg-info]="step() === item.id || stepIndex() > i"
+                [class.text-on-primary]="step() === item.id || stepIndex() > i"
+                [class.shadow-[var(--shadow-primary-button)]]="step() === item.id"
+                [class.bg-surface]="stepIndex() < i"
+                [class.text-text-muted]="stepIndex() < i"
+                [class.border-[1.468px]]="stepIndex() < i"
+                [class.border-border-button]="stepIndex() < i"
+                aria-hidden="true"
+              >
+                @if (stepIndex() > i) {
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    class="size-3.5"
+                  >
+                    <path d="m5 12 5 5L19 7" />
+                  </svg>
+                } @else {
+                  {{ i + 1 }}
+                }
+              </span>
+              <span
+                class="relative z-[1] max-w-full truncate text-[11px] font-semibold"
+                [class.text-info]="step() === item.id"
+                [class.text-text]="stepIndex() > i"
+                [class.text-text-muted]="stepIndex() < i"
+              >
+                {{ item.labelKey | translate }}
+              </span>
+            </div>
+          }
+        </nav>
+
         <form class="workspace-role-form__form" (submit)="onSubmit($event)" novalidate>
           <div class="workspace-team-details__body workspace-role-form__body">
-            <section
-              class="workspace-team-details__section workspace-role-form__section"
-              aria-labelledby="team-form-details-heading"
-            >
-              <h3 class="workspace-form-dialog__step" id="team-form-details-heading">
-                <span class="workspace-form-dialog__step-index" aria-hidden="true">1</span>
-                {{ 'teams.form.detailsSection' | translate }}
-              </h3>
-
-              <div class="mb-3.5 flex flex-col gap-1">
-                <div class="workspace-form-dialog__label-row">
-                  <label class="text-[12px] font-semibold text-text-muted" for="team-form-name">
-                    {{ 'teams.nameLabel' | translate }}
-                    <span class="text-danger" aria-hidden="true">*</span>
-                  </label>
-                  <span
-                    class="workspace-form-dialog__counter"
-                    [class.workspace-form-dialog__counter--over]="nameLength() > nameMax"
-                    aria-hidden="true"
+            @switch (step()) {
+              @case ('details') {
+                <section class="mx-auto w-full max-w-xl" aria-labelledby="team-form-details-heading">
+                  <h3
+                    class="m-0 mb-1 font-[family-name:var(--font-family)] text-[15px] font-bold text-text"
+                    id="team-form-details-heading"
+                    tabindex="-1"
                   >
-                    {{ nameLength() }}/{{ nameMax }}
-                  </span>
-                </div>
-                <div class="relative">
-                  <input
-                    id="team-form-name"
-                    class="field-control"
-                    [class.border-danger]="errors().name"
-                    type="text"
-                    autocomplete="off"
-                    data-autofocus
-                    [placeholder]="'teams.namePlaceholder' | translate"
-                    [attr.aria-invalid]="errors().name ? true : null"
-                    [attr.aria-describedby]="errors().name ? 'team-form-name-error' : null"
-                    [formField]="teamForm.name"
-                  />
-                </div>
-                @if (errors().name; as message) {
-                  <p class="m-0 text-[12px] text-danger" id="team-form-name-error" role="alert">
-                    {{ message | translate: { max: nameMax } }}
+                    {{ 'teams.form.detailsSection' | translate }}
+                  </h3>
+                  <p class="m-0 mb-4 text-[13px] leading-normal text-text-muted">
+                    {{ 'teams.form.detailsLead' | translate }}
                   </p>
-                }
-              </div>
 
-              <div class="mb-3.5 flex flex-col gap-1">
-                <div class="workspace-form-dialog__label-row">
-                  <label class="text-[12px] font-semibold text-text-muted" for="team-form-description">
-                    {{ 'teams.descriptionLabel' | translate }}
-                    <span class="workspace-role-form__optional">
-                      {{ 'teams.form.optional' | translate }}
-                    </span>
-                  </label>
-                  <span
-                    class="workspace-form-dialog__counter"
-                    [class.workspace-form-dialog__counter--over]="descriptionLength() > descriptionMax"
-                    aria-hidden="true"
-                  >
-                    {{ descriptionLength() }}/{{ descriptionMax }}
-                  </span>
-                </div>
-                <textarea
-                  id="team-form-description"
-                  class="field-control workspace-role-form__textarea"
-                  [class.border-danger]="errors().description"
-                  rows="3"
-                  [placeholder]="
-                    (descriptionState() === 'loading'
-                      ? 'teams.form.descriptionLoading'
-                      : 'teams.form.descriptionPlaceholder'
-                    ) | translate
-                  "
-                  [attr.aria-busy]="descriptionState() === 'loading' ? true : null"
-                  [attr.aria-invalid]="errors().description ? true : null"
-                  [attr.aria-describedby]="
-                    errors().description
-                      ? 'team-form-description-error'
-                      : descriptionState() === 'error'
-                        ? 'team-form-description-hint'
-                        : null
-                  "
-                  [formField]="teamForm.description"
-                ></textarea>
-                @if (errors().description; as message) {
-                  <p class="m-0 text-[12px] text-danger" id="team-form-description-error" role="alert">
-                    {{ message | translate: { max: descriptionMax } }}
-                  </p>
-                } @else if (descriptionState() === 'error') {
-                  <p class="workspace-field-hint" id="team-form-description-hint">
-                    {{ 'teams.form.descriptionUnavailable' | translate }}
-                  </p>
-                }
-              </div>
-            </section>
-
-            <section
-              class="workspace-team-details__section workspace-role-form__section"
-              aria-labelledby="team-form-placement-heading"
-            >
-              <div>
-                <h3 class="workspace-form-dialog__step" id="team-form-placement-heading">
-                  <span class="workspace-form-dialog__step-index" aria-hidden="true">2</span>
-                  {{ 'teams.form.placementSection' | translate }}
-                </h3>
-                <p class="workspace-team-details__section-lead">
-                  {{ 'teams.form.placementLead' | translate }}
-                </p>
-              </div>
-
-              @if (canPickApplication()) {
-                <fieldset class="workspace-choice-group">
-                  <legend class="text-[12px] font-semibold text-text-muted">
-                    {{ 'teams.applicationLabel' | translate }}
-                    <span class="text-danger" aria-hidden="true">*</span>
-                  </legend>
-                  <div class="workspace-choice-group__options">
-                    @for (application of applications(); track application.key) {
-                      <label
-                        class="workspace-choice"
-                        [class.workspace-choice--selected]="
-                          model().applicationKey === application.key
-                        "
+                  <div class="mb-3.5 flex flex-col gap-1.5">
+                    <div class="workspace-form-dialog__label-row">
+                      <label class="text-[12px] font-semibold text-text-muted" for="team-form-name">
+                        {{ 'teams.nameLabel' | translate }}
+                        <span class="text-danger" aria-hidden="true">*</span>
+                      </label>
+                      <span
+                        class="workspace-form-dialog__counter"
+                        [class.workspace-form-dialog__counter--over]="nameLength() > nameMax"
+                        aria-hidden="true"
                       >
-                        <input
-                          class="workspace-choice__input"
-                          type="radio"
-                          name="team-form-application"
-                          [value]="application.key"
-                          [checked]="model().applicationKey === application.key"
-                          (change)="selectApplication(application)"
-                        />
-                        <span class="workspace-choice__icon" aria-hidden="true">
-                          <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.75"
-                          >
-                            <rect x="3" y="3" width="7" height="7" rx="1.5" />
-                            <rect x="14" y="3" width="7" height="7" rx="1.5" />
-                            <rect x="3" y="14" width="7" height="7" rx="1.5" />
-                            <rect x="14" y="14" width="7" height="7" rx="1.5" />
-                          </svg>
-                        </span>
-                        <bdi class="workspace-choice__label">{{ application.label }}</bdi>
-                        <span class="workspace-choice__check" aria-hidden="true">
-                          <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2.25"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          >
-                            <path d="m5 12 4.5 4.5L19 7" />
-                          </svg>
+                        {{ nameLength() }}/{{ nameMax }}
+                      </span>
+                    </div>
+                    <input
+                      id="team-form-name"
+                      class="field-control"
+                      [class.border-danger]="errors().name"
+                      type="text"
+                      autocomplete="off"
+                      data-autofocus
+                      [placeholder]="'teams.namePlaceholder' | translate"
+                      [attr.aria-invalid]="errors().name ? true : null"
+                      [attr.aria-describedby]="errors().name ? 'team-form-name-error' : null"
+                      [formField]="teamForm.name"
+                    />
+                    @if (errors().name; as message) {
+                      <p class="m-0 text-[12px] text-danger" id="team-form-name-error" role="alert">
+                        {{ message | translate: { max: nameMax } }}
+                      </p>
+                    }
+                  </div>
+
+                  <div class="flex flex-col gap-1.5">
+                    <div class="workspace-form-dialog__label-row">
+                      <label
+                        class="text-[12px] font-semibold text-text-muted"
+                        for="team-form-description"
+                      >
+                        {{ 'teams.descriptionLabel' | translate }}
+                        <span class="workspace-role-form__optional">
+                          {{ 'teams.form.optional' | translate }}
                         </span>
                       </label>
+                      <span
+                        class="workspace-form-dialog__counter"
+                        [class.workspace-form-dialog__counter--over]="
+                          descriptionLength() > descriptionMax
+                        "
+                        aria-hidden="true"
+                      >
+                        {{ descriptionLength() }}/{{ descriptionMax }}
+                      </span>
+                    </div>
+                    <textarea
+                      id="team-form-description"
+                      class="field-control workspace-role-form__textarea"
+                      [class.border-danger]="errors().description"
+                      rows="3"
+                      [placeholder]="
+                        (descriptionState() === 'loading'
+                          ? 'teams.form.descriptionLoading'
+                          : 'teams.form.descriptionPlaceholder'
+                        ) | translate
+                      "
+                      [attr.aria-busy]="descriptionState() === 'loading' ? true : null"
+                      [attr.aria-invalid]="errors().description ? true : null"
+                      [attr.aria-describedby]="
+                        errors().description
+                          ? 'team-form-description-error'
+                          : descriptionState() === 'error'
+                            ? 'team-form-description-hint'
+                            : null
+                      "
+                      [formField]="teamForm.description"
+                    ></textarea>
+                    @if (errors().description; as message) {
+                      <p
+                        class="m-0 text-[12px] text-danger"
+                        id="team-form-description-error"
+                        role="alert"
+                      >
+                        {{ message | translate: { max: descriptionMax } }}
+                      </p>
+                    } @else if (descriptionState() === 'error') {
+                      <p class="m-0 text-[12px] text-text-muted" id="team-form-description-hint">
+                        {{ 'teams.form.descriptionUnavailable' | translate }}
+                      </p>
                     }
                   </div>
-                  <p class="workspace-field-hint">{{ 'teams.form.applicationHint' | translate }}</p>
-                </fieldset>
-              } @else {
-                <dl class="workspace-dl workspace-role-form__fixed">
-                  <div class="workspace-dl__row">
-                    <dt class="workspace-dl__label">{{ 'teams.applicationLabel' | translate }}</dt>
-                    <dd class="workspace-dl__value">
-                      <bdi>{{ applicationLabel() }}</bdi>
-                    </dd>
-                  </div>
-                </dl>
+                </section>
               }
 
-              <div class="mb-3.5 flex flex-col gap-1">
-                <label class="text-[12px] font-semibold text-text-muted" for="team-form-parent">
-                  {{ 'teams.parentLabel' | translate }}
-                  <span class="text-danger" aria-hidden="true">*</span>
-                </label>
-                <div class="relative">
-                  <select
-                    id="team-form-parent"
-                    class="field-control"
-                    [class.border-danger]="errors().parentTeamId"
-                    [attr.aria-invalid]="errors().parentTeamId ? true : null"
-                    [attr.aria-describedby]="
-                      errors().parentTeamId ? 'team-form-parent-error' : 'team-form-parent-hint'
-                    "
-                    [formField]="teamForm.parentTeamId"
+              @case ('placement') {
+                <section
+                  class="mx-auto w-full max-w-xl"
+                  aria-labelledby="team-form-placement-heading"
+                >
+                  <h3
+                    class="m-0 mb-1 font-[family-name:var(--font-family)] text-[15px] font-bold text-text"
+                    id="team-form-placement-heading"
+                    tabindex="-1"
                   >
-                    <option value="" disabled>{{ 'teams.parentPlaceholder' | translate }}</option>
-                    @for (option of parentOptions(); track option.node.id) {
-                      <option [value]="option.node.id">
-                        {{ indent(option.depth) }}{{ option.node.name }}
-                      </option>
-                    }
-                  </select>
-                </div>
-                @if (errors().parentTeamId; as message) {
-                  <p class="m-0 text-[12px] text-danger" id="team-form-parent-error" role="alert">
-                    {{ message | translate }}
+                    {{ 'teams.form.placementSection' | translate }}
+                  </h3>
+                  <p class="m-0 mb-4 text-[13px] leading-normal text-text-muted">
+                    {{ 'teams.form.placementLead' | translate }}
                   </p>
-                } @else {
-                  <p class="workspace-field-hint" id="team-form-parent-hint">
-                    {{ 'teams.maxDepthHint' | translate: { max: maxDepth() } }}
-                  </p>
-                }
-              </div>
 
-              @if (path().length > 0) {
-                <div class="workspace-team-form__preview">
-                  <p class="workspace-team-form__preview-label" id="team-form-preview-label">
-                    {{ 'teams.form.previewLabel' | translate }}
-                  </p>
-                  <ol class="workspace-team-form__path" aria-labelledby="team-form-preview-label">
-                    @for (crumb of path(); track crumb.id) {
-                      <li class="workspace-team-form__crumb">
-                        <bdi>{{ crumb.name }}</bdi>
-                      </li>
-                    }
-                    <li
-                      class="workspace-team-form__crumb workspace-team-form__crumb--new"
-                      aria-current="location"
+                  @if (canPickApplication()) {
+                    <p class="m-0 mb-2 text-[12px] font-semibold text-text-muted">
+                      {{ 'teams.applicationLabel' | translate }}
+                      <span class="text-danger" aria-hidden="true">*</span>
+                    </p>
+                    <div class="workspace-invite-apps mb-4" role="radiogroup">
+                      @for (application of applications(); track application.key) {
+                        <label
+                          class="workspace-invite-app"
+                          [class.workspace-invite-app--selected]="
+                            model().applicationKey === application.key
+                          "
+                        >
+                          <input
+                            type="radio"
+                            class="workspace-invite-app__check"
+                            name="team-form-application"
+                            [value]="application.key"
+                            [checked]="model().applicationKey === application.key"
+                            (change)="selectApplication(application)"
+                          />
+                          <span class="workspace-invite-app__body">
+                            <span class="workspace-invite-app__name">
+                              <bdi>{{ application.label }}</bdi>
+                            </span>
+                          </span>
+                          @if (model().applicationKey === application.key) {
+                            <span class="workspace-invite-app__tick" aria-hidden="true">
+                              <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2.5"
+                              >
+                                <path d="m5 12 5 5L19 7" />
+                              </svg>
+                            </span>
+                          }
+                        </label>
+                      }
+                    </div>
+                    <p class="m-0 mb-4 text-[12px] text-text-muted">
+                      {{ 'teams.form.applicationHint' | translate }}
+                    </p>
+                  } @else {
+                    <div class="workspace-invite-review__person mb-4">
+                      <div>
+                        <p class="workspace-invite-review__kicker">
+                          {{ 'teams.applicationLabel' | translate }}
+                        </p>
+                        <p class="workspace-invite-review__value">
+                          <bdi>{{ applicationLabel() }}</bdi>
+                        </p>
+                      </div>
+                    </div>
+                  }
+
+                  <div class="mb-3.5 flex flex-col gap-1.5">
+                    <label class="text-[12px] font-semibold text-text-muted" for="team-form-parent">
+                      {{ 'teams.parentLabel' | translate }}
+                      <span class="text-danger" aria-hidden="true">*</span>
+                    </label>
+                    <select
+                      id="team-form-parent"
+                      class="field-control"
+                      [class.border-danger]="errors().parentTeamId"
+                      [attr.aria-invalid]="errors().parentTeamId ? true : null"
+                      [attr.aria-describedby]="
+                        errors().parentTeamId ? 'team-form-parent-error' : 'team-form-parent-hint'
+                      "
+                      [formField]="teamForm.parentTeamId"
                     >
-                      <bdi>{{ previewName() || ('teams.form.previewPlaceholder' | translate) }}</bdi>
-                    </li>
-                  </ol>
-                  <p class="workspace-team-form__level">
-                    {{ 'teams.form.level' | translate: { level: level(), max: maxDepth() } }}
-                  </p>
-                </div>
+                      <option value="" disabled>{{ 'teams.parentPlaceholder' | translate }}</option>
+                      @for (option of parentOptions(); track option.node.id) {
+                        <option [value]="option.node.id">
+                          {{ indent(option.depth) }}{{ option.node.name }}
+                        </option>
+                      }
+                    </select>
+                    @if (errors().parentTeamId; as message) {
+                      <p class="m-0 text-[12px] text-danger" id="team-form-parent-error" role="alert">
+                        {{ message | translate }}
+                      </p>
+                    } @else {
+                      <p class="m-0 text-[12px] text-text-muted" id="team-form-parent-hint">
+                        {{ 'teams.maxDepthHint' | translate: { max: maxDepth() } }}
+                      </p>
+                    }
+                  </div>
+
+                  @if (path().length > 0) {
+                    <div class="workspace-team-form__preview">
+                      <p class="workspace-team-form__preview-label" id="team-form-preview-label">
+                        {{ 'teams.form.previewLabel' | translate }}
+                      </p>
+                      <ol class="workspace-team-form__path" aria-labelledby="team-form-preview-label">
+                        @for (crumb of path(); track crumb.id) {
+                          <li class="workspace-team-form__crumb">
+                            <bdi>{{ crumb.name }}</bdi>
+                          </li>
+                        }
+                        <li
+                          class="workspace-team-form__crumb workspace-team-form__crumb--new"
+                          aria-current="location"
+                        >
+                          <bdi>{{
+                            previewName() || ('teams.form.previewPlaceholder' | translate)
+                          }}</bdi>
+                        </li>
+                      </ol>
+                      <p class="workspace-team-form__level">
+                        {{ 'teams.form.level' | translate: { level: level(), max: maxDepth() } }}
+                      </p>
+                    </div>
+                  }
+                </section>
               }
-            </section>
+            }
           </div>
 
           <footer class="workspace-role-form__footer">
-            <span class="workspace-role-form__summary">
-              @if (!isEdit() && selectedParent(); as parent) {
+            <span class="workspace-role-form__summary" aria-live="polite">
+              @if (step() === 'placement' && selectedParent(); as parent) {
                 {{ 'teams.form.summary' | translate: { parent: parent.name } }}
+              } @else {
+                {{
+                  'teams.form.stepOf'
+                    | translate: { current: stepIndex() + 1, total: stepItems.length }
+                }}
               }
             </span>
             <div class="workspace-actions">
@@ -392,19 +451,39 @@ function notBlank(value: string) {
               >
                 {{ 'common.cancel' | translate }}
               </button>
-              <button
-                type="submit"
-                class="btn-primary inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
-                [disabled]="saving() || descriptionState() === 'loading' || descriptionBlocked()"
-                [attr.aria-busy]="saving()"
-              >
-                @if (saving()) {
-                  <span class="workspace-form-dialog__spinner" aria-hidden="true"></span>
-                  {{ 'teams.saving' | translate }}
-                } @else {
-                  {{ (isEdit() ? 'teams.editSave' : 'teams.createSave') | translate }}
-                }
-              </button>
+              @if (stepIndex() > 0) {
+                <button
+                  type="button"
+                  class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface px-3.5 text-[13px] font-semibold text-text hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
+                  [disabled]="saving()"
+                  (click)="goBack()"
+                >
+                  {{ 'teams.form.back' | translate }}
+                </button>
+              }
+              @if (step() !== 'placement') {
+                <button
+                  type="button"
+                  class="btn-primary inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
+                  [disabled]="saving() || descriptionState() === 'loading'"
+                  (click)="goNext()"
+                >
+                  {{ 'teams.form.next' | translate }}
+                </button>
+              } @else {
+                <button
+                  type="submit"
+                  class="btn-primary inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
+                  [disabled]="saving() || descriptionState() === 'loading' || descriptionBlocked()"
+                  [attr.aria-busy]="saving()"
+                >
+                  @if (saving()) {
+                    {{ 'teams.saving' | translate }}
+                  } @else {
+                    {{ (isEdit() ? 'teams.editSave' : 'teams.createSave') | translate }}
+                  }
+                </button>
+              }
             </div>
           </footer>
         </form>
@@ -431,6 +510,12 @@ export class TeamFormDialog {
   protected readonly nameMax = NAME_MAX;
   protected readonly descriptionMax = DESCRIPTION_MAX;
 
+  protected readonly step = signal<TeamFormStep>('details');
+  protected readonly stepItems = [
+    { id: 'details' as const, labelKey: 'teams.form.stepDetails' },
+    { id: 'placement' as const, labelKey: 'teams.form.stepPlacement' },
+  ];
+  protected readonly stepIndex = computed(() => STEPS.indexOf(this.step()));
   protected readonly isEdit = computed(() => this.seed().mode === 'edit');
 
   protected readonly model = linkedSignal<TeamFormSeed, TeamFormValue>({
@@ -576,21 +661,75 @@ export class TeamFormDialog {
     this.closed.emit();
   }
 
+  protected goBack(): void {
+    if (this.saving()) {
+      return;
+    }
+    const index = this.stepIndex();
+    if (index > 0) {
+      this.step.set(STEPS[index - 1]);
+      this.focusStepHeading();
+    }
+  }
+
+  protected goNext(): void {
+    if (this.saving() || this.descriptionState() === 'loading') {
+      return;
+    }
+    if (this.step() === 'details') {
+      this.teamForm.name().markAsTouched();
+      this.teamForm.description().markAsTouched();
+      if (this.teamForm.name().invalid() || this.teamForm.description().invalid()) {
+        this.focusInvalid();
+        return;
+      }
+      this.step.set('placement');
+      this.focusStepHeading();
+    }
+  }
+
   protected async onSubmit(event: Event): Promise<void> {
     event.preventDefault();
-    if (this.saving() || this.descriptionState() === 'loading' || this.descriptionBlocked()) {
+    if (
+      this.saving() ||
+      this.descriptionState() === 'loading' ||
+      this.descriptionBlocked() ||
+      this.step() !== 'placement'
+    ) {
       return;
     }
     await submit(this.teamForm, async () => {
       this.submitted.emit(this.result());
     });
     if (this.teamForm().invalid()) {
-      afterNextRender(
-        () =>
-          this.host.nativeElement.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus(),
-        { injector: this.injector },
-      );
+      if (this.teamForm.name().invalid() || this.teamForm.description().invalid()) {
+        this.step.set('details');
+      } else {
+        this.step.set('placement');
+      }
+      this.focusInvalid();
     }
+  }
+
+  private focusStepHeading(): void {
+    afterNextRender(
+      () => {
+        const heading = this.host.nativeElement.querySelector<HTMLElement>(
+          '.workspace-role-form__body h3',
+        );
+        heading?.focus({ preventScroll: false });
+        heading?.scrollIntoView({ block: 'nearest' });
+      },
+      { injector: this.injector },
+    );
+  }
+
+  private focusInvalid(): void {
+    afterNextRender(
+      () =>
+        this.host.nativeElement.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus(),
+      { injector: this.injector },
+    );
   }
 
   private result(): TeamFormResult {

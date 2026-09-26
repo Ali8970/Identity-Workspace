@@ -69,6 +69,9 @@ const TABS: readonly TeamDetailsTab[] = ['overview', 'members', 'subteams', 'set
                 · <bdi>{{ appLabel() }}</bdi>
               }
             </p>
+            <p class="m-0 mt-1 text-[12px] leading-normal text-text-muted">
+              {{ 'teams.detailsLead' | translate }}
+            </p>
           </div>
 
           <button
@@ -127,6 +130,9 @@ const TABS: readonly TeamDetailsTab[] = ['overview', 'members', 'subteams', 'set
           @switch (activeTab()) {
             @case ('overview') {
               <section class="workspace-team-details__section">
+                <p class="m-0 mb-3 text-[13px] leading-normal text-text-muted">
+                  {{ 'teams.overviewLead' | translate }}
+                </p>
                 <dl class="workspace-dl workspace-team-details__facts">
                   <div class="workspace-dl__row">
                     <dt class="workspace-dl__label">{{ 'teams.kindLabel' | translate }}</dt>

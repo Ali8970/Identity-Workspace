@@ -85,20 +85,45 @@ interface TeamRow {
       </div>
 
       <aside
-        class="mb-4 flex items-start gap-2.5 rounded-[10px] border-[1.468px] border-border-subtle bg-surface-muted px-4 py-3 text-[13px] leading-normal text-text-muted"
+        class="mb-4 grid gap-3 rounded-[10px] border-[1.468px] border-border-subtle bg-surface-muted/60 p-4 max-w1024:grid-cols-3"
+        [attr.aria-label]="'teams.howItWorks' | translate"
       >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.75"
-          aria-hidden="true"
-          class="mt-0.5 size-4 shrink-0 text-info"
-        >
-          <circle cx="12" cy="12" r="9" />
-          <path d="M12 10v6M12 7h.01" />
-        </svg>
-        <span>{{ 'teams.structureHint' | translate }}</span>
+        <div class="flex gap-2.5">
+          <span
+            class="mt-0.5 grid size-7 shrink-0 place-items-center rounded-lg border-[1.468px] border-border-button bg-surface text-[11px] font-bold text-info"
+            aria-hidden="true"
+          >1</span>
+          <div class="min-w-0">
+            <p class="m-0 text-[13px] font-bold text-text">{{ 'teams.guideOrgTitle' | translate }}</p>
+            <p class="m-0 mt-0.5 text-[12px] leading-normal text-text-muted">
+              {{ 'teams.guideOrgBody' | translate }}
+            </p>
+          </div>
+        </div>
+        <div class="flex gap-2.5">
+          <span
+            class="mt-0.5 grid size-7 shrink-0 place-items-center rounded-lg border-[1.468px] border-border-button bg-surface text-[11px] font-bold text-info"
+            aria-hidden="true"
+          >2</span>
+          <div class="min-w-0">
+            <p class="m-0 text-[13px] font-bold text-text">{{ 'teams.guideAppTitle' | translate }}</p>
+            <p class="m-0 mt-0.5 text-[12px] leading-normal text-text-muted">
+              {{ 'teams.guideAppBody' | translate }}
+            </p>
+          </div>
+        </div>
+        <div class="flex gap-2.5">
+          <span
+            class="mt-0.5 grid size-7 shrink-0 place-items-center rounded-lg border-[1.468px] border-border-button bg-surface text-[11px] font-bold text-info"
+            aria-hidden="true"
+          >3</span>
+          <div class="min-w-0">
+            <p class="m-0 text-[13px] font-bold text-text">{{ 'teams.guideTeamTitle' | translate }}</p>
+            <p class="m-0 mt-0.5 text-[12px] leading-normal text-text-muted">
+              {{ 'teams.guideTeamBody' | translate }}
+            </p>
+          </div>
+        </div>
       </aside>
 
       @if (loading()) {
@@ -127,25 +152,19 @@ interface TeamRow {
           <div
             class="flex flex-wrap items-center justify-between gap-2 border-b-[1.468px] border-border-subtle px-[18px] py-3"
           >
-            <h2 class="m-0 text-[14px] font-bold text-text" id="teams-structure-heading">
-              {{ 'teams.structureTitle' | translate }}
-            </h2>
+            <div class="min-w-0">
+              <h2 class="m-0 text-[14px] font-bold text-text" id="teams-structure-heading">
+                {{ 'teams.structureTitle' | translate }}
+              </h2>
+              <p class="m-0 mt-0.5 text-[12px] text-text-muted">
+                {{ 'teams.structureHint' | translate }}
+              </p>
+            </div>
             <div
               class="inline-flex rounded-lg border-[1.468px] border-border-button p-0.5"
               role="group"
               [attr.aria-label]="'teams.viewMode' | translate"
             >
-              <button
-                type="button"
-                class="cursor-pointer rounded-md px-3 py-1.5 text-[12px] font-semibold"
-                [class.bg-primary-light]="viewMode() === 'chart'"
-                [class.text-info]="viewMode() === 'chart'"
-                [class.text-text-muted]="viewMode() !== 'chart'"
-                [attr.aria-pressed]="viewMode() === 'chart'"
-                (click)="viewMode.set('chart')"
-              >
-                {{ 'teams.viewChart' | translate }}
-              </button>
               <button
                 type="button"
                 class="cursor-pointer rounded-md px-3 py-1.5 text-[12px] font-semibold"
@@ -156,6 +175,17 @@ interface TeamRow {
                 (click)="viewMode.set('list')"
               >
                 {{ 'teams.viewList' | translate }}
+              </button>
+              <button
+                type="button"
+                class="cursor-pointer rounded-md px-3 py-1.5 text-[12px] font-semibold"
+                [class.bg-primary-light]="viewMode() === 'chart'"
+                [class.text-info]="viewMode() === 'chart'"
+                [class.text-text-muted]="viewMode() !== 'chart'"
+                [attr.aria-pressed]="viewMode() === 'chart'"
+                (click)="viewMode.set('chart')"
+              >
+                {{ 'teams.viewChart' | translate }}
               </button>
             </div>
           </div>
@@ -176,11 +206,21 @@ interface TeamRow {
                         row.node.name
                       }}</span>
                       <span class="mt-0.5 block text-[12px] text-text-muted">
-                        {{ row.node.kind }}
-                        @if (row.node.memberCount != null) {
-                          · {{ row.node.memberCount }}
+                        {{ kindLabel(row.node.kind) | translate }}
+                        · {{ 'teams.memberCount' | translate: { count: row.node.memberCount } }}
+                        @if (row.node.children.length > 0) {
+                          ·
+                          {{
+                            'teams.subteamCount' | translate: { count: row.node.children.length }
+                          }}
+                        }
+                        @if (row.node.isMissingManager) {
+                          · {{ 'teams.missingManager' | translate }}
                         }
                       </span>
+                    </span>
+                    <span class="shrink-0 self-center text-[12px] font-semibold text-info">
+                      {{ 'teams.openTeam' | translate }}
                     </span>
                   </button>
                 </li>
@@ -621,7 +661,7 @@ export class TeamsPage {
   private readonly injector = inject(Injector);
 
   protected readonly maxDepth = MAX_TEAM_DEPTH;
-  protected readonly viewMode = signal<'chart' | 'list'>('chart');
+  protected readonly viewMode = signal<'chart' | 'list'>('list');
 
   private readonly tree = rxResource({
     // Keyed on the active company so a company switch re-fetches automatically.
