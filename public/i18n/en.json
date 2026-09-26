@@ -498,6 +498,7 @@
     },
     "perm": {
       "search": "Search permissions",
+      "tools": "Permission tools",
       "expandAll": "Expand all",
       "collapseAll": "Collapse all",
       "selectAll": "Select all grantable",

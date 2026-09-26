@@ -78,7 +78,6 @@ function emptyInvite(): AddMemberFormValue {
       ></button>
       <div
         class="workspace-dialog__panel workspace-team-details workspace-invite"
-        [class.workspace-invite--wide]="step() !== 'identity'"
         role="dialog"
         aria-modal="true"
         aria-labelledby="invite-title"

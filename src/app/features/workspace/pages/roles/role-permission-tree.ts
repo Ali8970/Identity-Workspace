@@ -63,7 +63,7 @@ function isKeyLike(name: string, key: string): boolean {
         />
       </div>
 
-      <div class="workspace-perm-tree__tools">
+      <div class="workspace-perm-tree__tools" role="group" [attr.aria-label]="'roles.perm.tools' | translate">
         @if (modules().length > 1 && !searching()) {
           <button type="button" class="workspace-perm-tree__tool" (click)="expandAll()">
             {{ 'roles.perm.expandAll' | translate }}
@@ -75,7 +75,7 @@ function isKeyLike(name: string, key: string): boolean {
         @if (editable()) {
           <button
             type="button"
-            class="workspace-perm-tree__tool"
+            class="workspace-perm-tree__tool workspace-perm-tree__tool--accent"
             [disabled]="visibleUnselectedGrantable().length === 0"
             (click)="selectVisible()"
           >
@@ -83,7 +83,7 @@ function isKeyLike(name: string, key: string): boolean {
           </button>
           <button
             type="button"
-            class="workspace-perm-tree__tool"
+            class="workspace-perm-tree__tool workspace-perm-tree__tool--muted"
             [disabled]="visibleSelectedGrantable().length === 0"
             (click)="clearVisible()"
           >
@@ -107,16 +107,19 @@ function isKeyLike(name: string, key: string): boolean {
       @if (editable()) {
         <ul class="workspace-perm-tree__legend" [attr.aria-label]="'roles.perm.legend' | translate">
           <li class="workspace-perm-tree__legend-item">
-            <span class="workspace-perm-tree__swatch workspace-perm-tree__swatch--selected"></span>
+            <span class="workspace-perm-tree__swatch workspace-perm-tree__swatch--selected" aria-hidden="true"></span>
             {{ 'roles.perm.legendSelected' | translate }}
           </li>
           <li class="workspace-perm-tree__legend-item">
-            <span class="workspace-perm-tree__swatch"></span>
+            <span class="workspace-perm-tree__swatch" aria-hidden="true"></span>
             {{ 'roles.perm.legendAvailable' | translate }}
           </li>
           @if (hasLocked()) {
             <li class="workspace-perm-tree__legend-item">
-              <span class="workspace-perm-tree__swatch workspace-perm-tree__swatch--locked"></span>
+              <span
+                class="workspace-perm-tree__swatch workspace-perm-tree__swatch--locked"
+                aria-hidden="true"
+              ></span>
               {{ 'roles.perm.legendNotGrantable' | translate }}
             </li>
           }

@@ -1998,12 +1998,8 @@ td.workspace-table__actions-col {
 }
 
 .workspace-role-form {
-  inline-size: min(100%, 36rem);
+  inline-size: min(100%, 56rem);
   font-family: var(--font-family);
-
-  &--wide {
-    inline-size: min(100%, 56rem);
-  }
 
   .workspace-team-details__head {
     border-block-end: 1.468px solid var(--border-subtle, var(--line));
@@ -2097,7 +2093,7 @@ td.workspace-table__actions-col {
 
 .workspace-perm-tree {
   display: grid;
-  gap: 0.75rem;
+  gap: 0.65rem;
   min-width: 0;
 }
 
@@ -2105,44 +2101,72 @@ td.workspace-table__actions-col {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem 0.75rem;
+  gap: 0.55rem 0.65rem;
+  padding: 0.65rem 0.75rem;
+  border: 1.468px solid var(--border-subtle, var(--line));
+  border-radius: 10px;
+  background: var(--bg-surface-secondary, var(--surface-2));
 }
 
 .workspace-perm-tree__search {
-  flex: 1 1 16rem;
+  flex: 1 1 14rem;
   max-inline-size: none;
+  min-inline-size: 10rem;
 }
 
 .workspace-perm-tree__tools {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .workspace-perm-tree__tool {
-  min-block-size: 2.25rem;
-  padding: 0.35rem 0.65rem;
-  border: 0;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--primary);
-  font: inherit;
-  font-size: 0.82rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 2rem;
+  padding: 0.25rem 0.7rem;
+  border: 1.468px solid var(--border-button, var(--line));
+  border-radius: 8px;
+  background: var(--bg-surface, var(--surface));
+  color: var(--text);
+  font-family: var(--font-family);
+  font-size: 12px;
   font-weight: 650;
+  line-height: 1.2;
   cursor: pointer;
-  transition: background var(--transition);
+  transition:
+    background var(--transition),
+    border-color var(--transition),
+    color var(--transition);
 
   &:hover:not(:disabled) {
-    background: var(--primary-soft);
+    background: var(--bg-surface-secondary, var(--surface-2));
+    border-color: var(--border-button, var(--line-strong));
+  }
+
+  &--accent {
+    border-color: color-mix(in srgb, var(--info, var(--primary)) 35%, var(--border-button, var(--line)));
+    background: var(--primary-light, var(--primary-soft));
+    color: var(--info, var(--primary));
+
+    &:hover:not(:disabled) {
+      background: color-mix(in srgb, var(--primary-light, var(--primary-soft)) 70%, var(--surface));
+    }
+  }
+
+  &--muted {
+    color: var(--text-muted, var(--text-2));
   }
 
   &:disabled {
-    color: var(--muted);
+    opacity: 0.55;
     cursor: not-allowed;
   }
 
   &:focus-visible {
-    outline: 2px solid var(--primary);
+    outline: 2px solid var(--info, var(--primary));
     outline-offset: 1px;
   }
 }
@@ -2152,20 +2176,23 @@ td.workspace-table__actions-col {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem 1rem;
+  gap: 0.45rem 0.85rem;
+  padding-block-end: 0.55rem;
+  border-block-end: 1.468px solid var(--border-subtle, var(--line));
 }
 
 .workspace-perm-tree__count {
-  font-size: 0.82rem;
-  font-weight: 650;
-  color: var(--text-2);
+  font-family: var(--font-family);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted, var(--text-2));
   font-variant-numeric: tabular-nums;
 }
 
 .workspace-perm-tree__legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem 0.9rem;
+  gap: 0.35rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -2175,25 +2202,33 @@ td.workspace-table__actions-col {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.76rem;
-  color: var(--muted);
+  min-height: 1.55rem;
+  padding: 0.15rem 0.55rem;
+  border: 1.468px solid var(--border-subtle, var(--line));
+  border-radius: 999px;
+  background: var(--bg-surface, var(--surface));
+  font-family: var(--font-family);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted, var(--text-2));
 }
 
 .workspace-perm-tree__swatch {
-  inline-size: 0.75rem;
-  block-size: 0.75rem;
-  border: 1.5px solid var(--line-strong);
+  inline-size: 0.7rem;
+  block-size: 0.7rem;
+  border: 1.468px solid var(--border-button, var(--line-strong));
   border-radius: 3px;
-  background: var(--surface);
+  background: var(--bg-surface, var(--surface));
 
   &--selected {
-    border-color: var(--primary);
-    background: var(--primary);
+    border-color: var(--info, var(--primary));
+    background: var(--info, var(--primary));
   }
 
   &--locked {
     border-style: dashed;
-    background: var(--surface-3);
+    border-color: var(--muted);
+    background: var(--bg-surface-secondary, var(--surface-2));
   }
 }
 
@@ -2472,12 +2507,8 @@ td.workspace-table__actions-col {
 }
 
 .workspace-invite {
-  inline-size: min(100%, 36rem);
+  inline-size: min(100%, 52rem);
   font-family: var(--font-family);
-
-  &--wide {
-    inline-size: min(100%, 52rem);
-  }
 
   .workspace-team-details__head {
     border-block-end: 1.468px solid var(--border-subtle, var(--line));

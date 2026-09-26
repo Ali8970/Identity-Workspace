@@ -105,7 +105,6 @@ function sameKeys(left: readonly string[], right: readonly string[]): boolean {
       ></button>
       <div
         class="workspace-dialog__panel workspace-team-details workspace-role-form"
-        [class.workspace-role-form--wide]="step() !== 'details'"
         role="dialog"
         aria-modal="true"
         aria-labelledby="role-form-title"
