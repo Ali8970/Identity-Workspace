@@ -313,7 +313,7 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
       <app-confirm-dialog
         title="shell.logout"
         body="shell.signOutConfirm"
-        confirmLabel="common.confirm"
+        confirmLabel="shell.logout"
         cancelLabel="common.cancel"
         busyLabel="shell.signingOut"
         [destructive]="true"

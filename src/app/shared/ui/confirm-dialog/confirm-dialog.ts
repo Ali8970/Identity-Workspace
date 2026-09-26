@@ -16,7 +16,7 @@ let nextDialogId = 0;
         (click)="onCancel()"
       ></button>
       <div
-        class="workspace-dialog__panel"
+        class="workspace-dialog__panel workspace-dialog__panel--confirm"
         [attr.role]="destructive() ? 'alertdialog' : 'dialog'"
         aria-modal="true"
         [attr.aria-labelledby]="titleId()"
@@ -25,13 +25,14 @@ let nextDialogId = 0;
         (dismiss)="onCancel()"
       >
         <header class="workspace-dialog__head">
-          <div>
+          <div class="min-w-0">
             <h2 class="workspace-dialog__title" [id]="titleId()">{{ title() | translate }}</h2>
           </div>
           <button
             type="button"
             class="workspace-dialog__close"
             [attr.aria-label]="cancelLabel() | translate"
+            [disabled]="busy()"
             (click)="onCancel()"
           >
             <svg
@@ -46,35 +47,39 @@ let nextDialogId = 0;
           </button>
         </header>
 
-        <div class="workspace-dialog__body">
-          <p class="workspace-dialog__lead" [id]="bodyId()">
+        <div class="workspace-dialog__body workspace-dialog__body--confirm">
+          <p class="workspace-dialog__lead workspace-dialog__lead--confirm" [id]="bodyId()">
             {{ body() | translate: bodyParams() }}
           </p>
-
-          <div class="workspace-form__actions workspace-dialog__actions">
-            <button
-              type="button"
-              class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface px-3.5 text-[13px] font-semibold text-text hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
-              [disabled]="busy()"
-              (click)="onCancel()"
-            >
-              {{ cancelLabel() | translate }}
-            </button>
-            <button
-              type="button"
-              [class]="destructive() ? 'inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 bg-danger px-3.5 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50' : 'btn-primary inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50'"
-              [disabled]="busy()"
-              [attr.aria-busy]="busy()"
-              (click)="confirmed.emit()"
-            >
-              @if (busy()) {
-                {{ busyLabel() | translate }}
-              } @else {
-                {{ confirmLabel() | translate }}
-              }
-            </button>
-          </div>
         </div>
+
+        <footer class="workspace-dialog__footer">
+          <button
+            type="button"
+            class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface px-3.5 text-[13px] font-semibold text-text hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
+            [disabled]="busy()"
+            (click)="onCancel()"
+          >
+            {{ cancelLabel() | translate }}
+          </button>
+          <button
+            type="button"
+            [class]="
+              destructive()
+                ? 'ui-btn--danger inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold disabled:cursor-not-allowed disabled:opacity-50'
+                : 'btn-primary inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50'
+            "
+            [disabled]="busy()"
+            [attr.aria-busy]="busy()"
+            (click)="confirmed.emit()"
+          >
+            @if (busy()) {
+              {{ busyLabel() | translate }}
+            } @else {
+              {{ confirmLabel() | translate }}
+            }
+          </button>
+        </footer>
       </div>
     </div>
   `,

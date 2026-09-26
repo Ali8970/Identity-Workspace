@@ -237,6 +237,7 @@
   --color-info-text: var(--info-text);
   --color-success-text: var(--success-text);
   --color-warning-text: var(--warning-text);
+  --color-danger: var(--danger);
   --color-danger-text: var(--danger-text);
   --color-danger-bg: var(--danger-bg);
 }

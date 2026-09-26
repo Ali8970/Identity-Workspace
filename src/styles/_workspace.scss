@@ -1265,12 +1265,18 @@ td.workspace-table__actions-col {
 .workspace-dialog__panel {
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
   inline-size: min(100%, 28rem);
   border: 1.468px solid var(--border-button);
   border-radius: 10px;
   background: var(--bg-surface, var(--surface));
   box-shadow: var(--shadow-card, var(--shadow-sm));
   font-family: var(--font-family);
+
+  &--confirm {
+    inline-size: min(100%, 22rem);
+  }
 }
 
 .workspace-dialog__head {
@@ -1278,16 +1284,17 @@ td.workspace-table__actions-col {
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 1.15rem 1.15rem 0.85rem;
+  padding: 1rem 1.1rem 0.85rem;
   border-block-end: 1.468px solid var(--border-subtle, var(--line));
 }
 
 .workspace-dialog__title {
   margin: 0;
   font-family: var(--font-family);
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 800;
-  line-height: 1.25;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
   color: var(--text);
 }
 
@@ -1298,6 +1305,10 @@ td.workspace-table__actions-col {
   font-weight: 400;
   line-height: 1.45;
   color: var(--text-muted, var(--text-2));
+
+  &--confirm {
+    margin: 0;
+  }
 }
 
 .workspace-dialog__close {
@@ -1330,6 +1341,10 @@ td.workspace-table__actions-col {
 
 .workspace-dialog__body {
   padding: 1.15rem;
+
+  &--confirm {
+    padding: 1rem 1.1rem;
+  }
 }
 
 .workspace-dialog__empty {
@@ -1341,6 +1356,17 @@ td.workspace-table__actions-col {
 
 .workspace-dialog__actions {
   gap: 0.55rem;
+}
+
+.workspace-dialog__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  padding: 0.85rem 1.1rem;
+  border-block-start: 1.468px solid var(--border-subtle, var(--line));
+  background: var(--bg-surface-secondary, var(--surface-2));
 }
 
 .workspace-loading--compact {
