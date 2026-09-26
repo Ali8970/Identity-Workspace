@@ -263,7 +263,7 @@
       "Removed": "محذوف"
     },
     "search": "ابحث بالاسم أو البريد",
-    "otherFilters": "تصفية إضافية",
+    "otherFilters": "فلاتر أخرى",
     "applyFilters": "تطبيق",
     "clearFilters": "مسح",
     "filterAllRoles": "كل الأدوار",
@@ -550,7 +550,7 @@
         "qualify": "تأهيل"
       }
     },
-    "otherFilters": "تصفية إضافية",
+    "otherFilters": "فلاتر أخرى",
     "applyFilters": "تطبيق",
     "stats": {
       "total": "الأدوار",

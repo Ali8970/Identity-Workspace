@@ -41,7 +41,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
         <button
           type="button"
-          class="list-filter-control inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-info bg-surface px-[14px] py-[9px] text-[13px] font-medium text-info transition-[background-color,color] hover:bg-primary-light focus:outline-none focus-visible:outline-none disabled:cursor-not-allowed disabled:border-border disabled:text-text-disabled"
+          class="list-filter-control inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-info bg-surface px-[14px] py-[7px] font-[inherit] text-[13px] text-info transition-[background-color,color] hover:bg-primary-light focus:outline-none focus-visible:outline-none disabled:cursor-not-allowed disabled:border-border disabled:text-text-disabled"
           [class.bg-primary-light]="expanded()"
           [disabled]="disabled()"
           [attr.aria-expanded]="expanded()"
@@ -59,7 +59,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
           }
           <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path
-              d="M2.5 4.5h11M4.5 8h7M6.5 11.5h3"
+              d="M1.5 3.5h13M1.5 8h13M1.5 12.5h13M10.5 2v3M5 6.5v3M9 11v3"
               stroke="currentColor"
               stroke-width="1.5"
               stroke-linecap="round"

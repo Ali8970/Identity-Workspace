@@ -56,11 +56,14 @@ app-shell-sidebar a:visited {
   outline: none;
 }
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
+/* Layered so Tailwind utilities (e.g. `text-[13px]`) can override it. */
+@layer base {
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
 }
 
 .app-skip-link {
