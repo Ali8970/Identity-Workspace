@@ -446,10 +446,6 @@
     opacity: 0.85;
   }
 
-  &:hover:not(:disabled) {
-    border-color: var(--line-strong);
-  }
-
   &:focus {
     outline: none;
     border-color: var(--primary);
