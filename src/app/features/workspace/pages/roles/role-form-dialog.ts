@@ -203,7 +203,7 @@ function sameKeys(left: readonly string[], right: readonly string[]): boolean {
             @switch (step()) {
               @case ('details') {
                 <section
-                  class="mx-auto w-full max-w-2xl"
+                  class="mx-auto w-full max-w-3xl"
                   aria-labelledby="role-form-details-heading"
                 >
                   <h3
@@ -513,7 +513,7 @@ function sameKeys(left: readonly string[], right: readonly string[]): boolean {
               }
 
               @case ('review') {
-                <section class="mx-auto w-full max-w-2xl" aria-labelledby="role-form-review-heading">
+                <section class="mx-auto w-full max-w-3xl" aria-labelledby="role-form-review-heading">
                   <h3
                     class="m-0 mb-1 font-[family-name:var(--font-family)] text-[15px] font-bold text-text"
                     id="role-form-review-heading"

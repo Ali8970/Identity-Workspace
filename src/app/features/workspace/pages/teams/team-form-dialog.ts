@@ -190,7 +190,7 @@ function notBlank(value: string) {
           <div class="workspace-team-details__body workspace-role-form__body">
             @switch (step()) {
               @case ('details') {
-                <section class="mx-auto w-full max-w-xl" aria-labelledby="team-form-details-heading">
+                <section class="mx-auto w-full max-w-2xl" aria-labelledby="team-form-details-heading">
                   <h3
                     class="m-0 mb-1 font-[family-name:var(--font-family)] text-[15px] font-bold text-text"
                     id="team-form-details-heading"
@@ -297,7 +297,7 @@ function notBlank(value: string) {
 
               @case ('placement') {
                 <section
-                  class="mx-auto w-full max-w-xl"
+                  class="mx-auto w-full max-w-2xl"
                   aria-labelledby="team-form-placement-heading"
                 >
                   <h3

@@ -165,7 +165,7 @@ function emptyInvite(): AddMemberFormValue {
           <div class="workspace-team-details__body workspace-invite__body">
             @switch (step()) {
               @case ('identity') {
-                <section class="mx-auto w-full max-w-md" aria-labelledby="invite-member-heading">
+                <section class="mx-auto w-full max-w-3xl" aria-labelledby="invite-member-heading">
                   <h3
                     class="m-0 mb-1 font-[family-name:var(--font-family)] text-[15px] font-bold text-text"
                     id="invite-member-heading"
@@ -531,7 +531,7 @@ function emptyInvite(): AddMemberFormValue {
               }
 
               @case ('review') {
-                <section class="mx-auto w-full max-w-lg" aria-labelledby="invite-review-heading">
+                <section class="mx-auto w-full max-w-3xl" aria-labelledby="invite-review-heading">
                   <h3
                     class="m-0 mb-1 font-[family-name:var(--font-family)] text-[15px] font-bold text-text"
                     id="invite-review-heading"

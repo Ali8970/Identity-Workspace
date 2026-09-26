@@ -1643,8 +1643,9 @@ td.workspace-table__actions-col {
 .workspace-team-details {
   display: flex;
   flex-direction: column;
-  inline-size: min(100%, 64rem);
-  max-block-size: min(90dvh, calc(100dvh - 2.5rem));
+  inline-size: min(100%, 72rem);
+  block-size: min(92dvh, calc(100dvh - 1.5rem));
+  max-block-size: min(92dvh, calc(100dvh - 1.5rem));
   overflow: hidden;
 }
 
@@ -1998,12 +1999,12 @@ td.workspace-table__actions-col {
 }
 
 .workspace-role-form {
-  inline-size: min(100%, 64rem);
+  inline-size: min(100%, 72rem);
   font-family: var(--font-family);
 
   .workspace-team-details__head {
     border-block-end: 1.468px solid var(--border-subtle, var(--line));
-    padding: 1rem 1.25rem 0.9rem;
+    padding: 1.1rem 1.5rem 1rem;
     gap: 0.75rem;
   }
 
@@ -2023,7 +2024,7 @@ td.workspace-table__actions-col {
   }
 
   .workspace-team-details__body {
-    padding: 1.25rem 1.25rem 1rem;
+    padding: 1.35rem 1.5rem 1.15rem;
   }
 }
 
@@ -2507,12 +2508,12 @@ td.workspace-table__actions-col {
 }
 
 .workspace-invite {
-  inline-size: min(100%, 52rem);
+  inline-size: min(100%, 72rem);
   font-family: var(--font-family);
 
   .workspace-team-details__head {
     border-block-end: 1.468px solid var(--border-subtle, var(--line));
-    padding: 1rem 1.25rem 0.9rem;
+    padding: 1.1rem 1.5rem 1rem;
     gap: 0.75rem;
   }
 
@@ -2547,7 +2548,7 @@ td.workspace-table__actions-col {
   }
 
   .workspace-team-details__body {
-    padding: 1.25rem 1.25rem 1rem;
+    padding: 1.35rem 1.5rem 1.15rem;
   }
 
   .workspace-invite__body {
@@ -3058,7 +3059,7 @@ td.workspace-table__actions-col {
 // â”€â”€ Form dialogs (create / edit team, create / edit role) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 .workspace-team-form {
-  inline-size: min(100%, 40rem);
+  inline-size: min(100%, 56rem);
 }
 
 .workspace-form-dialog__badge {
@@ -3345,6 +3346,7 @@ td.workspace-table__actions-col {
     animation: workspace-dialog-scrim-in 180ms ease-out;
   }
 
+  .workspace-invite,
   .workspace-team-form,
   .workspace-role-form {
     animation: workspace-dialog-panel-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
