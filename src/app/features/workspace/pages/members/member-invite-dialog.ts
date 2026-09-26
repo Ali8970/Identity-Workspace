@@ -44,8 +44,12 @@ interface DeselectNotice {
   teams: number;
 }
 
+type InviteStep = 'identity' | 'access' | 'review';
+
 const EMAIL_MAX = 256;
 const NAME_MAX = 200;
+
+const STEPS: InviteStep[] = ['identity', 'access', 'review'];
 
 function emptyInvite(): AddMemberFormValue {
   return {
@@ -58,6 +62,10 @@ function emptyInvite(): AddMemberFormValue {
   };
 }
 
+/**
+ * Invite wizard: Identity → Access → Review.
+ * API requires ≥1 roleId, so access cannot be deferred.
+ */
 @Component({
   selector: 'app-member-invite-dialog',
   imports: [TranslatePipe, FormField, FocusTrap],
@@ -104,28 +112,69 @@ function emptyInvite(): AddMemberFormValue {
             [disabled]="saving()"
             (click)="close()"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              aria-hidden="true"
+            >
               <path d="M6 6l12 12M18 6 6 18" />
             </svg>
           </button>
         </header>
 
+        <nav
+          class="flex flex-wrap items-center gap-2 border-b-[1.468px] border-border-subtle px-5 py-3"
+          [attr.aria-label]="'members.invite.stepsLabel' | translate"
+        >
+          @for (item of stepItems; track item.id; let i = $index) {
+            <div class="flex items-center gap-2">
+              @if (i > 0) {
+                <span class="text-border-button" aria-hidden="true">·</span>
+              }
+              <span
+                class="inline-flex items-center gap-2 text-[12px] font-semibold"
+                [class.text-info]="step() === item.id"
+                [class.text-text]="stepIndex() > i"
+                [class.text-text-muted]="stepIndex() < i"
+                [attr.aria-current]="step() === item.id ? 'step' : null"
+              >
+                <span
+                  class="grid size-6 place-items-center rounded-full text-[11px] font-bold"
+                  [class.bg-info]="step() === item.id || stepIndex() > i"
+                  [class.text-on-primary]="step() === item.id || stepIndex() > i"
+                  [class.bg-surface-muted]="stepIndex() < i"
+                  [class.text-text-muted]="stepIndex() < i"
+                  aria-hidden="true"
+                >
+                  @if (stepIndex() > i) {
+                    ✓
+                  } @else {
+                    {{ i + 1 }}
+                  }
+                </span>
+                {{ item.labelKey | translate }}
+              </span>
+            </div>
+          }
+        </nav>
+
         <form class="workspace-invite__form" (submit)="onSubmit($event)" novalidate>
           <div class="workspace-team-details__body workspace-invite__body">
-            <div class="workspace-invite__layout">
-              <div class="workspace-invite__main">
-                <section class="workspace-invite__section" aria-labelledby="invite-member-heading">
-                  <header class="workspace-invite__section-head">
-                    <span class="workspace-invite__step" aria-hidden="true">1</span>
-                    <div>
-                      <h3 class="workspace-team-details__section-title" id="invite-member-heading">
-                        {{ 'members.invite.memberSection' | translate }}
-                      </h3>
-                      <p class="workspace-team-details__section-lead">
-                        {{ 'members.invite.memberLead' | translate }}
-                      </p>
-                    </div>
-                  </header>
+            @switch (step()) {
+              @case ('identity') {
+                <section class="mx-auto max-w-xl" aria-labelledby="invite-member-heading">
+                  <h3
+                    class="m-0 mb-1 text-[15px] font-bold text-text"
+                    id="invite-member-heading"
+                    tabindex="-1"
+                  >
+                    {{ 'members.invite.memberSection' | translate }}
+                  </h3>
+                  <p class="m-0 mb-4 text-[13px] text-text-muted">
+                    {{ 'members.invite.memberLead' | translate }}
+                  </p>
 
                   <div class="mb-3.5 flex flex-col gap-1">
                     <label class="text-[12px] font-semibold text-text-muted" for="invite-email">
@@ -133,8 +182,16 @@ function emptyInvite(): AddMemberFormValue {
                       <span class="text-danger" aria-hidden="true">*</span>
                     </label>
                     <div class="relative flex items-center">
-                      <span class="pointer-events-none absolute start-3.5 grid size-[1.1rem] place-items-center text-text-muted" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                      <span
+                        class="pointer-events-none absolute start-3.5 grid size-[1.1rem] place-items-center text-text-muted"
+                        aria-hidden="true"
+                      >
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.75"
+                        >
                           <path d="M4 6h16v12H4z" />
                           <path d="m4 7 8 6 8-6" />
                         </svg>
@@ -165,54 +222,38 @@ function emptyInvite(): AddMemberFormValue {
                       <label class="text-[12px] font-semibold text-text-muted" for="invite-name-ar">
                         {{ 'members.nameAr' | translate }}
                       </label>
-                      <div class="relative flex items-center">
-                        <span class="pointer-events-none absolute start-3.5 grid size-[1.1rem] place-items-center text-text-muted" aria-hidden="true">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                            <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" />
-                            <path d="M4 20a8 8 0 0 1 16 0" />
-                          </svg>
-                        </span>
-                        <input
-                          id="invite-name-ar"
-                          class="field-control ps-10"
-                          [class.border-danger]="nameInvalid()"
-                          type="text"
-                          dir="rtl"
-                          lang="ar"
-                          autocomplete="off"
-                          [placeholder]="'members.nameArPlaceholder' | translate"
-                          [attr.aria-invalid]="nameInvalid() ? true : null"
-                          [attr.aria-describedby]="nameDescribedBy()"
-                          [formField]="inviteForm.arabicName"
-                        />
-                      </div>
+                      <input
+                        id="invite-name-ar"
+                        class="field-control"
+                        [class.border-danger]="nameInvalid()"
+                        type="text"
+                        dir="rtl"
+                        lang="ar"
+                        autocomplete="off"
+                        [placeholder]="'members.nameArPlaceholder' | translate"
+                        [attr.aria-invalid]="nameInvalid() ? true : null"
+                        [attr.aria-describedby]="nameDescribedBy()"
+                        [formField]="inviteForm.arabicName"
+                      />
                     </div>
 
                     <div class="mb-3.5 flex flex-col gap-1">
                       <label class="text-[12px] font-semibold text-text-muted" for="invite-name-en">
                         {{ 'members.nameEn' | translate }}
                       </label>
-                      <div class="relative flex items-center">
-                        <span class="pointer-events-none absolute start-3.5 grid size-[1.1rem] place-items-center text-text-muted" aria-hidden="true">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                            <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" />
-                            <path d="M4 20a8 8 0 0 1 16 0" />
-                          </svg>
-                        </span>
-                        <input
-                          id="invite-name-en"
-                          class="field-control ps-10"
-                          [class.border-danger]="nameInvalid()"
-                          type="text"
-                          dir="ltr"
-                          lang="en"
-                          autocomplete="off"
-                          [placeholder]="'members.nameEnPlaceholder' | translate"
-                          [attr.aria-invalid]="nameInvalid() ? true : null"
-                          [attr.aria-describedby]="nameDescribedBy()"
-                          [formField]="inviteForm.englishName"
-                        />
-                      </div>
+                      <input
+                        id="invite-name-en"
+                        class="field-control"
+                        [class.border-danger]="nameInvalid()"
+                        type="text"
+                        dir="ltr"
+                        lang="en"
+                        autocomplete="off"
+                        [placeholder]="'members.nameEnPlaceholder' | translate"
+                        [attr.aria-invalid]="nameInvalid() ? true : null"
+                        [attr.aria-describedby]="nameDescribedBy()"
+                        [formField]="inviteForm.englishName"
+                      />
                     </div>
                   </div>
                   @if (nameError(); as message) {
@@ -224,20 +265,17 @@ function emptyInvite(): AddMemberFormValue {
                     {{ 'members.invite.nameHint' | translate }}
                   </p>
                 </section>
+              }
 
-                <section class="workspace-invite__section" aria-labelledby="invite-apps-heading">
-                  <header class="workspace-invite__section-head">
-                    <span class="workspace-invite__step" aria-hidden="true">2</span>
-                    <div>
-                      <h3 class="workspace-team-details__section-title" id="invite-apps-heading">
-                        {{ 'members.invite.appsSection' | translate }}
-                        <span class="text-danger" aria-hidden="true">*</span>
-                      </h3>
-                      <p class="workspace-team-details__section-lead" id="invite-apps-lead">
-                        {{ 'members.invite.appsLead' | translate }}
-                      </p>
-                    </div>
-                  </header>
+              @case ('access') {
+                <section aria-labelledby="invite-apps-heading">
+                  <h3 class="m-0 mb-1 text-[15px] font-bold text-text" id="invite-apps-heading" tabindex="-1">
+                    {{ 'members.invite.appsSection' | translate }}
+                    <span class="text-danger" aria-hidden="true">*</span>
+                  </h3>
+                  <p class="m-0 mb-4 text-[13px] text-text-muted" id="invite-apps-lead">
+                    {{ 'members.invite.appsLead' | translate }}
+                  </p>
 
                   @if (applications().length === 0) {
                     <p class="workspace-team-details__empty workspace-dialog__empty" role="status">
@@ -245,7 +283,7 @@ function emptyInvite(): AddMemberFormValue {
                     </p>
                   } @else {
                     <div
-                      class="workspace-invite-apps"
+                      class="workspace-invite-apps mb-5"
                       role="group"
                       aria-labelledby="invite-apps-heading"
                       aria-describedby="invite-apps-lead"
@@ -261,11 +299,6 @@ function emptyInvite(): AddMemberFormValue {
                             [checked]="isApplicationSelected(app.key)"
                             [disabled]="saving()"
                             [attr.aria-invalid]="errors().applications ? true : null"
-                            [attr.aria-describedby]="
-                              errors().applications
-                                ? 'invite-apps-error invite-app-meta-' + app.key
-                                : 'invite-app-meta-' + app.key
-                            "
                             (change)="toggleApplication(app)"
                           />
                           <span
@@ -275,84 +308,58 @@ function emptyInvite(): AddMemberFormValue {
                             "
                             aria-hidden="true"
                           >
-                            @switch (app.key) {
-                              @case ('account') {
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                                  <path d="M12 3 4 7v6c0 5 3.5 7.7 8 8 4.5-.3 8-3 8-8V7l-8-4Z" />
-                                </svg>
-                              }
-                              @case ('crm') {
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                                  <circle cx="9" cy="7" r="3.5" />
-                                  <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-                                </svg>
-                              }
-                              @case ('hr') {
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                                  <rect x="3" y="7" width="18" height="13" rx="2" />
-                                  <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                  <path d="M12 12v3M9 12h6" />
-                                </svg>
-                              }
-                              @default {
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                                  <rect x="3" y="3" width="7" height="7" rx="1.5" />
-                                  <rect x="14" y="3" width="7" height="7" rx="1.5" />
-                                  <rect x="3" y="14" width="7" height="7" rx="1.5" />
-                                  <rect x="14" y="14" width="7" height="7" rx="1.5" />
-                                </svg>
-                              }
-                            }
+                            <svg
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="1.75"
+                            >
+                              <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                              <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                              <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                              <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                            </svg>
                           </span>
                           <span class="workspace-invite-app__body">
                             <span class="workspace-invite-app__name">
                               <bdi>{{ app.label }}</bdi>
                             </span>
-                            <span class="workspace-invite-app__meta" [id]="'invite-app-meta-' + app.key">
+                            <span class="workspace-invite-app__meta">
                               {{
                                 'members.invite.appMeta'
                                   | translate: { roles: app.roles.length, teams: app.teams.length }
                               }}
                             </span>
                           </span>
-                          @if (isApplicationSelected(app.key)) {
-                            <span class="workspace-invite-app__state">
-                              {{ 'members.invite.appSelected' | translate }}
-                            </span>
-                          }
                         </label>
                       }
                     </div>
                   }
 
                   @if (errors().applications; as message) {
-                    <p class="m-0 text-[12px] text-danger" id="invite-apps-error" role="alert">
+                    <p class="m-0 mb-3 text-[12px] text-danger" id="invite-apps-error" role="alert">
                       {{ message | translate }}
                     </p>
                   }
-                  <p class="workspace-invite__notice" role="status" aria-live="polite">
-                    @if (deselectNotice(); as notice) {
+                  @if (deselectNotice(); as notice) {
+                    <p class="workspace-invite__notice mb-3" role="status" aria-live="polite">
                       {{ 'members.invite.deselected' | translate: notice }}
-                    }
-                  </p>
-                </section>
+                    </p>
+                  }
 
-                <section class="workspace-invite__section" aria-labelledby="invite-access-heading">
-                  <header class="workspace-invite__section-head">
-                    <span class="workspace-invite__step" aria-hidden="true">3</span>
-                    <div>
-                      <h3 class="workspace-team-details__section-title" id="invite-access-heading">
-                        {{ 'members.invite.accessSection' | translate }}
-                      </h3>
-                      <p class="workspace-team-details__section-lead">
-                        {{ 'members.invite.accessLead' | translate }}
-                      </p>
-                    </div>
-                  </header>
+                  <h3 class="m-0 mb-1 text-[15px] font-bold text-text" id="invite-access-heading">
+                    {{ 'members.invite.accessSection' | translate }}
+                  </h3>
+                  <p class="m-0 mb-4 text-[13px] text-text-muted">
+                    {{ 'members.invite.accessLead' | translate }}
+                  </p>
 
                   @if (grantScopeLoading()) {
-                    <div class="workspace-loading workspace-loading--compact" role="status" aria-live="polite">
+                    <div
+                      class="workspace-loading workspace-loading--compact"
+                      role="status"
+                      aria-live="polite"
+                    >
                       <span class="workspace-loading__spinner" aria-hidden="true"></span>
                       <span>{{ 'members.invite.checkingAccess' | translate }}</span>
                     </div>
@@ -368,24 +375,16 @@ function emptyInvite(): AddMemberFormValue {
                       >
                         <header class="workspace-invite-access__head">
                           <h4 class="workspace-app-group__title" [id]="'invite-access-' + app.key">
-                            <span
-                              [class]="'workspace-app-group__icon workspace-app-group__icon--' + modifier(app.key)"
-                              aria-hidden="true"
-                            >
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                                <rect x="3" y="3" width="7" height="7" rx="1.5" />
-                                <rect x="14" y="3" width="7" height="7" rx="1.5" />
-                                <rect x="3" y="14" width="7" height="7" rx="1.5" />
-                                <rect x="14" y="14" width="7" height="7" rx="1.5" />
-                              </svg>
-                            </span>
                             <bdi>{{ app.label }}</bdi>
                           </h4>
                           <span class="workspace-chip workspace-chip--muted">
                             {{
                               'members.invite.appCounts'
                                 | translate
-                                  : { roles: selectedRoleCount(app), teams: selectedTeamCount(app) }
+                                  : {
+                                      roles: selectedRoleCount(app),
+                                      teams: selectedTeamCount(app),
+                                    }
                             }}
                           </span>
                         </header>
@@ -396,7 +395,10 @@ function emptyInvite(): AddMemberFormValue {
                             role="group"
                             [attr.aria-labelledby]="'invite-roles-' + app.key"
                           >
-                            <p class="workspace-invite-access__label" [id]="'invite-roles-' + app.key">
+                            <p
+                              class="workspace-invite-access__label"
+                              [id]="'invite-roles-' + app.key"
+                            >
                               {{ 'members.roles' | translate }}
                             </p>
                             @for (role of app.roles; track role.id) {
@@ -406,18 +408,17 @@ function emptyInvite(): AddMemberFormValue {
                                   [checked]="isRoleSelected(role.id)"
                                   [disabled]="saving() || !canGrant(role)"
                                   [attr.aria-invalid]="errors().roles ? true : null"
-                                  [attr.aria-describedby]="
-                                    errors().roles
-                                      ? 'invite-roles-error invite-role-meta-' + role.id
-                                      : 'invite-role-meta-' + role.id
-                                  "
                                   (change)="toggleRole(role)"
                                 />
                                 <span class="workspace-role-choice__body">
                                   <span class="workspace-invite-choice__name">
-                                    <span class="workspace-role-choice__name">{{ roleName(role) }}</span>
+                                    <span class="workspace-role-choice__name">{{
+                                      roleName(role)
+                                    }}</span>
                                     @if (role.isOwnerRole) {
-                                      <span class="workspace-invite-badge workspace-invite-badge--owner">
+                                      <span
+                                        class="workspace-invite-badge workspace-invite-badge--owner"
+                                      >
                                         {{ 'roles.ownerRole' | translate }}
                                       </span>
                                     } @else if (role.isSystem) {
@@ -426,7 +427,7 @@ function emptyInvite(): AddMemberFormValue {
                                       </span>
                                     }
                                   </span>
-                                  <span class="workspace-role-choice__meta" [id]="'invite-role-meta-' + role.id">
+                                  <span class="workspace-role-choice__meta">
                                     <code dir="ltr">{{ role.code }}</code>
                                     @if (!canGrant(role)) {
                                       · {{ 'members.invite.roleNotGrantable' | translate }}
@@ -441,11 +442,10 @@ function emptyInvite(): AddMemberFormValue {
                             }
 
                             @for (role of selectedOwnerRoles(app); track role.id) {
-                              <aside class="workspace-note workspace-invite__warning" role="note">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                                  <path d="M12 3 2 20h20L12 3Z" />
-                                  <path d="M12 10v4M12 17h.01" />
-                                </svg>
+                              <aside
+                                class="workspace-note workspace-invite__warning"
+                                role="note"
+                              >
                                 <span>
                                   {{
                                     'members.invite.ownerWarning'
@@ -461,7 +461,10 @@ function emptyInvite(): AddMemberFormValue {
                             role="group"
                             [attr.aria-labelledby]="'invite-teams-' + app.key"
                           >
-                            <p class="workspace-invite-access__label" [id]="'invite-teams-' + app.key">
+                            <p
+                              class="workspace-invite-access__label"
+                              [id]="'invite-teams-' + app.key"
+                            >
                               {{ 'members.teams' | translate }}
                               <span class="workspace-invite-access__optional">
                                 {{ 'members.invite.optional' | translate }}
@@ -476,20 +479,16 @@ function emptyInvite(): AddMemberFormValue {
                                   type="checkbox"
                                   [checked]="isTeamSelected(team.id)"
                                   [disabled]="saving()"
-                                  [attr.aria-describedby]="team.trail.length > 0 ? 'invite-team-meta-' + team.id : null"
                                   (change)="toggleTeam(team)"
                                 />
                                 <span class="workspace-role-choice__body">
                                   <span class="workspace-invite-choice__name">
-                                    <span class="workspace-role-choice__name">{{ team.name }}</span>
-                                    @if (team.kind === 'Application') {
-                                      <span class="workspace-invite-badge">
-                                        {{ 'members.invite.applicationTeam' | translate }}
-                                      </span>
-                                    }
+                                    <span class="workspace-role-choice__name">{{
+                                      team.name
+                                    }}</span>
                                   </span>
                                   @if (team.trail.length > 0) {
-                                    <span class="workspace-role-choice__meta" [id]="'invite-team-meta-' + team.id">
+                                    <span class="workspace-role-choice__meta">
                                       <bdi>{{ teamTrail(team) }}</bdi>
                                     </span>
                                   }
@@ -514,147 +513,158 @@ function emptyInvite(): AddMemberFormValue {
                     <p class="workspace-field-hint">{{ 'members.invite.accessHint' | translate }}</p>
                   }
                 </section>
-              </div>
+              }
 
-              <aside class="workspace-invite__review" aria-labelledby="invite-review-heading">
-                <header class="workspace-invite__section-head">
-                  <span class="workspace-invite__step" aria-hidden="true">4</span>
-                  <div>
-                    <h3 class="workspace-team-details__section-title" id="invite-review-heading">
-                      {{ 'members.invite.reviewSection' | translate }}
-                    </h3>
-                    <p class="workspace-team-details__section-lead">
-                      {{ 'members.invite.reviewLead' | translate }}
-                    </p>
-                  </div>
-                </header>
+              @case ('review') {
+                <section class="mx-auto max-w-xl" aria-labelledby="invite-review-heading">
+                  <h3 class="m-0 mb-1 text-[15px] font-bold text-text" id="invite-review-heading" tabindex="-1">
+                    {{ 'members.invite.reviewSection' | translate }}
+                  </h3>
+                  <p class="m-0 mb-4 text-[13px] text-text-muted">
+                    {{ 'members.invite.reviewLead' | translate }}
+                  </p>
 
-                <dl class="workspace-invite-review__facts">
-                  <div>
-                    <dt>{{ 'members.email' | translate }}</dt>
-                    <dd>
-                      @if (reviewEmail()) {
+                  <dl class="workspace-invite-review__facts mb-4">
+                    <div>
+                      <dt>{{ 'members.email' | translate }}</dt>
+                      <dd>
                         <bdi class="ltr-text">{{ reviewEmail() }}</bdi>
-                      } @else {
-                        <span class="workspace-invite-review__missing">
-                          {{ 'members.invite.notEntered' | translate }}
-                        </span>
-                      }
-                    </dd>
-                  </div>
-                  <div>
-                    <dt>{{ 'members.invite.name' | translate }}</dt>
-                    <dd>
-                      @if (reviewNames().length > 0) {
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>{{ 'members.invite.name' | translate }}</dt>
+                      <dd>
                         @for (name of reviewNames(); track name.lang) {
-                          <span class="workspace-invite-review__name" [attr.lang]="name.lang" [attr.dir]="name.dir">
+                          <span
+                            class="workspace-invite-review__name"
+                            [attr.lang]="name.lang"
+                            [attr.dir]="name.dir"
+                          >
                             {{ name.value }}
                           </span>
                         }
-                      } @else {
-                        <span class="workspace-invite-review__missing">
-                          {{ 'members.invite.notEntered' | translate }}
-                        </span>
-                      }
-                    </dd>
+                      </dd>
+                    </div>
+                  </dl>
+
+                  <div class="workspace-invite-review__access">
+                    @for (app of selectedApplications(); track app.key) {
+                      <section class="workspace-invite-review__app" [attr.aria-label]="app.label">
+                        <p class="workspace-invite-review__app-name">
+                          <bdi>{{ app.label }}</bdi>
+                        </p>
+                        <p class="workspace-invite-review__label">
+                          {{ 'members.roles' | translate }}
+                        </p>
+                        <ul class="workspace-invite-review__list">
+                          @for (role of selectedRolesOf(app); track role.id) {
+                            <li
+                              class="workspace-role-pill"
+                              [class.workspace-invite-review__owner]="role.isOwnerRole"
+                            >
+                              {{ roleName(role) }}
+                            </li>
+                          } @empty {
+                            <li class="workspace-role-pill workspace-role-pill--empty">
+                              {{ 'members.noRoles' | translate }}
+                            </li>
+                          }
+                        </ul>
+                        <p class="workspace-invite-review__label">
+                          {{ 'members.teams' | translate }}
+                        </p>
+                        <ul class="workspace-invite-review__list">
+                          @for (team of selectedTeamsOf(app); track team.id) {
+                            <li class="workspace-role-pill workspace-invite-review__team">
+                              <bdi>{{ teamPath(team) }}</bdi>
+                            </li>
+                          } @empty {
+                            <li class="workspace-role-pill workspace-role-pill--empty">
+                              {{ 'members.noTeams' | translate }}
+                            </li>
+                          }
+                        </ul>
+                      </section>
+                    }
                   </div>
-                </dl>
 
-                <div class="workspace-invite-review__access">
-                  @for (app of selectedApplications(); track app.key) {
-                    <section class="workspace-invite-review__app" [attr.aria-label]="app.label">
-                      <p class="workspace-invite-review__app-name"><bdi>{{ app.label }}</bdi></p>
-                      <p class="workspace-invite-review__label">{{ 'members.roles' | translate }}</p>
-                      <ul class="workspace-invite-review__list">
-                        @for (role of selectedRolesOf(app); track role.id) {
-                          <li
-                            class="workspace-role-pill"
-                            [class.workspace-invite-review__owner]="role.isOwnerRole"
-                          >
-                            {{ roleName(role) }}
-                            @if (role.isOwnerRole) {
-                              <span class="visually-hidden">({{ 'roles.ownerRole' | translate }})</span>
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                <path d="M12 3 2 20h20L12 3Z" />
-                                <path d="M12 10v4M12 17h.01" />
-                              </svg>
-                            }
-                          </li>
-                        } @empty {
-                          <li class="workspace-role-pill workspace-role-pill--empty">
-                            {{ 'members.noRoles' | translate }}
-                          </li>
-                        }
-                      </ul>
-                      <p class="workspace-invite-review__label">{{ 'members.teams' | translate }}</p>
-                      <ul class="workspace-invite-review__list">
-                        @for (team of selectedTeamsOf(app); track team.id) {
-                          <li class="workspace-role-pill workspace-invite-review__team">
-                            <bdi>{{ teamPath(team) }}</bdi>
-                          </li>
-                        } @empty {
-                          <li class="workspace-role-pill workspace-role-pill--empty">
-                            {{ 'members.noTeams' | translate }}
-                          </li>
-                        }
-                      </ul>
-                    </section>
-                  } @empty {
-                    <p class="workspace-invite-review__missing">
-                      {{ 'members.invite.reviewEmpty' | translate }}
-                    </p>
+                  @if (ownerRoleCount() > 0) {
+                    <aside class="workspace-note workspace-invite__warning mt-4" role="note">
+                      <span>{{
+                        'members.invite.reviewOwner' | translate: { count: ownerRoleCount() }
+                      }}</span>
+                    </aside>
                   }
-                </div>
 
-                @if (ownerRoleCount() > 0) {
-                  <aside class="workspace-note workspace-invite__warning" role="note">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                      <path d="M12 3 2 20h20L12 3Z" />
-                      <path d="M12 10v4M12 17h.01" />
-                    </svg>
-                    <span>{{ 'members.invite.reviewOwner' | translate: { count: ownerRoleCount() } }}</span>
+                  <aside class="workspace-note mt-3">
+                    <span>{{ 'members.invite.emailNote' | translate }}</span>
                   </aside>
-                }
-
-                <aside class="workspace-note">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                    <path d="M4 6h16v12H4z" />
-                    <path d="m4 7 8 6 8-6" />
-                  </svg>
-                  <span>{{ 'members.invite.emailNote' | translate }}</span>
-                </aside>
-              </aside>
-            </div>
+                </section>
+              }
+            }
           </div>
 
           <footer class="workspace-invite__footer">
             <span class="workspace-invite__summary" aria-live="polite">
-              {{
-                'members.invite.summary'
-                  | translate
-                    : {
-                        apps: selectedApplications().length,
-                        roles: requestRoleCount(),
-                        teams: requestTeamCount(),
-                      }
-              }}
+              @if (step() === 'review') {
+                {{
+                  'members.invite.summary'
+                    | translate
+                      : {
+                          apps: selectedApplications().length,
+                          roles: requestRoleCount(),
+                          teams: requestTeamCount(),
+                        }
+                }}
+              } @else {
+                {{
+                  'members.invite.stepOf'
+                    | translate: { current: stepIndex() + 1, total: stepItems.length }
+                }}
+              }
             </span>
             <div class="workspace-actions">
-              <button type="button" class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface px-3.5 text-[13px] font-semibold text-text hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50" [disabled]="saving()" (click)="close()">
+              <button
+                type="button"
+                class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface px-3.5 text-[13px] font-semibold text-text hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
+                [disabled]="saving()"
+                (click)="close()"
+              >
                 {{ 'members.inviteCancel' | translate }}
               </button>
-              <button
-                type="submit"
-                class="btn-primary inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
-                [disabled]="saving() || grantScopeLoading()"
-                [attr.aria-busy]="saving()"
-              >
-                @if (saving()) {
-                  {{ 'members.submitting' | translate }}
-                } @else {
-                  {{ 'members.submit' | translate }}
-                }
-              </button>
+              @if (stepIndex() > 0) {
+                <button
+                  type="button"
+                  class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-[1.468px] border-border-button bg-surface px-3.5 text-[13px] font-semibold text-text hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
+                  [disabled]="saving()"
+                  (click)="goBack()"
+                >
+                  {{ 'members.invite.back' | translate }}
+                </button>
+              }
+              @if (step() !== 'review') {
+                <button
+                  type="button"
+                  class="btn-primary inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
+                  [disabled]="saving() || (step() === 'access' && grantScopeLoading())"
+                  (click)="goNext()"
+                >
+                  {{ 'members.invite.next' | translate }}
+                </button>
+              } @else {
+                <button
+                  type="submit"
+                  class="btn-primary inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
+                  [disabled]="saving() || grantScopeLoading()"
+                  [attr.aria-busy]="saving()"
+                >
+                  @if (saving()) {
+                    {{ 'members.submitting' | translate }}
+                  } @else {
+                    {{ 'members.submit' | translate }}
+                  }
+                </button>
+              }
             </div>
           </footer>
         </form>
@@ -680,6 +690,14 @@ export class MemberInviteDialog {
   protected readonly emailMax = EMAIL_MAX;
   protected readonly nameMax = NAME_MAX;
   protected readonly modifier = applicationModifier;
+
+  protected readonly step = signal<InviteStep>('identity');
+  protected readonly stepItems = [
+    { id: 'identity' as const, labelKey: 'members.invite.stepWho' },
+    { id: 'access' as const, labelKey: 'members.invite.stepAccess' },
+    { id: 'review' as const, labelKey: 'members.invite.stepReview' },
+  ];
+  protected readonly stepIndex = computed(() => STEPS.indexOf(this.step()));
 
   protected readonly model = signal<AddMemberFormValue>(emptyInvite());
   protected readonly deselectNotice = signal<DeselectNotice | null>(null);
@@ -778,6 +796,50 @@ export class MemberInviteDialog {
     }
     return names;
   });
+
+  protected goBack(): void {
+    if (this.saving()) {
+      return;
+    }
+    const index = this.stepIndex();
+    if (index > 0) {
+      this.step.set(STEPS[index - 1]);
+      this.focusStepHeading();
+    }
+  }
+
+  protected goNext(): void {
+    if (this.saving()) {
+      return;
+    }
+    if (this.step() === 'identity') {
+      this.inviteForm.email().markAsTouched();
+      this.inviteForm.arabicName().markAsTouched();
+      this.inviteForm.englishName().markAsTouched();
+      if (
+        this.inviteForm.email().invalid() ||
+        this.inviteForm.arabicName().invalid() ||
+        this.inviteForm.englishName().invalid()
+      ) {
+        this.focusInvalid();
+        return;
+      }
+      this.step.set('access');
+      this.focusStepHeading();
+      return;
+    }
+
+    if (this.step() === 'access') {
+      this.inviteForm.applicationKeys().markAsTouched();
+      this.inviteForm.roleIds().markAsTouched();
+      if (this.inviteForm.applicationKeys().invalid() || this.inviteForm.roleIds().invalid()) {
+        this.focusInvalid();
+        return;
+      }
+      this.step.set('review');
+      this.focusStepHeading();
+    }
+  }
 
   protected isApplicationSelected(key: string): boolean {
     return this.model().applicationKeys.includes(key);
@@ -893,19 +955,41 @@ export class MemberInviteDialog {
 
   protected async onSubmit(event: Event): Promise<void> {
     event.preventDefault();
-    if (this.saving() || this.grantScopeLoading()) {
+    if (this.saving() || this.grantScopeLoading() || this.step() !== 'review') {
       return;
     }
     await submit(this.inviteForm, async () => {
       this.submitted.emit(this.model());
     });
     if (this.inviteForm().invalid()) {
-      afterNextRender(
-        () =>
-          this.host.nativeElement.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus(),
-        { injector: this.injector },
-      );
+      if (this.inviteForm.email().invalid() || this.inviteForm.arabicName().invalid()) {
+        this.step.set('identity');
+      } else {
+        this.step.set('access');
+      }
+      this.focusInvalid();
     }
+  }
+
+  private focusStepHeading(): void {
+    afterNextRender(
+      () => {
+        const heading = this.host.nativeElement.querySelector<HTMLElement>(
+          '.workspace-invite__body h3',
+        );
+        heading?.focus({ preventScroll: false });
+        heading?.scrollIntoView({ block: 'nearest' });
+      },
+      { injector: this.injector },
+    );
+  }
+
+  private focusInvalid(): void {
+    afterNextRender(
+      () =>
+        this.host.nativeElement.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus(),
+      { injector: this.injector },
+    );
   }
 
   private appLabel(key: string): string {
