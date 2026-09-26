@@ -34,12 +34,12 @@
 }
 
 .ui-btn--primary {
-  background: var(--primary);
-  color: var(--primary-ink);
-  box-shadow: var(--shadow-sm);
+  background: var(--info);
+  color: var(--on-primary);
+  box-shadow: var(--shadow-primary-button);
 
   &:hover:not(:disabled) {
-    background: var(--primary-hover);
+    background: var(--info-hover);
   }
 }
 

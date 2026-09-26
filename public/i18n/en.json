@@ -202,7 +202,12 @@
     "emptyTitle": "No applications yet",
     "emptyBody": "You do not have access to any Brooch applications in this company. Contact your administrator if you need access.",
     "ssoHint": "Opening an app uses your existing Brooch session — you will not need to sign in again.",
-    "loading": "Loading your applications…"
+    "loading": "Loading your applications…",
+    "stats": {
+      "total": "Apps",
+      "available": "Available",
+      "unavailable": "Unavailable"
+    }
   },
   "members": {
     "title": "Members",
@@ -566,6 +571,11 @@
       "payment": "Payments",
       "subscription": "Subscriptions",
       "taskmanagement": "Task management"
+    },
+    "stats": {
+      "total": "Permissions",
+      "applications": "Applications",
+      "groups": "Groups"
     }
   },
   "teams": {

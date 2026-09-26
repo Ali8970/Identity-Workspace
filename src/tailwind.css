@@ -302,10 +302,6 @@
   color: var(--text-muted);
 }
 
-.field-control:hover:not(:disabled):not([aria-disabled='true']) {
-  border-color: var(--border-strong);
-}
-
 .field-control:focus,
 .field-control:focus-visible {
   outline: none;

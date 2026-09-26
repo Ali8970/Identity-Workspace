@@ -59,7 +59,7 @@ interface RoleNotice {
         @if (canManage()) {
           <button
             type="button"
-            class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg bg-primary px-3.5 text-[13px] font-semibold text-on-primary shadow-[var(--shadow-primary-button)] hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
+            class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg bg-info px-3.5 text-[13px] font-semibold text-on-primary shadow-[var(--shadow-primary-button)] hover:bg-info-hover disabled:cursor-not-allowed disabled:opacity-50"
             id="roles-add-button"
             aria-haspopup="dialog"
             [disabled]="initialLoading() || loadFailed() || applications().length === 0"

@@ -92,7 +92,7 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
 
           <button
             type="button"
-            class="relative z-20 inline-flex h-9 max-w-[18rem] min-w-[12rem] cursor-pointer items-center gap-2 rounded-lg border-[1.468px] border-solid border-border-button bg-surface-muted px-2.5 text-start text-[13px] font-semibold text-text hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-60 md:max-w-[20rem]"
+            class="relative z-20 inline-flex h-11 min-w-[16rem] max-w-[28rem] cursor-pointer items-center gap-3 rounded-lg border-[1.468px] border-solid border-border-button bg-surface px-3.5 py-2 text-start text-[13px] font-semibold text-text disabled:cursor-not-allowed disabled:opacity-60 md:min-w-[18rem] md:max-w-[32rem]"
             [disabled]="switching() || companies().length === 0"
             [attr.aria-busy]="switching()"
             [attr.aria-expanded]="tenantMenuOpen()"
@@ -105,7 +105,7 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
               <span class="ui-spinner" aria-hidden="true"></span>
             } @else {
               <span
-                class="grid size-7 shrink-0 place-items-center rounded-2xl text-[11px] font-bold text-white"
+                class="grid size-8 shrink-0 place-items-center rounded-full text-[12px] font-bold text-on-primary"
                 style="background: var(--primary-gradient)"
                 aria-hidden="true"
               >
@@ -132,11 +132,11 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
 
           @if (tenantMenuOpen()) {
             <div
-              class="absolute start-0 z-30 mt-2 w-[min(100vw-2rem,22rem)] overflow-hidden rounded-lg border-[1.468px] border-solid border-border-button bg-surface shadow-[var(--shadow-card)]"
+              class="absolute start-0 z-30 mt-2 w-[min(100vw-2rem,32rem)] min-w-full overflow-hidden rounded-lg border-[1.468px] border-solid border-border-button bg-surface p-1.5 shadow-[var(--shadow-card)]"
               role="menu"
             >
               @if (companies().length > 7) {
-                <div class="border-b-[1.468px] border-border-subtle px-3 py-2">
+                <div class="border-b-[1.468px] border-border-subtle px-2 py-2">
                   <input
                     type="search"
                     class="field-control"
@@ -152,14 +152,14 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
                   <button
                     type="button"
                     role="menuitemradio"
-                    class="flex w-full cursor-pointer items-center gap-2.5 px-3 py-2.5 text-start text-[13px] hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
+                    class="flex w-full cursor-pointer items-center gap-3 rounded-md px-3 py-3 text-start text-[13px] hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
                     [class.bg-primary-light]="isCurrent(company)"
                     [attr.aria-checked]="isCurrent(company)"
                     [disabled]="!company.isSelectable || switching()"
                     (click)="chooseCompany(company)"
                   >
                     <span
-                      class="grid size-8 shrink-0 place-items-center rounded-2xl text-xs font-bold text-white"
+                      class="grid size-8 shrink-0 place-items-center rounded-full text-xs font-bold text-on-primary"
                       style="background: var(--primary-gradient)"
                       aria-hidden="true"
                     >

@@ -1,82 +1,54 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
-import { LanguageService } from '../../../../core/i18n/language.service';
-import { applicationModifier } from '../../../../shared/ui/display';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SessionStore } from '../../../../core/auth/session.store';
+import { LanguageService } from '../../../../core/i18n/language.service';
 import { AvailableApplicationDto } from '../../../../models/auth.model';
+import { applicationModifier } from '../../../../shared/ui/display';
+import { EmptyState } from '../../../../shared/ui/empty-state/empty-state';
+import type { ListStatCard } from '../../../../shared/ui/list-stats/list-stat-card';
+import { ListStats } from '../../../../shared/ui/list-stats/list-stats';
+import { PageHeader } from '../../../../shared/ui/page-header/page-header';
 import { ApplicationsService } from '../../services/applications.service';
 import { ApplicationsSkeleton } from './applications.skeleton';
 
-
 @Component({
   selector: 'app-applications-page',
-  imports: [TranslatePipe, ApplicationsSkeleton],
+  imports: [TranslatePipe, ApplicationsSkeleton, PageHeader, ListStats, EmptyState],
   host: {
     '(window:pageshow)': 'onPageShow()',
     '(window:focus)': 'onPageShow()',
   },
   template: `
-    <div class="workspace-page">
-      <header class="workspace-page__head">
-        <div class="workspace-page__intro">
-          <p class="workspace-page__eyebrow">{{ 'applications.eyebrow' | translate }}</p>
-          <h1 class="workspace-page__title" id="main-content-header" tabindex="-1">
-            {{ 'applications.title' | translate }}
-          </h1>
-          <p class="workspace-page__lead">{{ 'applications.subtitle' | translate }}</p>
-        </div>
+    <div>
+      <app-page-header
+        [title]="'applications.title' | translate"
+        [description]="'applications.subtitle' | translate"
+      />
 
-        @if (tenantName()) {
-          <div class="workspace-page__meta">
-            <span class="workspace-chip">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.75"
-                aria-hidden="true"
-              >
-                <path d="M4 21V8l8-4 8 4v13" />
-                <path d="M9 21V12h6v9" />
-              </svg>
-              {{ tenantName() }}
-            </span>
-            <span class="workspace-chip workspace-chip--muted">
-              {{ 'applications.appCount' | translate: { count: apps().length } }}
-            </span>
-          </div>
-        }
-      </header>
+      <div class="mb-4">
+        <app-list-stats [stats]="applicationStats()" [loading]="loading()" />
+      </div>
 
       @if (justOnboarded()) {
-        <div class="workspace-status workspace-status--success" role="status">
-          <span class="workspace-status__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-              <path d="m9 12 2 2 4-4" />
-              <circle cx="12" cy="12" r="9" />
-            </svg>
-          </span>
-          <span class="workspace-status__body">
-            {{ 'applications.justOnboarded' | translate }}
-          </span>
+        <div
+          class="mb-4 flex flex-wrap items-center gap-3 rounded-[10px] border-[1.468px] border-success bg-success-bg px-4 py-3 text-[13px] text-success-text"
+          role="status"
+        >
+          {{ 'applications.justOnboarded' | translate }}
         </div>
       }
 
       @if (loading()) {
         <app-applications-skeleton [label]="'applications.loading' | translate" />
       } @else if (apps().length === 0) {
-        <section class="workspace-empty" role="status">
-          <div class="workspace-empty__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-              <rect x="3" y="3" width="7" height="7" rx="1.5" />
-              <rect x="14" y="3" width="7" height="7" rx="1.5" />
-              <rect x="3" y="14" width="7" height="7" rx="1.5" />
-              <rect x="14" y="14" width="7" height="7" rx="1.5" />
-            </svg>
-          </div>
-          <h2 class="workspace-empty__title">{{ 'applications.emptyTitle' | translate }}</h2>
-          <p class="workspace-empty__body">{{ 'applications.emptyBody' | translate }}</p>
+        <section
+          class="list-table-panel overflow-hidden rounded-[10px] border-[1.468px] border-border-button bg-surface shadow-[var(--shadow-card)]"
+        >
+          <app-empty-state
+            [title]="'applications.emptyTitle' | translate"
+            [detail]="'applications.emptyBody' | translate"
+          />
         </section>
       } @else {
         <div
@@ -92,8 +64,6 @@ import { ApplicationsSkeleton } from './applications.skeleton';
               [class.app-launcher-card--locked]="isLocked(app)"
             >
               <div class="app-launcher-card__head">
-                <!-- One class binding rather than a static attribute plus a bound
-                     one: together they are ambiguous about which wins. -->
                 <span
                   [class]="
                     'app-launcher-card__icon app-launcher-card__icon--' +
@@ -170,7 +140,7 @@ import { ApplicationsSkeleton } from './applications.skeleton';
                   </span>
                 } @else if (canLaunch(app.url)) {
                   <a
-                    class="ui-btn ui-btn--primary app-launcher-card__action"
+                    class="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg bg-info px-3.5 text-[13px] font-semibold text-on-primary no-underline shadow-[var(--shadow-primary-button)] hover:bg-info-hover"
                     [href]="app.url"
                     rel="noopener"
                     [attr.aria-busy]="launching() === app.key || null"
@@ -189,6 +159,7 @@ import { ApplicationsSkeleton } from './applications.skeleton';
                         stroke="currentColor"
                         stroke-width="1.75"
                         aria-hidden="true"
+                        class="size-4"
                       >
                         <path
                           d="M14 4h6v6M10 14 20 4M15 9h-4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-4"
@@ -197,8 +168,6 @@ import { ApplicationsSkeleton } from './applications.skeleton';
                     }
                   </a>
                 } @else {
-                  <!-- Reads as a state, not a caption. Silence here is worse than a
-                       reason: an app you cannot open should say so. -->
                   <span class="app-launcher-card__locked">
                     <svg
                       viewBox="0 0 24 24"
@@ -221,13 +190,16 @@ import { ApplicationsSkeleton } from './applications.skeleton';
         </div>
       }
 
-      <aside class="workspace-note">
+      <aside
+        class="mt-4 flex items-start gap-2.5 rounded-[10px] border-[1.468px] border-border-subtle bg-surface-muted px-4 py-3 text-[13px] leading-normal text-text-muted"
+      >
         <svg
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           stroke-width="1.75"
           aria-hidden="true"
+          class="mt-0.5 size-4 shrink-0 text-info"
         >
           <circle cx="12" cy="12" r="9" />
           <path d="M12 10v6M12 7h.01" />
@@ -241,34 +213,51 @@ export class ApplicationsPage {
   private readonly applicationsService = inject(ApplicationsService);
   private readonly session = inject(SessionStore);
   protected readonly language = inject(LanguageService);
+  private readonly translate = inject(TranslateService);
   private readonly route = inject(ActivatedRoute);
 
-  /** Exposed for the template — BEM modifier for the app tile. */
   protected readonly applicationModifier = applicationModifier;
 
-  /** Set by the onboarding hand-off (`/applications?onboarded=1`) after a full reload. */
   protected readonly justOnboarded = signal(
     this.route.snapshot.queryParamMap.get('onboarded') === '1',
   );
 
   protected readonly apps = computed(() => this.applicationsService.availableApplications());
-  /** The tile list comes from the session, so it is only pending while that re-hydrates. */
   protected readonly loading = this.session.bootstrapping;
   protected readonly launching = signal<string | null>(null);
-  protected readonly tenantName = computed(() => {
-    const tenant = this.session.currentTenant();
-    return tenant ? this.language.pick(tenant.nameAr, tenant.nameEn) : '';
+
+  protected readonly applicationStats = computed((): ListStatCard[] => {
+    this.language.current();
+    const rows = this.apps();
+    const launchable = rows.filter((app) => this.canLaunch(app.url)).length;
+    const locked = rows.filter((app) => this.isLocked(app)).length;
+    return [
+      {
+        label: this.translate.instant('applications.stats.total'),
+        value: rows.length,
+        accent: '#2b5bf9',
+        icon: 'apps',
+      },
+      {
+        label: this.translate.instant('applications.stats.available'),
+        value: launchable,
+        accent: '#0fbc15',
+        icon: 'active',
+      },
+      {
+        label: this.translate.instant('applications.stats.unavailable'),
+        value: locked,
+        accent: '#f57c00',
+        icon: 'warning',
+        valueTone: locked > 0 ? 'danger' : 'default',
+      },
+    ];
   });
 
   protected canLaunch(url: string | null | undefined): boolean {
     return this.applicationsService.canLaunch(url);
   }
 
-  /**
-   * An app that is neither the current one nor launchable. Kept separate from
-   * `canLaunch` so the current app — which is also not launchable — never picks
-   * up the locked treatment.
-   */
   protected isLocked(app: AvailableApplicationDto): boolean {
     return !app.isCurrent && !this.canLaunch(app.url);
   }

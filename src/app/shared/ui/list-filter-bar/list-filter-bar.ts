@@ -79,7 +79,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
           <div class="flex shrink-0 items-center gap-3 max-md:w-full">
             <button
               type="button"
-              class="list-filter-control inline-flex h-10 cursor-pointer items-center justify-center rounded-lg border border-info bg-info px-4 text-[13px] font-medium text-on-primary hover:border-primary hover:bg-primary focus:outline-none focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 max-md:flex-1"
+              class="list-filter-control inline-flex h-10 cursor-pointer items-center justify-center rounded-lg border border-info bg-info px-4 text-[13px] font-medium text-on-primary hover:border-info-hover hover:bg-info-hover focus:outline-none focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 max-md:flex-1"
               [disabled]="disabled()"
               (click)="apply.emit()"
             >

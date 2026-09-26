@@ -13,7 +13,7 @@ import { Component, input, output } from '@angular/core';
       }
       <button
         type="button"
-        class="mt-4 inline-flex h-9 cursor-pointer items-center rounded-lg bg-primary px-3.5 text-[13px] font-semibold text-on-primary shadow-[var(--shadow-primary-button)] hover:bg-primary-hover"
+        class="mt-4 inline-flex h-9 cursor-pointer items-center rounded-lg bg-info px-3.5 text-[13px] font-semibold text-on-primary shadow-[var(--shadow-primary-button)] hover:bg-info-hover"
         (click)="retry.emit()"
       >
         {{ retryLabel() }}

@@ -1,40 +1,41 @@
 import { Component, computed, inject } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { LanguageService } from '../../../../core/i18n/language.service';
 import { applicationModifier } from '../../../../shared/ui/display';
+import { EmptyState } from '../../../../shared/ui/empty-state/empty-state';
+import { ErrorPanel } from '../../../../shared/ui/error-panel/error-panel';
+import type { ListStatCard } from '../../../../shared/ui/list-stats/list-stat-card';
+import { ListStats } from '../../../../shared/ui/list-stats/list-stats';
+import { PageHeader } from '../../../../shared/ui/page-header/page-header';
 import { PermissionCatalogItem } from '../../models/workspace-feature.model';
 import { PermissionsService } from '../../services/permissions.service';
 import { PermissionsSkeleton } from './permissions.skeleton';
 
 @Component({
   selector: 'app-permissions-page',
-  imports: [TranslatePipe, PermissionsSkeleton],
+  imports: [TranslatePipe, PermissionsSkeleton, PageHeader, ListStats, EmptyState, ErrorPanel],
   template: `
-    <div class="workspace-page">
-      <header class="workspace-page__head">
-        <div class="workspace-page__intro">
-          <p class="workspace-page__eyebrow">{{ 'permissions.eyebrow' | translate }}</p>
-          <h1 class="workspace-page__title" id="main-content-header" tabindex="-1">
-            {{ 'permissions.title' | translate }}
-          </h1>
-          <p class="workspace-page__lead">{{ 'permissions.subtitle' | translate }}</p>
-        </div>
+    <div>
+      <app-page-header
+        [title]="'permissions.title' | translate"
+        [description]="'permissions.subtitle' | translate"
+      />
 
-        <div class="workspace-page__meta">
-          <span class="workspace-chip workspace-chip--muted">
-            {{ 'permissions.permissionCount' | translate: { count: items().length } }}
-          </span>
-        </div>
-      </header>
+      <div class="mb-4">
+        <app-list-stats [stats]="permissionStats()" [loading]="loading()" />
+      </div>
 
-      <aside class="workspace-note">
+      <aside
+        class="mb-4 flex items-start gap-2.5 rounded-[10px] border-[1.468px] border-border-subtle bg-surface-muted px-4 py-3 text-[13px] leading-normal text-text-muted"
+      >
         <svg
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           stroke-width="1.75"
           aria-hidden="true"
+          class="mt-0.5 size-4 shrink-0 text-info"
         >
           <circle cx="12" cy="12" r="9" />
           <path d="M12 10v6M12 7h.01" />
@@ -45,134 +46,129 @@ import { PermissionsSkeleton } from './permissions.skeleton';
       @if (loading()) {
         <app-permissions-skeleton [label]="'permissions.loading' | translate" />
       } @else if (loadFailed()) {
-        <section class="workspace-empty" role="status">
-          <p class="workspace-empty__body">{{ 'common.loadFailed' | translate }}</p>
-          <button type="button" class="ui-btn ui-btn--ghost" (click)="reload()">
-            {{ 'common.retry' | translate }}
-          </button>
+        <app-error-panel
+          [title]="'common.loadFailed' | translate"
+          [retryLabel]="'common.retry' | translate"
+          (retry)="reload()"
+        />
+      } @else if (items().length === 0) {
+        <section
+          class="list-table-panel overflow-hidden rounded-[10px] border-[1.468px] border-border-button bg-surface shadow-[var(--shadow-card)]"
+        >
+          <app-empty-state
+            [title]="'permissions.emptyTitle' | translate"
+            [detail]="'permissions.emptyBody' | translate"
+          />
         </section>
       } @else {
-        @if (items().length === 0) {
-          <section class="workspace-empty" role="status">
-            <div class="workspace-empty__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <path d="M12 3 4 7v6c0 5 3.5 7.7 8 8 4.5-.3 8-3 8-8V7l-8-4Z" />
-                <path d="M9 12h6M12 9v6" />
-              </svg>
-            </div>
-            <h2 class="workspace-empty__title">{{ 'permissions.emptyTitle' | translate }}</h2>
-            <p class="workspace-empty__body">{{ 'permissions.emptyBody' | translate }}</p>
-          </section>
-        } @else {
-          @for (appGroup of applicationGroups(); track appGroup.applicationKey) {
-            <section
-              class="workspace-app-group"
-              [attr.aria-labelledby]="'permissions-app-' + appGroup.applicationKey"
-            >
-              <header class="workspace-app-group__head">
-                <h2
-                  class="workspace-app-group__title"
-                  [id]="'permissions-app-' + appGroup.applicationKey"
-                >
-                  <span
-                    [class]="
-                      'workspace-app-group__icon workspace-app-group__icon--' +
-                      applicationModifier(appGroup.applicationKey)
-                    "
-                    aria-hidden="true"
-                  >
-                    @switch (appGroup.applicationKey) {
-                      @case ('account') {
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                          <path d="M12 3 4 7v6c0 5 3.5 7.7 8 8 4.5-.3 8-3 8-8V7l-8-4Z" />
-                        </svg>
-                      }
-                      @case ('crm') {
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="1.75"
-                        >
-                          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                          <circle cx="9" cy="7" r="3.5" />
-                          <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-                        </svg>
-                      }
-                      @case ('hr') {
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="1.75"
-                        >
-                          <rect x="3" y="7" width="18" height="13" rx="2" />
-                          <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                        </svg>
-                      }
-                      @default {
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="1.75"
-                        >
-                          <rect x="3" y="3" width="7" height="7" rx="1.5" />
-                          <rect x="14" y="3" width="7" height="7" rx="1.5" />
-                          <rect x="3" y="14" width="7" height="7" rx="1.5" />
-                          <rect x="14" y="14" width="7" height="7" rx="1.5" />
-                        </svg>
-                      }
-                    }
-                  </span>
-                  {{ appLabel(appGroup.applicationKey) }}
-                </h2>
-                <span class="workspace-chip workspace-chip--muted">
-                  {{
-                    'permissions.groupPermissionCount'
-                      | translate: { count: appGroup.permissionCount }
-                  }}
-                </span>
-              </header>
-
-              @for (group of appGroup.groups; track group.name) {
-                <section
-                  class="workspace-perm-group"
-                  [attr.aria-labelledby]="
-                    'permissions-group-' + appGroup.applicationKey + '-' + group.name
+        @for (appGroup of applicationGroups(); track appGroup.applicationKey) {
+          <section
+            class="workspace-app-group"
+            [attr.aria-labelledby]="'permissions-app-' + appGroup.applicationKey"
+          >
+            <header class="workspace-app-group__head">
+              <h2
+                class="workspace-app-group__title"
+                [id]="'permissions-app-' + appGroup.applicationKey"
+              >
+                <span
+                  [class]="
+                    'workspace-app-group__icon workspace-app-group__icon--' +
+                    applicationModifier(appGroup.applicationKey)
                   "
+                  aria-hidden="true"
                 >
-                  <header class="workspace-perm-group__head">
-                    <h3
-                      class="workspace-perm-group__title"
-                      [id]="'permissions-group-' + appGroup.applicationKey + '-' + group.name"
-                    >
-                      {{ groupLabel(group.name) }}
-                    </h3>
-                    <span class="workspace-chip workspace-chip--muted">
-                      {{ 'permissions.groupCount' | translate: { count: group.items.length } }}
-                    </span>
-                  </header>
-
-                  <ul class="workspace-perm-catalog">
-                    @for (item of group.items; track item.key) {
-                      <li class="workspace-perm-catalog-item">
-                        <span class="workspace-perm-catalog-item__body">
-                          <strong class="workspace-perm-catalog-item__name">
-                            {{ language.pick(item.nameAr, item.nameEn) }}
-                          </strong>
-                          <span class="workspace-perm-catalog-item__desc">
-                            {{ 'permissions.keyLabel' | translate }}
-                          </span>
-                        </span>
-                        <code class="workspace-perm-catalog-item__key">{{ item.key }}</code>
-                      </li>
+                  @switch (appGroup.applicationKey) {
+                    @case ('account') {
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                        <path d="M12 3 4 7v6c0 5 3.5 7.7 8 8 4.5-.3 8-3 8-8V7l-8-4Z" />
+                      </svg>
                     }
-                  </ul>
-                </section>
-              }
-            </section>
-          }
+                    @case ('crm') {
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.75"
+                      >
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="3.5" />
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                      </svg>
+                    }
+                    @case ('hr') {
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.75"
+                      >
+                        <rect x="3" y="7" width="18" height="13" rx="2" />
+                        <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                      </svg>
+                    }
+                    @default {
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.75"
+                      >
+                        <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                        <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                        <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                        <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                      </svg>
+                    }
+                  }
+                </span>
+                {{ appLabel(appGroup.applicationKey) }}
+              </h2>
+              <span class="workspace-chip workspace-chip--muted">
+                {{
+                  'permissions.groupPermissionCount'
+                    | translate: { count: appGroup.permissionCount }
+                }}
+              </span>
+            </header>
+
+            @for (group of appGroup.groups; track group.name) {
+              <section
+                class="workspace-perm-group"
+                [attr.aria-labelledby]="
+                  'permissions-group-' + appGroup.applicationKey + '-' + group.name
+                "
+              >
+                <header class="workspace-perm-group__head">
+                  <h3
+                    class="workspace-perm-group__title"
+                    [id]="'permissions-group-' + appGroup.applicationKey + '-' + group.name"
+                  >
+                    {{ groupLabel(group.name) }}
+                  </h3>
+                  <span class="workspace-chip workspace-chip--muted">
+                    {{ 'permissions.groupCount' | translate: { count: group.items.length } }}
+                  </span>
+                </header>
+
+                <ul class="workspace-perm-catalog">
+                  @for (item of group.items; track item.key) {
+                    <li class="workspace-perm-catalog-item">
+                      <span class="workspace-perm-catalog-item__body">
+                        <strong class="workspace-perm-catalog-item__name">
+                          {{ language.pick(item.nameAr, item.nameEn) }}
+                        </strong>
+                        <span class="workspace-perm-catalog-item__desc">
+                          {{ 'permissions.keyLabel' | translate }}
+                        </span>
+                      </span>
+                      <code class="workspace-perm-catalog-item__key">{{ item.key }}</code>
+                    </li>
+                  }
+                </ul>
+              </section>
+            }
+          </section>
         }
       }
     </div>
@@ -181,6 +177,7 @@ import { PermissionsSkeleton } from './permissions.skeleton';
 export class PermissionsPage {
   private readonly permissionsService = inject(PermissionsService);
   protected readonly language = inject(LanguageService);
+  private readonly translate = inject(TranslateService);
 
   /** Exposed for the template — BEM modifier for the app tile. */
   protected readonly applicationModifier = applicationModifier;
@@ -194,6 +191,31 @@ export class PermissionsPage {
   protected readonly loading = this.catalog.isLoading;
   /** The error interceptor already raised the banner; this only offers the retry. */
   protected readonly loadFailed = computed(() => this.catalog.status() === 'error');
+
+  protected readonly permissionStats = computed((): ListStatCard[] => {
+    this.language.current();
+    const apps = this.applicationGroups();
+    return [
+      {
+        label: this.translate.instant('permissions.stats.total'),
+        value: this.items().length,
+        accent: '#2b5bf9',
+        icon: 'values',
+      },
+      {
+        label: this.translate.instant('permissions.stats.applications'),
+        value: apps.length,
+        accent: '#1e00b0',
+        icon: 'apps',
+      },
+      {
+        label: this.translate.instant('permissions.stats.groups'),
+        value: apps.reduce((total, app) => total + app.groups.length, 0),
+        accent: '#0fbc15',
+        icon: 'info',
+      },
+    ];
+  });
 
   protected readonly applicationGroups = computed(() => {
     const byApp = new Map<string, Map<string, PermissionCatalogItem[]>>();
