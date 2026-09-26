@@ -79,6 +79,7 @@ function emptyInvite(): AddMemberFormValue {
       ></button>
       <div
         class="workspace-dialog__panel workspace-team-details workspace-invite"
+        [class.workspace-invite--wide]="step() !== 'identity'"
         role="dialog"
         aria-modal="true"
         aria-labelledby="invite-title"
@@ -87,16 +88,6 @@ function emptyInvite(): AddMemberFormValue {
         (dismiss)="close()"
       >
         <header class="workspace-team-details__head">
-          <span
-            class="workspace-team-details__icon workspace-team-details__icon--application"
-            aria-hidden="true"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-              <circle cx="9" cy="8" r="3.5" />
-              <path d="M2.5 20a6.5 6.5 0 0 1 13 0" />
-              <path d="M19 8v6M16 11h6" />
-            </svg>
-          </span>
           <div class="workspace-team-details__heading">
             <h2 class="workspace-dialog__title" id="invite-title">
               {{ 'members.add' | translate }}
@@ -125,35 +116,47 @@ function emptyInvite(): AddMemberFormValue {
         </header>
 
         <nav
-          class="flex flex-wrap items-center gap-2 border-b-[1.468px] border-border-subtle px-5 py-3"
+          class="grid grid-cols-3 gap-1 border-b-[1.468px] border-border-subtle bg-surface-muted/50 px-4 py-3 max-w480:px-3"
           [attr.aria-label]="'members.invite.stepsLabel' | translate"
         >
           @for (item of stepItems; track item.id; let i = $index) {
-            <div class="flex items-center gap-2">
-              @if (i > 0) {
-                <span class="text-border-button" aria-hidden="true">·</span>
+            <div
+              class="relative flex min-w-0 flex-col items-center gap-1.5 text-center"
+              [attr.aria-current]="step() === item.id ? 'step' : null"
+            >
+              @if (i < stepItems.length - 1) {
+                <span
+                  class="pointer-events-none absolute top-3 start-1/2 h-0.5 w-full"
+                  [class.bg-info]="stepIndex() > i"
+                  [class.bg-border-button]="stepIndex() <= i"
+                  aria-hidden="true"
+                ></span>
               }
               <span
-                class="inline-flex items-center gap-2 text-[12px] font-semibold"
+                class="relative z-[1] grid size-7 place-items-center rounded-full text-[12px] font-bold"
+                [class.bg-info]="step() === item.id || stepIndex() > i"
+                [class.text-on-primary]="step() === item.id || stepIndex() > i"
+                [class.shadow-[var(--shadow-primary-button)]]="step() === item.id"
+                [class.bg-surface]="stepIndex() < i"
+                [class.text-text-muted]="stepIndex() < i"
+                [class.border-[1.468px]]="stepIndex() < i"
+                [class.border-border-button]="stepIndex() < i"
+                aria-hidden="true"
+              >
+                @if (stepIndex() > i) {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="size-3.5">
+                    <path d="m5 12 5 5L19 7" />
+                  </svg>
+                } @else {
+                  {{ i + 1 }}
+                }
+              </span>
+              <span
+                class="relative z-[1] max-w-full truncate text-[11px] font-semibold"
                 [class.text-info]="step() === item.id"
                 [class.text-text]="stepIndex() > i"
                 [class.text-text-muted]="stepIndex() < i"
-                [attr.aria-current]="step() === item.id ? 'step' : null"
               >
-                <span
-                  class="grid size-6 place-items-center rounded-full text-[11px] font-bold"
-                  [class.bg-info]="step() === item.id || stepIndex() > i"
-                  [class.text-on-primary]="step() === item.id || stepIndex() > i"
-                  [class.bg-surface-muted]="stepIndex() < i"
-                  [class.text-text-muted]="stepIndex() < i"
-                  aria-hidden="true"
-                >
-                  @if (stepIndex() > i) {
-                    ✓
-                  } @else {
-                    {{ i + 1 }}
-                  }
-                </span>
                 {{ item.labelKey | translate }}
               </span>
             </div>
@@ -164,26 +167,29 @@ function emptyInvite(): AddMemberFormValue {
           <div class="workspace-team-details__body workspace-invite__body">
             @switch (step()) {
               @case ('identity') {
-                <section class="mx-auto max-w-xl" aria-labelledby="invite-member-heading">
+                <section class="mx-auto w-full max-w-md" aria-labelledby="invite-member-heading">
                   <h3
-                    class="m-0 mb-1 text-[15px] font-bold text-text"
+                    class="m-0 mb-1 font-[family-name:var(--font-family)] text-[15px] font-bold text-text"
                     id="invite-member-heading"
                     tabindex="-1"
                   >
                     {{ 'members.invite.memberSection' | translate }}
                   </h3>
-                  <p class="m-0 mb-4 text-[13px] text-text-muted">
+                  <p class="m-0 mb-5 text-[13px] leading-normal text-text-muted">
                     {{ 'members.invite.memberLead' | translate }}
                   </p>
 
-                  <div class="mb-3.5 flex flex-col gap-1">
-                    <label class="text-[12px] font-semibold text-text-muted" for="invite-email">
+                  <div class="mb-4 flex flex-col gap-1.5">
+                    <label
+                      class="text-[12px] font-semibold text-text-muted"
+                      for="invite-email"
+                    >
                       {{ 'members.email' | translate }}
                       <span class="text-danger" aria-hidden="true">*</span>
                     </label>
                     <div class="relative flex items-center">
                       <span
-                        class="pointer-events-none absolute start-3.5 grid size-[1.1rem] place-items-center text-text-muted"
+                        class="pointer-events-none absolute start-3 grid size-4 place-items-center text-text-muted"
                         aria-hidden="true"
                       >
                         <svg
@@ -191,6 +197,7 @@ function emptyInvite(): AddMemberFormValue {
                           fill="none"
                           stroke="currentColor"
                           stroke-width="1.75"
+                          class="size-4"
                         >
                           <path d="M4 6h16v12H4z" />
                           <path d="m4 7 8 6 8-6" />
@@ -217,9 +224,12 @@ function emptyInvite(): AddMemberFormValue {
                     }
                   </div>
 
-                  <div class="workspace-form__row workspace-invite__names">
-                    <div class="mb-3.5 flex flex-col gap-1">
-                      <label class="text-[12px] font-semibold text-text-muted" for="invite-name-ar">
+                  <div class="mb-2 grid grid-cols-2 gap-3 max-w480:grid-cols-1">
+                    <div class="flex flex-col gap-1.5">
+                      <label
+                        class="text-[12px] font-semibold text-text-muted"
+                        for="invite-name-ar"
+                      >
                         {{ 'members.nameAr' | translate }}
                       </label>
                       <input
@@ -237,8 +247,11 @@ function emptyInvite(): AddMemberFormValue {
                       />
                     </div>
 
-                    <div class="mb-3.5 flex flex-col gap-1">
-                      <label class="text-[12px] font-semibold text-text-muted" for="invite-name-en">
+                    <div class="flex flex-col gap-1.5">
+                      <label
+                        class="text-[12px] font-semibold text-text-muted"
+                        for="invite-name-en"
+                      >
                         {{ 'members.nameEn' | translate }}
                       </label>
                       <input
@@ -260,10 +273,11 @@ function emptyInvite(): AddMemberFormValue {
                     <p class="m-0 text-[12px] text-danger" id="invite-name-error" role="alert">
                       {{ message | translate: { max: nameMax } }}
                     </p>
+                  } @else {
+                    <p class="m-0 text-[12px] leading-normal text-text-muted" id="invite-name-hint">
+                      {{ 'members.invite.nameHint' | translate }}
+                    </p>
                   }
-                  <p class="workspace-field-hint" id="invite-name-hint">
-                    {{ 'members.invite.nameHint' | translate }}
-                  </p>
                 </section>
               }
 
@@ -765,7 +779,7 @@ export class MemberInviteDialog {
   protected readonly nameInvalid = computed(() => this.nameError() !== null);
 
   protected readonly nameDescribedBy = computed(() =>
-    this.nameInvalid() ? 'invite-name-error invite-name-hint' : 'invite-name-hint',
+    this.nameInvalid() ? 'invite-name-error' : 'invite-name-hint',
   );
 
   protected readonly requestRoleCount = computed(

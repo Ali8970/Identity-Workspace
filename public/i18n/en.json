@@ -310,7 +310,7 @@
     "noTeams": "No teams",
     "noAccess": "This member has no roles or teams in any application.",
     "invite": {
-      "lead": "Invite someone in three short steps: who they are, what they can access, then confirm.",
+      "lead": "Three steps: who, what they can access, then confirm.",
       "stepsLabel": "Invite steps",
       "stepWho": "Who",
       "stepAccess": "Access",
@@ -321,7 +321,7 @@
       "memberSection": "Who are you inviting?",
       "memberLead": "Enter their work email and at least one name.",
       "name": "Name",
-      "nameHint": "Enter the name in Arabic, English, or both. If this email already has a Brooch account, that account keeps its existing name.",
+      "nameHint": "One name is enough (Arabic or English). If this email already has a Brooch account, that name is kept.",
       "nameRequired": "Enter a name in Arabic or English.",
       "emailRequired": "Enter the member's email address.",
       "emailInvalid": "Enter a valid email address.",

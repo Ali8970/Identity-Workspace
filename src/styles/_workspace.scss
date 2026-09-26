@@ -2441,10 +2441,57 @@ td.workspace-table__actions-col {
 }
 
 .workspace-invite {
-  inline-size: min(100%, 72rem);
+  inline-size: min(100%, 36rem);
+  font-family: var(--font-family);
+
+  &--wide {
+    inline-size: min(100%, 52rem);
+  }
 
   .workspace-team-details__head {
-    border-block-end: 1px solid var(--line);
+    border-block-end: 1.468px solid var(--border-subtle, var(--line));
+    padding: 1rem 1.25rem 0.9rem;
+    gap: 0.75rem;
+  }
+
+  .workspace-dialog__title {
+    font-family: var(--font-family);
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+  }
+
+  .workspace-dialog__lead {
+    margin-block-start: 0.25rem;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-muted, var(--text-2));
+  }
+
+  .workspace-team-details__icon {
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+    flex-basis: 2.25rem;
+    border-radius: 10px;
+    border: 1.468px solid color-mix(in srgb, var(--info, var(--primary)) 22%, var(--border-button, var(--line)));
+    background: var(--primary-light, var(--primary-soft));
+    color: var(--info, var(--primary));
+
+    svg {
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+  }
+
+  .workspace-team-details__body {
+    padding: 1.25rem 1.25rem 1rem;
+  }
+
+  .workspace-invite__body {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    overflow: auto;
   }
 }
 
@@ -2455,8 +2502,23 @@ td.workspace-table__actions-col {
   flex-direction: column;
 }
 
-.workspace-invite__body {
-  flex: 1 1 auto;
+.workspace-invite__footer {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  border-block-start: 1.468px solid var(--border-subtle, var(--line));
+  background: var(--bg-surface-secondary, var(--surface-2));
+}
+
+.workspace-invite__summary {
+  font-family: var(--font-family);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted, var(--text-2));
 }
 
 .workspace-invite__layout {
@@ -2823,26 +2885,6 @@ td.workspace-table__actions-col {
   border: 1px solid var(--line);
   background: var(--surface);
   color: var(--text);
-}
-
-.workspace-invite__footer {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.75rem 1rem;
-  padding: 0.85rem 1.25rem;
-  border-block-start: 1px solid var(--line);
-  background: var(--surface);
-  border-end-start-radius: var(--radius);
-  border-end-end-radius: var(--radius);
-}
-
-.workspace-invite__summary {
-  font-size: 0.84rem;
-  color: var(--text-2);
-  font-variant-numeric: tabular-nums;
 }
 
 @media (max-width: 1024px) {
