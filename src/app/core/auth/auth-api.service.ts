@@ -42,12 +42,17 @@ export class AuthApi {
       .pipe(unwrapData());
   }
 
-  setPassword(request: SetPasswordRequest): Observable<SetPasswordResponse> {
+  /**
+   * Activation write. Callers only need to know it succeeded: a 2xx with no `data`
+   * is still success. Unwrapping an empty envelope would throw and leave the
+   * set-password form on screen after the password was already saved.
+   */
+  setPassword(request: SetPasswordRequest): Observable<void> {
     return this.http
       .post<ApiResponse<SetPasswordResponse>>(API_ROUTES.setPassword, request, {
         withCredentials: true,
       })
-      .pipe(unwrapData());
+      .pipe(map(() => undefined));
   }
 
   forgotPassword(request: ForgotPasswordRequest): Observable<void> {

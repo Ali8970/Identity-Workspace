@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, afterNextRender, computed, inject, signal, viewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FormField, email, form, required, submit } from '@angular/forms/signals';
@@ -39,6 +39,12 @@ import { LoginService } from '../../services/login.service';
                 </svg>
               }
               @case ('onboarded') {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                  <path d="m9 12 2 2 4-4" />
+                  <circle cx="12" cy="12" r="9" />
+                </svg>
+              }
+              @case ('activated') {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
                   <path d="m9 12 2 2 4-4" />
                   <circle cx="12" cy="12" r="9" />
@@ -105,6 +111,7 @@ import { LoginService } from '../../services/login.service';
               </svg>
             </span>
             <input
+              #passwordField
               id="login-password"
               class="auth-field__input auth-field__input--password"
               [class.auth-field__input--invalid]="passwordInvalid()"
@@ -178,6 +185,8 @@ import { LoginService } from '../../services/login.service';
 })
 export class LoginPage {
   private readonly loginService = inject(LoginService);
+  private readonly initialQuery = this.loginService.readQueryState();
+  private readonly passwordField = viewChild<ElementRef<HTMLInputElement>>('passwordField');
   protected readonly globalErrors = inject(GlobalErrorService);
   private readonly sso = inject(SsoHandshakeService);
   private readonly session = inject(SessionStore);
@@ -185,7 +194,10 @@ export class LoginPage {
   /** Injected directly rather than reached through LoginService. */
   protected readonly flow = inject(AuthFlowStore);
 
-  protected readonly model = signal({ email: '', password: '' });
+  protected readonly model = signal({
+    email: this.initialQuery.email ?? '',
+    password: '',
+  });
   protected readonly loginForm = form(this.model, (schema) => {
     required(schema.email);
     email(schema.email);
@@ -196,6 +208,8 @@ export class LoginPage {
   protected readonly selectionRestartRequired = signal(false);
   /** The re-authentication that follows a completed purchase — a success, not a failure. */
   protected readonly justOnboarded = signal(false);
+  /** Arrived from a finished set-password — sign-in is the next step. */
+  protected readonly justActivated = signal(false);
   protected readonly redirecting = signal(false);
   protected readonly showPassword = signal(false);
   protected readonly submitted = signal(false);
@@ -207,7 +221,7 @@ export class LoginPage {
     () => this.submitted() && this.loginForm.password().invalid(),
   );
 
-  /** One banner only — intent wins, then onboarded, then selection restart. */
+  /** One banner only — intent wins, then onboarded, then a fresh password, then selection restart. */
   protected readonly statusBanner = computed(() => {
     if (this.flow.intentId()) {
       return {
@@ -221,6 +235,13 @@ export class LoginPage {
         kind: 'onboarded' as const,
         toneClass: 'auth-status--success',
         messageKey: 'auth.login.onboardedBanner',
+      };
+    }
+    if (this.justActivated()) {
+      return {
+        kind: 'activated' as const,
+        toneClass: 'auth-status--success',
+        messageKey: 'auth.login.activatedBanner',
       };
     }
     if (this.selectionRestartRequired()) {
@@ -244,10 +265,16 @@ export class LoginPage {
   private readonly returnUrl = signal<string | null>(null);
 
   constructor() {
-    const query = this.loginService.readQueryState();
+    const query = this.initialQuery;
     this.returnUrl.set(query.returnUrl);
     this.selectionRestartRequired.set(query.selectionRestartRequired);
     this.justOnboarded.set(query.justOnboarded);
+    this.justActivated.set(query.justActivated);
+    if (query.email) {
+      afterNextRender(() => {
+        this.passwordField()?.nativeElement.focus();
+      });
+    }
   }
 
   protected togglePasswordVisibility(): void {

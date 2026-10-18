@@ -6,6 +6,7 @@ import { form, minLength, submit } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
 import { SessionStore } from '../../../../core/auth/session.store';
 import { ApplicationLabels } from '../../../../core/i18n/application-labels.service';
+import { permissionDisplayLabel } from '../../../../core/i18n/permission-label';
 import { LanguageService } from '../../../../core/i18n/language.service';
 import { TenantMembershipStatus } from '../../../../enums/domain.enums';
 import { ConfirmDialog } from '../../../../shared/ui/confirm-dialog/confirm-dialog';
@@ -402,7 +403,7 @@ import { MembersSkeleton } from './members.skeleton';
                             </summary>
                             <ul class="workspace-perm-list">
                               @for (key of group.currentPermissions; track key) {
-                                <li class="workspace-perm-item">{{ key }}</li>
+                                <li class="workspace-perm-item">{{ permissionLabel(key) }}</li>
                               }
                             </ul>
                           </details>
@@ -649,6 +650,10 @@ export class MembersPage {
   private readonly applicationLabels = inject(ApplicationLabels);
   private readonly translate = inject(TranslateService);
   protected readonly language = inject(LanguageService);
+
+  protected permissionLabel(key: string): string {
+    return permissionDisplayLabel(this.language, key);
+  }
 
   /** Applied status — drives the members list API. */
   protected readonly statusFilter = signal<TenantMembershipStatus | ''>('');

@@ -29,6 +29,10 @@ export interface LoginQueryState {
   selectionRestartRequired: boolean;
   /** `?onboarded=1` — set by the onboarding hand-off, which signs the owner out on purpose. */
   justOnboarded: boolean;
+  /** `?activated=1` — set-password finished and sent the user here to sign in. */
+  justActivated: boolean;
+  /** `?email=` — carried from company registration when the owner already has an account. */
+  email: string | null;
 }
 
 export interface PasswordLinkParams {

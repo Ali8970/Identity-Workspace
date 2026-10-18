@@ -1,5 +1,9 @@
 import { Component, computed, inject, input, model, signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
+import {
+  humanizePermissionToken,
+  permissionDisplayLabel,
+} from '../../../../core/i18n/permission-label';
 import { LanguageService } from '../../../../core/i18n/language.service';
 import { PermissionCatalogItem } from '../../models/workspace-feature.model';
 
@@ -24,19 +28,6 @@ interface ModuleNode {
 }
 
 type EntryState = 'selected' | 'available' | 'locked';
-
-function humanize(value: string): string {
-  const text = value
-    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    .replace(/[._-]+/g, ' ')
-    .trim()
-    .toLowerCase();
-  return text ? text.charAt(0).toUpperCase() + text.slice(1) : value;
-}
-
-function isKeyLike(name: string, key: string): boolean {
-  return name === key || (/^[\w.-]+$/.test(name) && name.includes('.'));
-}
 
 @Component({
   selector: 'app-role-permission-tree',
@@ -212,7 +203,7 @@ function isKeyLike(name: string, key: string): boolean {
                                 [disabled]="state === 'locked'"
                                 [attr.aria-labelledby]="optionId + '-label'"
                                 [attr.aria-describedby]="
-                                  state === 'locked' ? optionId + '-reason' : optionId + '-key'
+                                  state === 'locked' ? optionId + '-reason' : null
                                 "
                                 (change)="toggle(entry.key, $any($event.target).checked)"
                               />
@@ -223,12 +214,6 @@ function isKeyLike(name: string, key: string): boolean {
                                 >
                                   {{ entry.label }}
                                 </span>
-                                <code
-                                  class="workspace-perm-tree__key ltr-text"
-                                  dir="ltr"
-                                  [id]="optionId + '-key'"
-                                  >{{ entry.key }}</code
-                                >
                               </span>
                               @if (state === 'locked') {
                                 <span
@@ -274,9 +259,6 @@ function isKeyLike(name: string, key: string): boolean {
                               <span class="workspace-perm-tree__option-label">
                                 {{ entry.label }}
                               </span>
-                              <code class="workspace-perm-tree__key ltr-text" dir="ltr">{{
-                                entry.key
-                              }}</code>
                             </span>
                           </li>
                         }
@@ -337,13 +319,7 @@ export class RolePermissionTree {
       const module = item?.module || 'other';
       const resource = item?.resource || 'other';
       const action = item?.action || key;
-      const name = item ? this.language.pick(item.nameAr, item.nameEn) : '';
-      const label =
-        name && !isKeyLike(name, key)
-          ? name
-          : item
-            ? this.language.labelOr(`roles.perm.action.${action}`, humanize(action))
-            : key;
+      const label = permissionDisplayLabel(this.language, key, item);
       const moduleLabel = this.groupLabel(module);
       const resourceLabel = this.groupLabel(resource);
 
@@ -513,6 +489,6 @@ export class RolePermissionTree {
   }
 
   private groupLabel(value: string): string {
-    return this.language.labelOr(`permissions.groups.${value}`, humanize(value));
+    return this.language.labelOr(`permissions.groups.${value}`, humanizePermissionToken(value));
   }
 }

@@ -26,6 +26,8 @@ export class LoginService {
       returnUrl: isSafeReturnUrl(returnUrl) ? returnUrl : null,
       selectionRestartRequired: params.get('selectionRestartRequired') === '1',
       justOnboarded: params.get('onboarded') === '1',
+      justActivated: params.get('activated') === '1',
+      email: loginEmailFromQuery(params.get('email')),
     };
   }
 
@@ -58,4 +60,24 @@ export class LoginService {
     url.searchParams.delete('intentId');
     window.history.replaceState({}, document.title, url.pathname + url.search);
   }
+}
+
+/** Accept only a single ordinary email so a crafted query cannot fill the field with junk. */
+function loginEmailFromQuery(value: string | null): string | null {
+  if (!value) {
+    return null;
+  }
+  const email = value.trim();
+  if (email.length > 254 || /\s/.test(email)) {
+    return null;
+  }
+  const at = email.indexOf('@');
+  if (at <= 0 || at !== email.lastIndexOf('@')) {
+    return null;
+  }
+  const domain = email.slice(at + 1);
+  if (!domain.includes('.') || domain.startsWith('.') || domain.endsWith('.')) {
+    return null;
+  }
+  return email;
 }

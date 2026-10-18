@@ -811,10 +811,8 @@ td.workspace-table__actions-col {
   border: 1px solid var(--line);
   background: var(--surface-2);
   color: var(--text-2);
-  font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   line-height: 1.35;
-  word-break: break-all;
 }
 
 .workspace-perm-item--empty {
@@ -2430,18 +2428,6 @@ td.workspace-table__actions-col {
   font-weight: 600;
   line-height: 1.35;
   color: var(--text);
-}
-
-.workspace-perm-tree__key {
-  justify-self: start;
-  max-inline-size: 100%;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  line-height: 1.35;
-  color: var(--muted);
-  overflow-wrap: anywhere;
-  direction: ltr;
-  unicode-bidi: isolate;
 }
 
 .workspace-perm-tree__reason {

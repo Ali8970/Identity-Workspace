@@ -3,32 +3,29 @@ import { RouterLink } from '@angular/router';
 import { FormField, email, form, required, submit } from '@angular/forms/signals';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
+import { LanguageService } from '../../../../core/i18n/language.service';
 import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
 import { RegisterService } from '../../services/register.service';
+
+interface RegisterOutcome {
+  requiresPasswordSetup: boolean;
+  email: string;
+  arabicCompanyName: string;
+  englishCompanyName: string;
+}
 
 @Component({
   selector: 'app-register-page',
   imports: [TranslatePipe, RouterLink, FormField, AuthLayout],
   template: `
     <app-auth-layout>
-      @if (successKey(); as key) {
+      @if (outcome()) {
         <div class="auth-success fade-up" role="status">
-          <div
-            class="auth-success__icon"
-            [class.auth-success__icon--info]="!isNewRegistration()"
-            aria-hidden="true"
-          >
-            @if (isNewRegistration()) {
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <path d="m9 12 2 2 4-4" />
-                <circle cx="12" cy="12" r="9" />
-              </svg>
-            } @else {
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <circle cx="12" cy="12" r="9" />
-                <path d="M12 10v6M12 7h.01" />
-              </svg>
-            }
+          <div class="auth-success__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+              <path d="m9 12 2 2 4-4" />
+              <circle cx="12" cy="12" r="9" />
+            </svg>
           </div>
 
           <h1 class="auth-form__title" id="main-content-header" tabindex="-1">
@@ -39,19 +36,52 @@ import { RegisterService } from '../../services/register.service';
             }}
           </h1>
 
-          <p class="auth-success__message">{{ key | translate }}</p>
+          <p class="auth-success__message">
+            {{
+              successMessageKey()
+                | translate: { company: companyName(), email: registeredEmail() }
+            }}
+          </p>
 
-          @if (isNewRegistration()) {
-            <ol class="auth-success__steps">
+          @if (!isNewRegistration()) {
+            <p class="auth-success__email">{{ registeredEmail() }}</p>
+          }
+
+          <ol class="auth-success__steps">
+            @if (isNewRegistration()) {
               <li>{{ 'auth.register.stepMailbox' | translate }}</li>
               <li>{{ 'auth.register.stepSetPassword' | translate }}</li>
               <li>{{ 'auth.register.stepSignIn' | translate }}</li>
-            </ol>
+            } @else {
+              <li>{{ 'auth.register.stepExistingSignIn' | translate }}</li>
+            }
+          </ol>
+
+          @if (!isNewRegistration()) {
+            <p class="auth-success__message">
+              {{ 'auth.register.existingWrongEmail' | translate }}
+            </p>
           }
 
-          <a class="btn-primary auth-form__submit inline-flex h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border-0 px-4 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50" routerLink="/login">
-            {{ 'auth.register.goToLogin' | translate }}
-          </a>
+          @if (isNewRegistration()) {
+            <a
+              class="btn-primary auth-form__submit inline-flex h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border-0 px-4 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
+              routerLink="/login"
+            >
+              {{ 'auth.register.goToLogin' | translate }}
+            </a>
+          } @else {
+            <a
+              class="btn-primary auth-form__submit inline-flex h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border-0 px-4 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
+              routerLink="/login"
+              [queryParams]="{ email: registeredEmail() }"
+            >
+              {{ 'auth.register.signIn' | translate }}
+            </a>
+            <button type="button" class="auth-form__link justify-self-center" (click)="registerAnother()">
+              {{ 'auth.register.registerAnother' | translate }}
+            </button>
+          }
         </div>
       } @else {
         <header class="auth-form__head">
@@ -217,6 +247,7 @@ import { RegisterService } from '../../services/register.service';
 })
 export class RegisterPage {
   private readonly registerService = inject(RegisterService);
+  private readonly language = inject(LanguageService);
 
   protected readonly model = signal({
     arabicCompanyName: '',
@@ -231,12 +262,31 @@ export class RegisterPage {
   });
 
   protected readonly busy = signal(false);
-  protected readonly successKey = signal<string | null>(null);
+  protected readonly outcome = signal<RegisterOutcome | null>(null);
   protected readonly submitted = signal(false);
 
   protected readonly isNewRegistration = computed(
-    () => this.successKey() === 'auth.register.successNew',
+    () => this.outcome()?.requiresPasswordSetup === true,
   );
+
+  protected readonly registeredEmail = computed(() => this.outcome()?.email ?? '');
+
+  protected readonly companyName = computed(() => {
+    const outcome = this.outcome();
+    if (!outcome) {
+      return '';
+    }
+    return this.language.pick(outcome.arabicCompanyName, outcome.englishCompanyName);
+  });
+
+  protected readonly successMessageKey = computed(() => {
+    if (this.isNewRegistration()) {
+      return 'auth.register.successNew';
+    }
+    return this.companyName()
+      ? 'auth.register.successExistingNamed'
+      : 'auth.register.successExisting';
+  });
 
   protected readonly emailInvalid = computed(
     () => this.submitted() && this.registerForm.managerEmail().invalid(),
@@ -250,14 +300,28 @@ export class RegisterPage {
       try {
         const value = this.model();
         const result = await firstValueFrom(this.registerService.register(value));
-        this.successKey.set(
-          result.requiresPasswordSetup
-            ? 'auth.register.successNew'
-            : 'auth.register.successExisting',
-        );
+        this.outcome.set({
+          requiresPasswordSetup: result.requiresPasswordSetup,
+          email: value.managerEmail.trim(),
+          arabicCompanyName: value.arabicCompanyName.trim(),
+          englishCompanyName: value.englishCompanyName.trim(),
+        });
       } finally {
         this.busy.set(false);
       }
+    });
+  }
+
+  /** The company is already created, so the next registration starts from an empty form. */
+  protected registerAnother(): void {
+    this.outcome.set(null);
+    this.submitted.set(false);
+    this.model.set({
+      arabicCompanyName: '',
+      englishCompanyName: '',
+      managerEmail: '',
+      firstName: '',
+      lastName: '',
     });
   }
 }

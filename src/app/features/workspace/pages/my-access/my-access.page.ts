@@ -2,13 +2,18 @@ import { Component, computed, inject } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SessionStore } from '../../../../core/auth/session.store';
+import {
+  humanizePermissionToken,
+  permissionActionLabel,
+  permissionScopeLabel,
+} from '../../../../core/i18n/permission-label';
 import { LanguageService } from '../../../../core/i18n/language.service';
+import { Disclosure } from '../../../../shared/ui/disclosure/disclosure';
 import { EmptyState } from '../../../../shared/ui/empty-state/empty-state';
 import { ErrorPanel } from '../../../../shared/ui/error-panel/error-panel';
 import type { ListStatCard } from '../../../../shared/ui/list-stats/list-stat-card';
 import { ListStats } from '../../../../shared/ui/list-stats/list-stats';
 import { PageHeader } from '../../../../shared/ui/page-header/page-header';
-import { PanelSection } from '../../../../shared/ui/panel-section/panel-section';
 import { MyAccessService } from '../../services/my-access.service';
 import { MyAccessSkeleton } from './my-access.skeleton';
 
@@ -19,7 +24,7 @@ import { MyAccessSkeleton } from './my-access.skeleton';
     MyAccessSkeleton,
     PageHeader,
     ListStats,
-    PanelSection,
+    Disclosure,
     EmptyState,
     ErrorPanel,
   ],
@@ -59,15 +64,23 @@ import { MyAccessSkeleton } from './my-access.skeleton';
           (retry)="reload()"
         />
       } @else {
-        <div class="grid gap-4 max-w1024:grid-cols-1 grid-cols-2">
-          <app-panel-section
-            [title]="'myAccess.rolesTitle' | translate"
-            [description]="'myAccess.rolesLead' | translate"
+        <div class="grid items-start gap-4 max-w1024:grid-cols-1 grid-cols-2">
+          <section
+            class="overflow-hidden rounded-[10px] border-[1.468px] border-border-button bg-surface shadow-[var(--shadow-card)]"
+            aria-labelledby="my-access-roles-title"
           >
+            <header class="border-b-[1.468px] border-border-subtle px-[18px] py-3">
+              <h2 class="m-0 text-[14px] font-bold text-text" id="my-access-roles-title">
+                {{ 'myAccess.rolesTitle' | translate }}
+              </h2>
+              <p class="m-0 mt-1 text-[12px] leading-normal text-text-muted">
+                {{ 'myAccess.rolesLead' | translate }}
+              </p>
+            </header>
             @if (roles().length === 0) {
               <app-empty-state [title]="'myAccess.noRoles' | translate" />
             } @else {
-              <ul class="m-0 flex list-none flex-col gap-2 p-0">
+              <ul class="m-0 flex list-none flex-col gap-2 p-3">
                 @for (role of roles(); track role.id) {
                   <li
                     class="flex items-center gap-3 rounded-lg border-[1.468px] border-border-button bg-surface px-3 py-2.5"
@@ -98,45 +111,60 @@ import { MyAccessSkeleton } from './my-access.skeleton';
                 }
               </ul>
             }
-          </app-panel-section>
+          </section>
 
-          <app-panel-section
-            [title]="'myAccess.permissionsTitle' | translate"
-            [description]="'myAccess.permissionsLead' | translate"
+          <section
+            class="overflow-hidden rounded-[10px] border-[1.468px] border-border-button bg-surface shadow-[var(--shadow-card)]"
+            aria-labelledby="my-access-permissions-title"
           >
+            <header class="border-b-[1.468px] border-border-subtle px-[18px] py-3">
+              <h2 class="m-0 text-[14px] font-bold text-text" id="my-access-permissions-title">
+                {{ 'myAccess.permissionsTitle' | translate }}
+              </h2>
+              <p class="m-0 mt-1 text-[12px] leading-normal text-text-muted">
+                {{ 'myAccess.permissionsLead' | translate }}
+              </p>
+            </header>
             @if (permissions().length === 0) {
               <app-empty-state [title]="'myAccess.noPermissions' | translate" />
             } @else {
-              <div class="flex flex-col gap-4">
+              <div>
                 @for (group of permissionGroups(); track group.applicationKey) {
-                  <section [attr.aria-labelledby]="'my-access-app-' + group.applicationKey">
-                    <header class="mb-2 flex flex-wrap items-center justify-between gap-2">
-                      <h3
-                        class="m-0 text-[13px] font-semibold text-text"
-                        [id]="'my-access-app-' + group.applicationKey"
-                      >
-                        {{ appLabel(group.applicationKey) }}
-                      </h3>
-                      <span
-                        class="rounded-md bg-surface-muted px-2 py-0.5 text-[11px] font-semibold text-text-muted"
-                      >
-                        {{ 'myAccess.groupCount' | translate: { count: group.items.length } }}
-                      </span>
-                    </header>
-                    <ul class="m-0 flex list-none flex-col gap-1 p-0">
-                      @for (perm of group.items; track perm) {
-                        <li
-                          class="rounded-md border-[1.468px] border-border-subtle bg-surface-muted px-2.5 py-1.5 text-[12px] font-medium text-text"
+                  <app-disclosure
+                    [heading]="appLabel(group.applicationKey)"
+                    [countLabel]="group.permissionCount + ''"
+                  >
+                    <div>
+                      @for (resource of group.resources; track resource.resource) {
+                        <section
+                          class="border-t-[1.468px] border-border-button pt-3 mt-3 first:mt-0 first:border-t-0 first:pt-0"
+                          [attr.aria-labelledby]="
+                            'my-access-' + group.applicationKey + '-' + resource.resource
+                          "
                         >
-                          {{ perm }}
-                        </li>
+                          <h3
+                            class="m-0 mb-1.5 text-[12px] font-semibold text-text-muted"
+                            [id]="'my-access-' + group.applicationKey + '-' + resource.resource"
+                          >
+                            {{ resource.label }}
+                          </h3>
+                          <ul class="m-0 flex list-none flex-wrap gap-1.5 p-0">
+                            @for (item of resource.items; track item.key) {
+                              <li
+                                class="inline-flex max-w-full rounded-md border-[1.468px] border-border-subtle bg-surface-muted px-2.5 py-1 text-[12.5px] font-medium leading-snug text-text"
+                              >
+                                {{ item.label }}
+                              </li>
+                            }
+                          </ul>
+                        </section>
                       }
-                    </ul>
-                  </section>
+                    </div>
+                  </app-disclosure>
                 }
               </div>
             }
-          </app-panel-section>
+          </section>
         </div>
       }
     </div>
@@ -181,20 +209,43 @@ export class MyAccessPage {
   });
 
   protected readonly permissionGroups = computed(() => {
-    const groups = new Map<string, string[]>();
-    for (const permission of this.permissions()) {
-      const applicationKey = permission.includes('.') ? permission.split('.')[0] : 'other';
-      const list = groups.get(applicationKey) ?? [];
-      list.push(permission);
-      groups.set(applicationKey, list);
+    this.language.current();
+    const locale = this.language.current();
+    const byApp = new Map<string, Map<string, string[]>>();
+    for (const key of this.permissions()) {
+      const parts = key.split('.').filter(Boolean);
+      const applicationKey = parts[0] || 'other';
+      const resource = parts.length >= 3 ? parts[1] : applicationKey;
+      const resources = byApp.get(applicationKey) ?? new Map<string, string[]>();
+      const list = resources.get(resource) ?? [];
+      list.push(key);
+      resources.set(resource, list);
+      byApp.set(applicationKey, resources);
     }
 
-    return [...groups.entries()]
-      .sort(([left], [right]) => left.localeCompare(right))
-      .map(([applicationKey, items]) => ({
-        applicationKey,
-        items: items.sort((left, right) => left.localeCompare(right)),
-      }));
+    return [...byApp.entries()]
+      .map(([applicationKey, resources]) => {
+        const resourceGroups = [...resources.entries()]
+          .map(([resource, keys]) => ({
+            resource,
+            label: this.language.labelOr(
+              `permissions.groups.${resource}`,
+              humanizePermissionToken(resource),
+            ),
+            items: keys
+              .map((key) => ({ key, label: permissionActionLabel(this.language, key) }))
+              .sort((left, right) => left.label.localeCompare(right.label, locale)),
+          }))
+          .sort((left, right) => left.label.localeCompare(right.label, locale));
+        return {
+          applicationKey,
+          resources: resourceGroups,
+          permissionCount: resourceGroups.reduce((total, group) => total + group.items.length, 0),
+        };
+      })
+      .sort((left, right) =>
+        this.appLabel(left.applicationKey).localeCompare(this.appLabel(right.applicationKey), locale),
+      );
   });
 
   protected reload(): void {
@@ -202,6 +253,6 @@ export class MyAccessPage {
   }
 
   protected appLabel(module: string): string {
-    return this.language.labelOr(`myAccess.apps.${module}`, module);
+    return permissionScopeLabel(this.language, module);
   }
 }

@@ -17,7 +17,7 @@ Mark each row: Pass / Fail / Blocked (note reason).
 | # | Journey | User action | API | Expected UI / outcome |
 |---|---|---|---|---|
 | 1 | `register-company` | `/register` with new email + company + owner names | `POST /tenants/register` | Success “check email”; then set-password email → `/set-password?userId&code` → login. **No auto session.** |
-| 2 | `register-existing` | `/register` with already-active user email | `POST /tenants/register` | “Email already registered” → go to `/login` with existing password |
+| 2 | `register-existing` | `/register` with already-active user email | `POST /tenants/register` | Stay on `/register`. Confirmation: company created, no set-password email. **Sign in** opens `/login?email=…` with that email filled and the password focused. **Register another company** returns to an empty form. |
 | 3 | `invite-user` | Logged-in owner → Members → Add member | `POST /companies/{tenantId}/members` | Success; invitee gets email (`emailType`: `SetPassword` or `WelcomeBack`) |
 | 4 | `accept-invitation` | Open set-password link from invite email | `POST /auth/set-password` | Password set → `/login` (no auto session) |
 | — | `onboarding` | New owner after first login (tenant `Onboarding`) | `GET /tenant`, `PUT /tenant/profile`, `GET /packages`, `POST /subscriptions/free-trial` | `/onboarding/company` → `/onboarding/package` → trial → `/login?onboarded=1` |

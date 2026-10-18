@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormField, form, required, submit } from '@angular/forms/signals';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom, map } from 'rxjs';
@@ -10,6 +10,7 @@ import { PasswordService } from '../../services/password.service';
 /**
  * Email link → `/set-password?userId=…&code=1234`
  * Code is captured, scrubbed from the URL, and sent on POST — never shown as an input.
+ * A successful save leaves this page for `/login`. The setup form is not the next step.
  */
 @Component({
   selector: 'app-set-password-page',
@@ -58,7 +59,11 @@ import { PasswordService } from '../../services/password.service';
           </h1>
           <p class="auth-success__message">{{ 'auth.setPassword.success' | translate }}</p>
 
-          <a class="btn-primary auth-form__submit inline-flex h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border-0 px-4 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50" routerLink="/login">
+          <a
+            class="btn-primary auth-form__submit inline-flex h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border-0 px-4 text-[13px] font-semibold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
+            routerLink="/login"
+            [queryParams]="{ activated: '1' }"
+          >
             {{ 'auth.setPassword.goToLogin' | translate }}
           </a>
         </div>
@@ -214,6 +219,7 @@ import { PasswordService } from '../../services/password.service';
 export class SetPasswordPage {
   private readonly passwordService = inject(PasswordService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   private readonly userId = signal('');
   private readonly code = signal('');
@@ -263,10 +269,15 @@ export class SetPasswordPage {
       const userId = fromRoute.userId || (params.get('userId') ?? '').trim();
       const code = fromRoute.code || (params.get('code') ?? '').trim();
       if (userId && code) {
+        const sameLink = this.userId() === userId && this.code() === code;
         this.userId.set(userId);
         this.code.set(code);
-        this.done.set(false);
-        this.submitted.set(false);
+        // A later read of the same activation link must not put the form back
+        // after the password has already been saved.
+        if (!sameLink) {
+          this.done.set(false);
+          this.submitted.set(false);
+        }
         this.scrubUrl();
       }
     };
@@ -289,10 +300,10 @@ export class SetPasswordPage {
     window.history.replaceState({}, document.title, url.pathname + url.search);
   }
 
-  protected onSubmit(event: Event): void {
+  protected async onSubmit(event: Event): Promise<void> {
     event.preventDefault();
     this.submitted.set(true);
-    void submit(this.passwordForm, async () => {
+    await submit(this.passwordForm, async () => {
       this.busy.set(true);
       try {
         const value = this.model();
@@ -302,8 +313,16 @@ export class SetPasswordPage {
         await firstValueFrom(
           this.passwordService.setPassword(this.userId(), this.code(), value),
         );
-        this.done.set(true);
         this.passwordService.clearAuthFlow();
+        const reachedLogin = await this.router.navigate(['/login'], {
+          queryParams: { activated: '1' },
+          replaceUrl: true,
+        });
+        // Login is the next step. If that navigation is refused, replace the
+        // setup form with an explicit sign-in action instead of leaving it up.
+        if (!reachedLogin) {
+          this.done.set(true);
+        }
       } finally {
         this.busy.set(false);
       }

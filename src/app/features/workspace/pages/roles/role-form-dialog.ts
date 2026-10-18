@@ -24,6 +24,7 @@ import {
   validate,
 } from '@angular/forms/signals';
 import { TranslatePipe } from '@ngx-translate/core';
+import { permissionDisplayLabel } from '../../../../core/i18n/permission-label';
 import { LanguageService } from '../../../../core/i18n/language.service';
 import { FocusTrap } from '../../../../shared/ui/focus-trap/focus-trap';
 import { PermissionCatalogItem, RoleListItem } from '../../models/workspace-feature.model';
@@ -829,12 +830,13 @@ export class RoleFormDialog {
   );
 
   protected readonly reviewPermissionPreview = computed(() => {
-    const byKey = new Map(
-      this.catalog().map((item) => [item.key, this.language.pick(item.nameAr, item.nameEn)] as const),
-    );
+    const byKey = new Map(this.catalog().map((item) => [item.key, item]));
     return this.reviewPermissionKeys()
       .slice(0, REVIEW_PERM_PREVIEW)
-      .map((key) => ({ key, label: byKey.get(key) || key }));
+      .map((key) => ({
+        key,
+        label: permissionDisplayLabel(this.language, key, byKey.get(key)),
+      }));
   });
 
   protected readonly reviewPermissionMore = computed(() =>

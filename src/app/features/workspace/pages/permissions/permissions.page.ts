@@ -1,8 +1,14 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import {
+  humanizePermissionToken,
+  permissionActionLabel,
+  permissionScopeLabel,
+} from '../../../../core/i18n/permission-label';
 import { LanguageService } from '../../../../core/i18n/language.service';
 import { applicationModifier } from '../../../../shared/ui/display';
+import { Disclosure } from '../../../../shared/ui/disclosure/disclosure';
 import { EmptyState } from '../../../../shared/ui/empty-state/empty-state';
 import { ErrorPanel } from '../../../../shared/ui/error-panel/error-panel';
 import type { ListStatCard } from '../../../../shared/ui/list-stats/list-stat-card';
@@ -14,7 +20,15 @@ import { PermissionsSkeleton } from './permissions.skeleton';
 
 @Component({
   selector: 'app-permissions-page',
-  imports: [TranslatePipe, PermissionsSkeleton, PageHeader, ListStats, EmptyState, ErrorPanel],
+  imports: [
+    TranslatePipe,
+    PermissionsSkeleton,
+    PageHeader,
+    ListStats,
+    Disclosure,
+    EmptyState,
+    ErrorPanel,
+  ],
   template: `
     <div>
       <app-page-header
@@ -61,10 +75,40 @@ import { PermissionsSkeleton } from './permissions.skeleton';
           />
         </section>
       } @else {
+        <div class="relative mb-4">
+          <span
+            class="pointer-events-none absolute start-3.5 top-1/2 -translate-y-1/2 text-text-muted"
+            aria-hidden="true"
+          >
+            <svg width="15" height="15" viewBox="0 0 14 16" fill="none">
+              <circle cx="6" cy="6" r="4.25" stroke="currentColor" stroke-width="1.5" />
+              <path d="M9.2 9.8 12 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+          </span>
+          <input
+            type="search"
+            class="list-filter-control h-10 w-full rounded-lg border-[1.468px] border-border-button bg-surface ps-[42px] pe-3 text-[13px] text-text outline-none placeholder:text-text-muted focus:border-border-button focus:outline-none [&::-webkit-search-cancel-button]:appearance-none"
+            [value]="search()"
+            [placeholder]="'permissions.search' | translate"
+            [attr.aria-label]="'permissions.search' | translate"
+            autocomplete="off"
+            (input)="search.set($any($event.target).value)"
+          />
+        </div>
+
+        @if (visibleApplications().length === 0) {
+          <section
+            class="overflow-hidden rounded-[10px] border-[1.468px] border-border-button bg-surface shadow-[var(--shadow-card)]"
+          >
+            <app-empty-state
+              [title]="'permissions.noMatches' | translate: { term: search().trim() }"
+            />
+          </section>
+        } @else {
         <div class="flex flex-col gap-4">
-          @for (appGroup of applicationGroups(); track appGroup.applicationKey) {
+          @for (appGroup of visibleApplications(); track appGroup.applicationKey) {
             <section
-              class="list-table-panel overflow-hidden rounded-[10px] border-[1.468px] border-border-button bg-surface shadow-[var(--shadow-card)]"
+              class="overflow-hidden rounded-[10px] border-[1.468px] border-border-button bg-surface shadow-[var(--shadow-card)]"
               [attr.aria-labelledby]="'permissions-app-' + appGroup.applicationKey"
             >
               <header
@@ -146,54 +190,32 @@ import { PermissionsSkeleton } from './permissions.skeleton';
                 </span>
               </header>
 
-              <div class="flex flex-col gap-0 divide-y-[1.468px] divide-border-subtle">
+              <div>
                 @for (group of appGroup.groups; track group.name) {
-                  <section
-                    class="px-[18px] py-3.5"
-                    [attr.aria-labelledby]="
-                      'permissions-group-' + appGroup.applicationKey + '-' + group.name
-                    "
+                  <app-disclosure
+                    [heading]="groupLabel(group.name)"
+                    [countLabel]="'' + group.items.length"
+                    [forceOpen]="searching()"
                   >
-                    <header class="mb-2.5 flex flex-wrap items-center justify-between gap-2">
-                      <h3
-                        class="m-0 text-[13px] font-semibold text-text"
-                        [id]="'permissions-group-' + appGroup.applicationKey + '-' + group.name"
-                      >
-                        {{ groupLabel(group.name) }}
-                      </h3>
-                      <span
-                        class="inline-flex items-center rounded-md bg-surface-muted px-2 py-0.5 text-[11px] font-semibold text-text-muted"
-                      >
-                        {{ 'permissions.groupCount' | translate: { count: group.items.length } }}
-                      </span>
-                    </header>
-
-                    <ul class="m-0 flex list-none flex-col gap-1.5 p-0">
+                    <ul class="m-0 flex list-none flex-wrap gap-1.5 p-0">
                       @for (item of group.items; track item.key) {
-                        <li
-                          class="flex flex-wrap items-center justify-between gap-2 rounded-lg border-[1.468px] border-border-subtle bg-surface-muted/40 px-3 py-2.5"
-                        >
-                          <span class="min-w-0 flex flex-col gap-0.5">
-                            <strong class="text-[13px] font-semibold text-text">
-                              {{ language.pick(item.nameAr, item.nameEn) }}
-                            </strong>
-                            <span class="text-[11px] font-medium text-text-muted">
-                              {{ 'permissions.keyLabel' | translate }}
-                            </span>
+                        <li>
+                          <span
+                            class="inline-flex max-w-full rounded-md border-[1.468px] border-border-subtle bg-surface-muted px-2.5 py-1 text-[12.5px] font-medium leading-snug text-text"
+                            [attr.title]="item.key"
+                          >
+                            {{ permissionName(item) }}
                           </span>
-                          <code
-                            class="ltr-text rounded-md border-[1.468px] border-border-button bg-surface px-2 py-1 font-mono text-[11px] font-semibold text-text-muted"
-                            dir="ltr"
-                          >{{ item.key }}</code>
                         </li>
                       }
                     </ul>
-                  </section>
+                  </app-disclosure>
                 }
               </div>
             </section>
           }
         </div>
+        }
       }
     </div>
   `,
@@ -213,6 +235,8 @@ export class PermissionsPage {
 
   protected readonly items = this.catalog.value;
   protected readonly loading = this.catalog.isLoading;
+  protected readonly search = signal('');
+  protected readonly searching = computed(() => this.search().trim().length > 0);
   /** The error interceptor already raised the banner; this only offers the retry. */
   protected readonly loadFailed = computed(() => this.catalog.status() === 'error');
 
@@ -275,17 +299,53 @@ export class PermissionsPage {
       });
   });
 
+  /** Search narrows the catalogue. Matching groups open while a search is active. */
+  protected readonly visibleApplications = computed(() => {
+    this.language.current();
+    const term = this.search().trim().toLowerCase();
+    const locale = this.language.current();
+    return this.applicationGroups()
+      .map((app) => {
+        const groups = app.groups
+          .map((group) => ({
+            ...group,
+            items: group.items.filter((item) => {
+              if (!term) {
+                return true;
+              }
+              return [this.permissionName(item), item.key, this.groupLabel(group.name), app.applicationKey]
+                .join(' ')
+                .toLowerCase()
+                .includes(term);
+            }),
+          }))
+          .filter((group) => group.items.length > 0)
+          .sort((left, right) =>
+            this.groupLabel(left.name).localeCompare(this.groupLabel(right.name), locale),
+          );
+        return {
+          ...app,
+          groups,
+          permissionCount: groups.reduce((total, group) => total + group.items.length, 0),
+        };
+      })
+      .filter((app) => app.groups.length > 0);
+  });
+
   protected reload(): void {
     this.catalog.reload();
   }
 
-  /** Falls back to the raw applicationKey when the catalogue has no label for it. */
   protected appLabel(applicationKey: string): string {
-    return this.language.labelOr(`permissions.apps.${applicationKey}`, applicationKey);
+    return permissionScopeLabel(this.language, applicationKey);
   }
 
   /** `resource` is the middle segment of module.resource.action and is open-ended. */
   protected groupLabel(group: string): string {
-    return this.language.labelOr(`permissions.groups.${group}`, group);
+    return this.language.labelOr(`permissions.groups.${group}`, humanizePermissionToken(group));
+  }
+
+  protected permissionName(item: PermissionCatalogItem): string {
+    return permissionActionLabel(this.language, item.key, item);
   }
 }
