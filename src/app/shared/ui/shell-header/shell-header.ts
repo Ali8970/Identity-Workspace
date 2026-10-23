@@ -241,13 +241,21 @@ import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
             [attr.aria-label]="'shell.language' | translate"
             (click)="toggleLanguage()"
           >
-            <span
-              class="text-[12px] font-semibold tracking-[0.02em] text-text max-[769px]:hidden"
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              class="size-[15px] shrink-0"
+              aria-hidden="true"
             >
-              {{ currentLanguage() === 'en' ? 'EN' : 'عربي' }}
-            </span>
-            <span class="hidden text-[12px] font-semibold text-text max-[769px]:inline">
-              {{ currentLanguage() === 'en' ? 'EN' : 'ع' }}
+              <circle cx="12" cy="12" r="9" />
+              <path
+                d="M3 12h18M12 3c2.6 2.5 3.9 5.6 3.9 9s-1.3 6.5-3.9 9c-2.6-2.5-3.9-5.6-3.9-9s1.3-6.5 3.9-9Z"
+              />
+            </svg>
+            <span class="text-[12px] font-semibold tracking-[0.02em] text-text max-[769px]:hidden">
+              {{ currentLanguage() === 'ar' ? 'EN' : 'عربي' }}
             </span>
           </button>
 

@@ -170,31 +170,39 @@
 
 .auth-page__lang {
   display: inline-flex;
-  padding: 0.2rem;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  box-shadow: var(--shadow-sm);
-}
-
-.auth-page__lang-btn {
-  border: 0;
-  background: transparent;
-  color: var(--muted);
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  height: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0 0.625rem;
+  border-radius: 0.5rem;
+  border: 1.468px solid var(--border-button, var(--line));
+  background: var(--surface-muted, var(--surface));
+  color: var(--text-2);
   font: inherit;
-  font-size: 0.78rem;
-  font-weight: 700;
-  min-width: 2.2rem;
-  min-height: 1.85rem;
-  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
   cursor: pointer;
   transition:
     background var(--transition),
     color var(--transition);
 
-  &--active {
-    background: var(--primary-soft);
-    color: var(--primary);
+  svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+  }
+
+  span {
+    color: var(--text);
+  }
+
+  &:hover {
+    background: var(--surface-2);
+    color: var(--text);
   }
 }
 

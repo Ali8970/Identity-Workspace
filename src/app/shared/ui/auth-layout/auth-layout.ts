@@ -65,28 +65,18 @@ import { GlobalErrorBanner } from '../global-error-banner/global-error-banner';
 
       <main class="auth-page__main" id="main-content">
         <div class="auth-page__toolbar">
-          <div
+          <button
+            type="button"
             class="auth-page__lang"
-            role="group"
             [attr.aria-label]="'shell.language' | translate"
+            (click)="toggleLanguage()"
           >
-            <button
-              type="button"
-              class="auth-page__lang-btn"
-              [class.auth-page__lang-btn--active]="language.current() === 'en'"
-              (click)="setLanguage('en')"
-            >
-              EN
-            </button>
-            <button
-              type="button"
-              class="auth-page__lang-btn"
-              [class.auth-page__lang-btn--active]="language.current() === 'ar'"
-              (click)="setLanguage('ar')"
-            >
-              AR
-            </button>
-          </div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M3 12h18M12 3c2.6 2.5 3.9 5.6 3.9 9s-1.3 6.5-3.9 9c-2.6-2.5-3.9-5.6-3.9-9s1.3-6.5 3.9-9Z" />
+            </svg>
+            <span>{{ language.current() === 'ar' ? 'EN' : 'عربي' }}</span>
+          </button>
 
           <button
             type="button"
@@ -122,7 +112,11 @@ export class AuthLayout {
   /** Drives which theme-toggle icon to show. */
   protected readonly isDark = computed(() => this.theme.resolved() === 'dark');
 
-  protected setLanguage(lang: 'en' | 'ar'): void {
+  protected toggleLanguage(): void {
+    this.setLanguage(this.language.current() === 'en' ? 'ar' : 'en');
+  }
+
+  private setLanguage(lang: 'en' | 'ar'): void {
     if (lang !== this.language.current()) {
       this.language.setLanguage(lang);
     }
