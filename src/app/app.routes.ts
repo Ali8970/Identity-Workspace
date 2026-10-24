@@ -147,13 +147,6 @@ export const routes: Routes = [
               import('./features/workspace/pages/roles/roles.page').then((m) => m.RolesPage),
           },
           {
-            path: 'permissions',
-            loadComponent: () =>
-              import('./features/workspace/pages/permissions/permissions.page').then(
-                (m) => m.PermissionsPage,
-              ),
-          },
-          {
             path: 'teams',
             loadComponent: () =>
               import('./features/workspace/pages/teams/teams.page').then((m) => m.TeamsPage),

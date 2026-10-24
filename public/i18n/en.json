@@ -174,7 +174,6 @@
     "applications": "Applications",
     "members": "Members",
     "roles": "Roles",
-    "permissions": "Permission dictionary",
     "teams": "Organization",
     "myAccess": "My access",
     "account": "Account",
@@ -583,19 +582,6 @@
     "colActions": "Actions"
   },
   "permissions": {
-    "title": "Permission dictionary",
-    "eyebrow": "Catalog",
-    "subtitle": "Reference of permissions your apps can grant. Assign them through Roles — this page does not change access.",
-    "permissionCount": "{{count}} permissions",
-    "groupCount": "{{count}} items",
-    "groupPermissionCount": "{{count}} permissions",
-    "loading": "Loading permission catalog…",
-    "catalogHint": "Use this list when building roles. Day-to-day access is managed on Members and Roles.",
-    "keyLabel": "Permission key",
-    "search": "Search permissions",
-    "noMatches": "No permissions match “{{term}}”.",
-    "emptyTitle": "No permissions in catalog",
-    "emptyBody": "The permission catalog is empty. Entries will appear here once configured.",
     "apps": {
       "account": "Account",
       "crm": "CRM",
@@ -639,11 +625,6 @@
       "units": "Units",
       "tasks": "Tasks",
       "contacts": "Contacts"
-    },
-    "stats": {
-      "total": "Permissions",
-      "applications": "Applications",
-      "groups": "Groups"
     }
   },
   "teams": {

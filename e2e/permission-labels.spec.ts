@@ -31,20 +31,11 @@ test('my access lists readable permission labels', async ({ page }) => {
   await expect(main.getByText('identity.memberships.read')).toHaveCount(0);
 });
 
-test('permission dictionary groups labels in accordions', async ({ page }) => {
+test('permission dictionary is not a workspace page', async ({ page }) => {
+  await page.goto('/applications');
+  await expect(page.getByRole('link', { name: 'Permission dictionary' })).toHaveCount(0);
+
   await page.goto('/permissions');
-  const main = page.locator('#main-content');
-
-  await expect(main.getByText('View members', { exact: true })).toBeHidden();
-  await expect(main.getByText('Manage roles', { exact: true })).toBeHidden();
-
-  await main.getByText('Memberships', { exact: true }).click();
-  await expect(main.getByText('View members', { exact: true })).toBeVisible();
-
-  await main.getByText('Roles', { exact: true }).click();
-  await expect(main.getByText('Manage roles', { exact: true })).toBeVisible();
-
-  await main.getByRole('searchbox', { name: 'Search permissions' }).fill('contacts');
-  await expect(main.getByText('View contacts', { exact: true })).toBeVisible();
-  await expect(main.getByText('View members', { exact: true })).toBeHidden();
+  await expect(page.getByRole('heading', { name: 'Applications' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Permission dictionary' })).toHaveCount(0);
 });

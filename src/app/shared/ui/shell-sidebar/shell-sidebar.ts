@@ -104,11 +104,6 @@ import { ShellNavGroup } from '../../layouts/shell-nav.model';
                       @case ('roles') {
                         <path d="M8 2.5 13 4.5v4.2c0 2.8-2 4.6-5 5.3-3-.7-5-2.5-5-5.3V4.5L8 2.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
                       }
-                      @case ('permissions') {
-                        <circle cx="6" cy="10" r="3" stroke="currentColor" stroke-width="1.4" />
-                        <path d="M8.5 7.5 13 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-                        <path d="M11 3h2.5V5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
-                      }
                       @case ('teams') {
                         <circle cx="8" cy="3.5" r="1.75" stroke="currentColor" stroke-width="1.4" />
                         <circle cx="3.5" cy="12" r="1.75" stroke="currentColor" stroke-width="1.4" />

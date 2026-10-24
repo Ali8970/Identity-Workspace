@@ -27,7 +27,6 @@ const routes: ShotRoute[] = [
   { id: 'applications', path: '/applications', session: 'active' },
   { id: 'members', path: '/members', session: 'active' },
   { id: 'roles', path: '/roles', session: 'active' },
-  { id: 'permissions', path: '/permissions', session: 'active' },
   { id: 'teams', path: '/teams', session: 'active' },
   { id: 'my-access', path: '/my-access', session: 'active' },
   { id: 'account', path: '/account', session: 'active' },

@@ -2,7 +2,6 @@ export type ShellNavIcon =
   | 'applications'
   | 'members'
   | 'roles'
-  | 'permissions'
   | 'teams'
   | 'my-access'
   | 'account';
