@@ -1,5 +1,10 @@
 @import 'tailwindcss';
 
+/* Desktop-first breakpoints used across workspace pages. */
+@custom-variant max-w480 (@media (width < 480px));
+@custom-variant max-w768 (@media (width < 768px));
+@custom-variant max-w1024 (@media (width < 1024px));
+
 /* ==========================================================================
    Brooch shared design tokens (Admin / CRM / Account)
 
@@ -60,6 +65,25 @@
   --sidebar-line: rgba(255, 255, 255, 0.07);
   --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
   --shadow-primary-button: 0 2px 4px 0 rgba(43, 91, 249, 0.35);
+  --shadow-app-card: 0 1px 2px rgba(20, 32, 50, 0.04), 0 8px 24px rgba(20, 32, 50, 0.04);
+  --shadow-app-button: 0 5px 6px rgba(30, 0, 176, 0.16);
+  --shadow-app-stats: 0 1px 1px rgba(20, 32, 50, 0.04), 0 8px 12px rgba(20, 32, 50, 0.04);
+  --launcher-panel: #f8f9fc;
+  --launcher-muted: #7a8695;
+  --launcher-available: #087a49;
+  --launcher-available-bg: #dff7ea;
+  --launcher-unavailable: #687383;
+  --launcher-unavailable-bg: #edf0f3;
+  --launcher-icon-bg: #eaedff;
+  --launcher-eyebrow: #2b22ca;
+  --launcher-logo-plate: transparent;
+  --app-ink: #ffffff;
+  --app-mos: #723cc2;
+  --app-aos: #7f8181;
+  --app-los: #328af6;
+  --app-ios: #f2bf54;
+  --app-dos: #04cb09;
+  --app-sos: #e22e7b;
   --primary-gradient: linear-gradient(180deg, #1e00b0 0%, #2b5bf9 100%);
   --primary-gradient-hover: linear-gradient(180deg, #160088 0%, #1e00b0 100%);
   --radius-sm: 6px;
@@ -170,6 +194,18 @@
   --sidebar-line: #122137;
   --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.4);
   --shadow-primary-button: 0 2px 4px 0 rgba(146, 171, 255, 0.25);
+  --shadow-app-card: 0 1px 2px rgba(0, 0, 0, 0.28), 0 8px 24px rgba(0, 0, 0, 0.28);
+  --shadow-app-button: 0 5px 6px rgba(0, 0, 0, 0.28);
+  --shadow-app-stats: 0 1px 1px rgba(0, 0, 0, 0.28), 0 8px 12px rgba(0, 0, 0, 0.24);
+  --launcher-panel: #0e1929;
+  --launcher-muted: #8694a6;
+  --launcher-available: #087a49;
+  --launcher-available-bg: #dff7ea;
+  --launcher-unavailable: #687383;
+  --launcher-unavailable-bg: #edf0f3;
+  --launcher-icon-bg: #eaedff;
+  --launcher-eyebrow: #92abff;
+  --launcher-logo-plate: #f4f6fb;
   --primary-gradient: linear-gradient(180deg, #92abff 0%, #7fb2ff 100%);
   --primary-gradient-hover: linear-gradient(180deg, #7fb2ff 0%, #92abff 100%);
   --border-button: #1e3350;
@@ -240,6 +276,15 @@
   --color-danger: var(--danger);
   --color-danger-text: var(--danger-text);
   --color-danger-bg: var(--danger-bg);
+  --color-launcher-panel: var(--launcher-panel);
+  --color-launcher-muted: var(--launcher-muted);
+  --color-launcher-available: var(--launcher-available);
+  --color-launcher-available-bg: var(--launcher-available-bg);
+  --color-launcher-unavailable: var(--launcher-unavailable);
+  --color-launcher-unavailable-bg: var(--launcher-unavailable-bg);
+  --color-launcher-icon-bg: var(--launcher-icon-bg);
+  --color-launcher-eyebrow: var(--launcher-eyebrow);
+  --color-launcher-logo-plate: var(--launcher-logo-plate);
 }
 
 @font-face {

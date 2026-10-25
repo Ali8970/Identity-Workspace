@@ -202,23 +202,28 @@
     }
   },
   "applications": {
-    "title": "Applications",
-    "eyebrow": "Launcher",
-    "subtitle": "Open the Brooch apps included for this company. You stay signed in across apps.",
+    "title": "Your apps in one place",
+    "workspace": "Workspace",
+    "subtitle": "Pick an app to start. Available apps open with your current Brooch session, without signing in again.",
+    "all": "All applications",
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "unavailableHint": "This app is not available for your account yet",
     "open": "Open app",
     "opening": "Opening…",
-    "current": "Current app",
-    "unavailable": "Not in your plan",
-    "appCount": "{{count}} apps",
+    "count": "{{count}} apps",
+    "availableCount": "{{count}} available",
+    "sessionTitle": "Connected to your Brooch account",
+    "sessionBody": "Your current session stays active when you open any available app.",
     "justOnboarded": "Company activated. Welcome to your workspace.",
-    "emptyTitle": "No applications yet",
-    "emptyBody": "No Brooch apps are available here yet. If you expect access, ask your company admin.",
-    "ssoHint": "Opening an app continues your Brooch session — no second sign-in.",
     "loading": "Loading your applications…",
-    "stats": {
-      "total": "Apps",
-      "available": "Available",
-      "unavailable": "Unavailable"
+    "products": {
+      "mos": { "name": "Property management", "code": "RE MOS" },
+      "aos": { "name": "Real estate assets", "code": "RE AOS" },
+      "los": { "name": "Listing and publishing", "code": "RE LOS" },
+      "ios": { "name": "Investment and returns", "code": "RE IOS" },
+      "dos": { "name": "Construction management", "code": "RE DOS" },
+      "sos": { "name": "Real estate sales", "code": "RE SOS" }
     }
   },
   "members": {

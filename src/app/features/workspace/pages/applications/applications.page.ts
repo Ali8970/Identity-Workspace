@@ -1,38 +1,86 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { SessionStore } from '../../../../core/auth/session.store';
 import { LanguageService } from '../../../../core/i18n/language.service';
-import { AvailableApplicationDto } from '../../../../models/auth.model';
-import { applicationModifier } from '../../../../shared/ui/display';
-import { EmptyState } from '../../../../shared/ui/empty-state/empty-state';
-import type { ListStatCard } from '../../../../shared/ui/list-stats/list-stat-card';
-import { ListStats } from '../../../../shared/ui/list-stats/list-stats';
-import { PageHeader } from '../../../../shared/ui/page-header/page-header';
 import { ApplicationsService } from '../../services/applications.service';
+import { ApplicationCard } from './application-card';
+import { LauncherApplication, buildLauncherApps } from './application-catalogue';
 import { ApplicationsSkeleton } from './applications.skeleton';
 
 @Component({
   selector: 'app-applications-page',
-  imports: [TranslatePipe, ApplicationsSkeleton, PageHeader, ListStats, EmptyState],
+  imports: [TranslatePipe, ApplicationsSkeleton, ApplicationCard],
   host: {
     '(window:pageshow)': 'onPageShow()',
     '(window:focus)': 'onPageShow()',
   },
   template: `
-    <div>
-      <app-page-header
-        [title]="'applications.title' | translate"
-        [description]="'applications.subtitle' | translate"
-      />
+    <div class="flex flex-col gap-8">
+      <header class="flex flex-wrap items-start justify-between gap-6">
+        <div class="min-w-0 max-w-[680px] flex-1">
+          <p class="m-0 text-xs leading-[18px] font-bold text-launcher-eyebrow">
+            @if (companyLabel()) {
+              {{ 'applications.workspace' | translate }} / {{ companyLabel() }}
+            } @else {
+              {{ 'applications.workspace' | translate }}
+            }
+          </p>
+          <h1
+            class="mt-2 mb-0 text-[2.375rem] leading-[1.25] font-normal tracking-[-0.025em] text-text max-w768:text-[1.75rem]"
+            id="main-content-header"
+            tabindex="-1"
+          >
+            {{ 'applications.title' | translate }}
+          </h1>
+          <p class="mt-2.5 mb-0 max-w-[656px] text-[15px] leading-[1.75] text-launcher-muted">
+            {{ 'applications.subtitle' | translate }}
+          </p>
+        </div>
 
-      <div class="mb-4">
-        <app-list-stats [stats]="applicationStats()" [loading]="loading()" />
-      </div>
+        <div
+          class="flex w-full max-w-[308px] min-w-[260px] items-stretch rounded-2xl border-[1.468px] border-border-button bg-surface px-[15px] py-[13px] shadow-[var(--shadow-app-stats)] max-w480:max-w-none max-w480:min-w-0"
+          dir="ltr"
+        >
+          <div class="flex min-w-0 flex-1 items-center justify-end gap-2">
+            <span class="min-w-0 text-end">
+              <span class="block text-[10px] leading-[15px] text-launcher-muted">
+                {{ 'applications.all' | translate }}
+              </span>
+              <span class="block text-[13px] leading-[19.5px] font-bold text-text">
+                {{ 'applications.count' | translate: { count: apps().length } }}
+              </span>
+            </span>
+            <span
+              class="grid size-[38px] shrink-0 place-items-center rounded-[10px] bg-launcher-icon-bg"
+              aria-hidden="true"
+            >
+              <img src="/images/apps/icon-grid.svg" alt="" />
+            </span>
+          </div>
+          <span class="mx-[13px] w-px self-stretch bg-border-button" aria-hidden="true"></span>
+          <div class="flex min-w-0 flex-1 items-center justify-end gap-2">
+            <span class="min-w-0 text-end">
+              <span class="block text-[10px] leading-[15px] text-launcher-muted">
+                {{ 'applications.available' | translate }}
+              </span>
+              <span class="block text-[13px] leading-[19.5px] font-bold text-text">
+                {{ 'applications.availableCount' | translate: { count: availableCount() } }}
+              </span>
+            </span>
+            <span
+              class="grid size-[38px] shrink-0 place-items-center rounded-[10px] bg-launcher-available-bg"
+              aria-hidden="true"
+            >
+              <img src="/images/apps/icon-check-stat.svg" alt="" />
+            </span>
+          </div>
+        </div>
+      </header>
 
       @if (justOnboarded()) {
         <div
-          class="mb-4 flex flex-wrap items-center gap-3 rounded-[10px] border-[1.468px] border-success bg-success-bg px-4 py-3 text-[13px] text-success-text"
+          class="flex flex-wrap items-center gap-3 rounded-[10px] border-[1.468px] border-success bg-success-bg px-4 py-3 text-[13px] text-success-text"
           role="status"
         >
           {{ 'applications.justOnboarded' | translate }}
@@ -41,191 +89,64 @@ import { ApplicationsSkeleton } from './applications.skeleton';
 
       @if (loading()) {
         <app-applications-skeleton [label]="'applications.loading' | translate" />
-      } @else if (apps().length === 0) {
-        <section
-          class="list-table-panel overflow-hidden rounded-[10px] border-[1.468px] border-border-button bg-surface shadow-[var(--shadow-card)]"
-        >
-          <app-empty-state
-            [title]="'applications.emptyTitle' | translate"
-            [detail]="'applications.emptyBody' | translate"
-          />
-        </section>
       } @else {
-        <div
-          class="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr))]"
-          role="list"
-          [attr.aria-label]="'applications.title' | translate"
+        <section
+          class="rounded-[20px] border-[1.468px] border-border-button bg-launcher-panel p-6 max-w480:p-4"
+          [attr.aria-label]="'applications.all' | translate"
         >
-          @for (app of apps(); track app.key) {
-            <article
-              class="flex min-h-full flex-col gap-3.5 rounded-[10px] border-[1.468px] border-border-button bg-surface p-4 font-[family-name:var(--font-family)] shadow-[var(--shadow-card)]"
-              role="listitem"
-              [class.border-info]="app.isCurrent"
-              [class.bg-primary-light]="app.isCurrent"
-              [class.bg-surface-muted]="isLocked(app)"
-              [class.opacity-90]="isLocked(app)"
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-baseline gap-2">
+              <h2 class="m-0 text-lg leading-[27px] font-normal text-text">
+                {{ 'applications.all' | translate }}
+              </h2>
+              <p class="m-0 text-xs leading-[18px] text-launcher-muted">
+                {{ 'applications.count' | translate: { count: apps().length } }}
+              </p>
+            </div>
+            <p
+              class="m-0 flex items-center gap-1.5 text-xs leading-[18px] font-semibold text-launcher-available"
             >
-              <div class="flex items-start gap-3">
-                <span
-                  [class]="
-                    'grid size-11 shrink-0 place-items-center rounded-[12px] border-[1.468px] border-border-button bg-surface-muted text-info app-launcher-card__icon--' +
-                    applicationModifier(app.key)
-                  "
-                  aria-hidden="true"
-                >
-                  @switch (app.key) {
-                    @case ('account') {
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.75"
-                        class="size-5"
-                      >
-                        <path d="M12 3 4 7v6c0 5 3.5 7.7 8 8 4.5-.3 8-3 8-8V7l-8-4Z" />
-                      </svg>
-                    }
-                    @case ('crm') {
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.75"
-                        class="size-5"
-                      >
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                        <circle cx="9" cy="7" r="3.5" />
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-                      </svg>
-                    }
-                    @case ('hr') {
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.75"
-                        class="size-5"
-                      >
-                        <rect x="3" y="7" width="18" height="13" rx="2" />
-                        <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                        <path d="M12 12v3M9 12h6" />
-                      </svg>
-                    }
-                    @default {
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.75"
-                        class="size-5"
-                      >
-                        <rect x="3" y="3" width="7" height="7" rx="1.5" />
-                        <rect x="14" y="3" width="7" height="7" rx="1.5" />
-                        <rect x="3" y="14" width="7" height="7" rx="1.5" />
-                        <rect x="14" y="14" width="7" height="7" rx="1.5" />
-                      </svg>
-                    }
-                  }
-                </span>
-                <div class="min-w-0 flex-1">
-                  <h2 class="m-0 text-[15px] leading-snug font-bold text-text">
-                    {{ language.pick(app.nameAr, app.nameEn) }}
-                  </h2>
-                  <p
-                    class="mt-0.5 mb-0 text-[11px] font-semibold tracking-wide text-text-muted uppercase"
-                  >
-                    {{ app.key }}
-                  </p>
-                </div>
-              </div>
+              <span
+                class="size-[7px] rounded-full bg-launcher-available shadow-[0_0_0_4px_var(--launcher-available-bg)]"
+                aria-hidden="true"
+              ></span>
+              {{ 'applications.availableCount' | translate: { count: availableCount() } }}
+            </p>
+          </div>
 
-              <div class="mt-auto flex items-center justify-between gap-2.5">
-                @if (app.isCurrent) {
-                  <span
-                    class="inline-flex items-center gap-1 rounded-md bg-primary-light px-2 py-0.5 text-[11px] font-semibold text-info-text"
-                  >
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      aria-hidden="true"
-                      class="size-3.5"
-                    >
-                      <path d="m5 12 5 5L19 7" />
-                    </svg>
-                    {{ 'applications.current' | translate }}
-                  </span>
-                } @else if (canLaunch(app.url)) {
-                  <a
-                    class="btn-primary ms-auto inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border-0 px-3.5 text-[13px] font-semibold text-on-primary no-underline"
-                    [href]="app.url"
-                    rel="noopener"
-                    [attr.aria-busy]="launching() === app.key || null"
-                    [attr.aria-disabled]="
-                      launching() !== null && launching() !== app.key ? true : null
-                    "
-                    (click)="onLaunch(app, $event)"
-                  >
-                    @if (launching() === app.key) {
-                      {{ 'applications.opening' | translate }}
-                    } @else {
-                      {{ 'applications.open' | translate }}
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.75"
-                        aria-hidden="true"
-                        class="size-4"
-                      >
-                        <path
-                          d="M14 4h6v6M10 14 20 4M15 9h-4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-4"
-                        />
-                      </svg>
-                    }
-                  </a>
-                } @else {
-                  <span
-                    class="inline-flex items-center gap-1 rounded-md border-[1.468px] border-warning bg-warning-bg px-2 py-0.5 text-[11px] font-semibold text-warning-text"
-                  >
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1.9"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      aria-hidden="true"
-                      class="size-3.5"
-                    >
-                      <rect x="4.5" y="10.5" width="15" height="9.5" rx="2" />
-                      <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" />
-                    </svg>
-                    {{ 'applications.unavailable' | translate }}
-                  </span>
-                }
-              </div>
-            </article>
-          }
-        </div>
+          <div
+            class="mt-[18px] grid grid-cols-3 gap-6 max-w1024:grid-cols-2 max-w480:grid-cols-1"
+            role="list"
+          >
+            @for (app of apps(); track app.code) {
+              <app-application-card
+                [app]="app"
+                [busy]="launching() === app.code"
+                [blocked]="launching() !== null && launching() !== app.code"
+                (launch)="onLaunch(app, $event)"
+              />
+            }
+          </div>
+        </section>
       }
 
       <aside
-        class="mt-4 flex items-start gap-2.5 rounded-[10px] border-[1.468px] border-border-subtle bg-surface-muted px-4 py-3 text-[13px] leading-normal text-text-muted"
+        class="flex items-center gap-3 rounded-xl border-[1.468px] border-border-button bg-surface px-[18px] py-[15px]"
       >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.75"
+        <span
+          class="grid size-9 shrink-0 place-items-center rounded-[10px] bg-launcher-icon-bg"
           aria-hidden="true"
-          class="mt-0.5 size-4 shrink-0 text-info"
         >
-          <circle cx="12" cy="12" r="9" />
-          <path d="M12 10v6M12 7h.01" />
-        </svg>
-        <span>{{ 'applications.ssoHint' | translate }}</span>
+          <img src="/images/apps/icon-shield.svg" alt="" />
+        </span>
+        <span class="min-w-0">
+          <span class="block text-[13px] leading-[19.5px] font-bold text-text">
+            {{ 'applications.sessionTitle' | translate }}
+          </span>
+          <span class="block text-[11px] leading-[16.5px] text-launcher-muted">
+            {{ 'applications.sessionBody' | translate }}
+          </span>
+        </span>
       </aside>
     </div>
   `,
@@ -233,61 +154,38 @@ import { ApplicationsSkeleton } from './applications.skeleton';
 export class ApplicationsPage {
   private readonly applicationsService = inject(ApplicationsService);
   private readonly session = inject(SessionStore);
-  protected readonly language = inject(LanguageService);
-  private readonly translate = inject(TranslateService);
+  private readonly language = inject(LanguageService);
   private readonly route = inject(ActivatedRoute);
-
-  protected readonly applicationModifier = applicationModifier;
 
   protected readonly justOnboarded = signal(
     this.route.snapshot.queryParamMap.get('onboarded') === '1',
   );
 
-  protected readonly apps = computed(() => this.applicationsService.availableApplications());
+  protected readonly apps = computed(() =>
+    buildLauncherApps(this.applicationsService.availableApplications(), (url) =>
+      this.applicationsService.canLaunch(url),
+    ),
+  );
+  protected readonly availableCount = computed(
+    () => this.apps().filter((app) => app.active).length,
+  );
   protected readonly loading = this.session.bootstrapping;
   protected readonly launching = signal<string | null>(null);
 
-  protected readonly applicationStats = computed((): ListStatCard[] => {
-    this.language.current();
-    const rows = this.apps();
-    const launchable = rows.filter((app) => this.canLaunch(app.url)).length;
-    const locked = rows.filter((app) => this.isLocked(app)).length;
-    return [
-      {
-        label: this.translate.instant('applications.stats.total'),
-        value: rows.length,
-        accent: '#2b5bf9',
-        icon: 'apps',
-      },
-      {
-        label: this.translate.instant('applications.stats.available'),
-        value: launchable,
-        accent: '#0fbc15',
-        icon: 'active',
-      },
-      {
-        label: this.translate.instant('applications.stats.unavailable'),
-        value: locked,
-        accent: '#f57c00',
-        icon: 'warning',
-        valueTone: locked > 0 ? 'danger' : 'default',
-      },
-    ];
+  protected readonly companyLabel = computed(() => {
+    const company = this.session.currentCompany();
+    if (company?.code) {
+      return company.code;
+    }
+    const tenant = this.session.currentTenant();
+    return tenant ? this.language.pick(tenant.nameAr, tenant.nameEn) : '';
   });
-
-  protected canLaunch(url: string | null | undefined): boolean {
-    return this.applicationsService.canLaunch(url);
-  }
-
-  protected isLocked(app: AvailableApplicationDto): boolean {
-    return !app.isCurrent && !this.canLaunch(app.url);
-  }
 
   protected onPageShow(): void {
     this.launching.set(null);
   }
 
-  protected onLaunch(app: AvailableApplicationDto, event: MouseEvent): void {
+  protected onLaunch(app: LauncherApplication, event: MouseEvent): void {
     if (
       event.defaultPrevented ||
       event.button !== 0 ||
@@ -299,11 +197,11 @@ export class ApplicationsPage {
       return;
     }
 
-    if (this.launching() !== null || !this.canLaunch(app.url)) {
+    if (this.launching() !== null || !app.launchable) {
       event.preventDefault();
       return;
     }
 
-    this.launching.set(app.key);
+    this.launching.set(app.code);
   }
 }

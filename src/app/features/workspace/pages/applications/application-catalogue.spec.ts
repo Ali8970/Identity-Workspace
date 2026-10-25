@@ -1,0 +1,69 @@
+import { describe, expect, it } from 'vitest';
+import { AvailableApplicationDto } from '../../../../models/auth.model';
+import { buildLauncherApps, productCodeFromApplication } from './application-catalogue';
+
+function app(
+  partial: Partial<AvailableApplicationDto> & Pick<AvailableApplicationDto, 'key'>,
+): AvailableApplicationDto {
+  return {
+    nameAr: '',
+    nameEn: '',
+    url: 'https://apps.brooch.example',
+    isCurrent: false,
+    ...partial,
+  };
+}
+
+describe('productCodeFromApplication', () => {
+  it('matches a bare product key', () => {
+    expect(productCodeFromApplication(app({ key: 'mos' }))).toBe('mos');
+  });
+
+  it('matches a prefixed or spaced product code', () => {
+    expect(productCodeFromApplication(app({ key: 'RE-LOS' }))).toBe('los');
+    expect(productCodeFromApplication(app({ key: 'other', nameEn: 'RE AOS' }))).toBe('aos');
+  });
+
+  it('maps the registry keys the backend returns', () => {
+    expect(productCodeFromApplication(app({ key: 'listing', nameEn: 'Listing' }))).toBe('los');
+    expect(productCodeFromApplication(app({ key: 'landlord', nameEn: 'Landlord' }))).toBe('mos');
+    expect(productCodeFromApplication(app({ key: 'crm', nameEn: 'CRM' }))).toBe('aos');
+  });
+
+  it('ignores the account hub', () => {
+    expect(productCodeFromApplication(app({ key: 'account', nameEn: 'Account' }))).toBeNull();
+  });
+});
+
+describe('buildLauncherApps', () => {
+  const canLaunch = (url: string | null | undefined) => !!url?.startsWith('https://');
+
+  it('keeps every product and activates only the ones the backend returned', () => {
+    const apps = buildLauncherApps(
+      [
+        app({ key: 'account', url: 'https://account.brooch.example', isCurrent: true }),
+        app({ key: 'crm', url: 'https://crm.brooch.example' }),
+        app({ key: 'listing', url: 'https://listing.brooch.example' }),
+        app({ key: 'landlord', url: 'https://landlord.brooch.example' }),
+      ],
+      canLaunch,
+    );
+
+    expect(apps.map((item) => item.code)).toEqual(['mos', 'aos', 'los', 'ios', 'dos', 'sos']);
+    expect(apps.filter((item) => item.active).map((item) => item.code)).toEqual(['mos', 'aos', 'los']);
+    expect(apps.find((item) => item.code === 'mos')).toMatchObject({
+      launchable: true,
+      url: 'https://landlord.brooch.example',
+    });
+    expect(apps.find((item) => item.code === 'aos')?.url).toBe('https://crm.brooch.example');
+    expect(apps.find((item) => item.code === 'los')?.url).toBe('https://listing.brooch.example');
+    expect(apps.find((item) => item.code === 'sos')?.active).toBe(false);
+  });
+
+  it('keeps a returned app inactive to launch when its url is not navigable', () => {
+    const [mos] = buildLauncherApps([app({ key: 'mos', url: '' })], canLaunch);
+    expect(mos.active).toBe(true);
+    expect(mos.launchable).toBe(false);
+    expect(mos.url).toBeNull();
+  });
+});

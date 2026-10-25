@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Skeleton, SkeletonHost, times } from '../../../../shared/ui/skeleton/skeleton';
 
-/** Mirrors the application launcher grid. */
+/** Mirrors the applications launcher: summary, then a six-card grid. */
 @Component({
   selector: 'app-applications-skeleton',
   imports: [Skeleton],
@@ -9,28 +9,35 @@ import { Skeleton, SkeletonHost, times } from '../../../../shared/ui/skeleton/sk
   template: `
     <span class="visually-hidden">{{ label() }}</span>
 
-    <div
-      class="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr))]"
+    <section
+      class="rounded-[20px] border-[1.468px] border-border-button bg-launcher-panel p-6 max-w480:p-4"
     >
-      @for (card of cards; track card) {
-        <article
-          class="flex min-h-full flex-col gap-3.5 rounded-[10px] border-[1.468px] border-border-button bg-surface p-4 shadow-[var(--shadow-card)]"
-        >
-          <div class="flex items-start gap-3">
-            <app-skeleton variant="icon" width="2.75rem" height="2.75rem" />
-            <span class="ui-skeleton-col min-w-0 flex-1">
-              <app-skeleton variant="text" width="8rem" />
+      <div class="flex items-center justify-between gap-3">
+        <app-skeleton variant="title" width="9rem" />
+        <app-skeleton variant="text" width="5rem" />
+      </div>
+      <div class="mt-[18px] grid grid-cols-3 gap-6 max-w1024:grid-cols-2 max-w480:grid-cols-1">
+        @for (card of cards; track card) {
+          <article
+            class="flex min-h-[222px] flex-col gap-4 rounded-2xl border-[1.468px] border-border-button bg-surface p-5"
+          >
+            <div class="flex items-start justify-between gap-3">
+              <app-skeleton variant="block" width="8.75rem" height="2.75rem" />
+              <app-skeleton variant="pill" width="4.5rem" />
+            </div>
+            <span class="ui-skeleton-col">
+              <app-skeleton variant="text" width="9rem" />
               <app-skeleton variant="text" width="4rem" />
             </span>
-          </div>
-          <div class="mt-auto flex items-center justify-end">
-            <app-skeleton variant="button" width="7rem" />
-          </div>
-        </article>
-      }
-    </div>
+            <div class="mt-auto flex justify-end">
+              <app-skeleton variant="button" width="7.5rem" />
+            </div>
+          </article>
+        }
+      </div>
+    </section>
   `,
 })
 export class ApplicationsSkeleton extends SkeletonHost {
-  protected readonly cards = times(4);
+  protected readonly cards = times(6);
 }

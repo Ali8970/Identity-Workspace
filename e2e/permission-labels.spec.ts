@@ -36,6 +36,6 @@ test('permission dictionary is not a workspace page', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'Permission dictionary' })).toHaveCount(0);
 
   await page.goto('/permissions');
-  await expect(page.getByRole('heading', { name: 'Applications' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Your apps in one place' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Permission dictionary' })).toHaveCount(0);
 });

@@ -87,10 +87,17 @@ function me(mode: SessionMode) {
             isCurrent: false,
           },
           {
-            key: 'hr',
-            nameAr: 'الموارد البشرية',
-            nameEn: 'HR',
-            url: 'https://hr.brooch.example',
+            key: 'listing',
+            nameAr: 'القوائم',
+            nameEn: 'Listing',
+            url: 'https://listing.brooch.example',
+            isCurrent: false,
+          },
+          {
+            key: 'landlord',
+            nameAr: 'إدارة الملاك',
+            nameEn: 'Landlord',
+            url: 'https://landlord.brooch.example',
             isCurrent: false,
           },
         ]
