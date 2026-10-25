@@ -218,12 +218,12 @@
     "justOnboarded": "تم تفعيل الشركة. مرحباً بك في مساحة عملك.",
     "loading": "جارٍ تحميل تطبيقاتك…",
     "products": {
-      "mos": { "name": "إدارة العقارات", "code": "RE MOS" },
-      "aos": { "name": "الأصول العقارية", "code": "RE AOS" },
-      "los": { "name": "العرض والنشر العقاري", "code": "RE LOS" },
-      "ios": { "name": "الاستثمار والعوائد", "code": "RE IOS" },
-      "dos": { "name": "إدارة البناء", "code": "RE DOS" },
-      "sos": { "name": "المبيعات العقارية", "code": "RE SOS" }
+      "mos": { "name": "إدارة الأملاك العقارية", "code": "RE MOS" },
+      "aos": { "name": "إدارة الأصول العقارية", "code": "RE AOS" },
+      "los": { "name": "إدارة العرض والنشر العقاري", "code": "RE LOS" },
+      "ios": { "name": "إدارة الاستثمار العقاري", "code": "RE IOS" },
+      "dos": { "name": "إدارة التطوير العقاري", "code": "RE DOS" },
+      "sos": { "name": "إدارة المبيعات العقارية", "code": "RE SOS" }
     }
   },
   "members": {

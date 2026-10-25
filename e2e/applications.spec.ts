@@ -37,6 +37,8 @@ test('catalogue apps returned by the backend are openable and the rest stay lock
   );
 
   await expect(main.getByText('This app is not available for your account yet')).toHaveCount(3);
-  await expect(main.getByRole('heading', { name: 'Investment and returns' })).toBeVisible();
+  await expect(
+    main.getByRole('heading', { name: 'Real estate investment management' }),
+  ).toBeVisible();
   await expect(main.getByRole('heading', { name: 'Account' })).toHaveCount(0);
 });
