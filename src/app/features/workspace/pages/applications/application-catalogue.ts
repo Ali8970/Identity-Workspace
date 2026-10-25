@@ -52,17 +52,56 @@ function entry(code: ProductCode, accent: string): CatalogueEntry {
   };
 }
 
+/** Matches CRM's developer-owner role when Identity returns it on this session. */
+export const CRM_DEVELOPER_OWNER_ROLE = 'CRM_DEVELOPER_OWNER';
+
+/** Matches CRM's portal permission key. */
+export const CRM_DEVELOPER_PORTAL_PERMISSION = 'crm.developer_portal.access';
+
 /**
  * Registry keys from `availableApplications` that are one of the six products.
  * Account is the hub the user is already in, so it does not light up a card.
- * CRM is RE SOS (sales); landlord is RE MOS; listing is RE LOS.
+ * CRM brands as RE SOS (sales) for agency users and RE DOS for developers;
+ * landlord is RE MOS; listing is RE LOS.
  */
 const KEY_ALIASES: Readonly<Record<string, ProductCode>> = {
   listing: 'los',
   listings: 'los',
   landlord: 'mos',
-  crm: 'sos',
 };
+
+/**
+ * True when this Account session is the CRM developer-owner persona.
+ * Mirrors CRM `PermissionsService.isDeveloperOnly`. Account `/me` scopes roles to
+ * the Account app, so developers often arrive with empty authz — CRM-only product
+ * access with no identity/tenant grants is treated as developer for branding.
+ */
+export function isDeveloperPersona(input: {
+  roles: readonly { code: string }[];
+  permissions: readonly string[];
+  availableApplications: readonly Pick<AvailableApplicationDto, 'key'>[];
+}): boolean {
+  const roleSet = new Set(input.roles.map((role) => role.code));
+  const hasPortal = input.permissions.includes(CRM_DEVELOPER_PORTAL_PERMISSION);
+  const otherCrm = input.permissions.some(
+    (key) => key.startsWith('crm.') && key !== CRM_DEVELOPER_PORTAL_PERMISSION,
+  );
+  if (hasPortal) {
+    return !otherCrm;
+  }
+  if (roleSet.size === 1 && roleSet.has(CRM_DEVELOPER_OWNER_ROLE)) {
+    return true;
+  }
+
+  const productKeys = input.availableApplications
+    .map((app) => compact(app.key))
+    .filter((key) => key !== 'account');
+  const onlyCrm = productKeys.length === 1 && productKeys[0] === 'crm';
+  const hasWorkspaceAuthz = input.permissions.some(
+    (key) => key.startsWith('identity.') || key.startsWith('tenant.'),
+  );
+  return onlyCrm && !hasWorkspaceAuthz;
+}
 
 /**
  * Maps a backend application onto a catalogue product.
@@ -71,7 +110,11 @@ const KEY_ALIASES: Readonly<Record<string, ProductCode>> = {
  */
 export function productCodeFromApplication(
   app: Pick<AvailableApplicationDto, 'key' | 'nameEn' | 'nameAr'>,
+  options: { developer?: boolean } = {},
 ): ProductCode | null {
+  if (compact(app.key) === 'crm') {
+    return options.developer ? 'dos' : 'sos';
+  }
   const alias = KEY_ALIASES[compact(app.key)];
   if (alias) {
     return alias;
@@ -116,10 +159,11 @@ function matchProductCode(value: string | null | undefined): ProductCode | null 
 export function buildLauncherApps(
   returned: readonly AvailableApplicationDto[],
   canLaunch: (url: string | null | undefined) => boolean,
+  options: { developer?: boolean } = {},
 ): LauncherApplication[] {
   const byCode = new Map<ProductCode, AvailableApplicationDto>();
   for (const app of returned) {
-    const code = productCodeFromApplication(app);
+    const code = productCodeFromApplication(app, options);
     if (code && !byCode.has(code)) {
       byCode.set(code, app);
     }

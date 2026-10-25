@@ -2,10 +2,13 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { SessionStore } from '../../../../core/auth/session.store';
-import { LanguageService } from '../../../../core/i18n/language.service';
 import { ApplicationsService } from '../../services/applications.service';
 import { ApplicationCard } from './application-card';
-import { LauncherApplication, buildLauncherApps } from './application-catalogue';
+import {
+  LauncherApplication,
+  buildLauncherApps,
+  isDeveloperPersona,
+} from './application-catalogue';
 import { ApplicationsSkeleton } from './applications.skeleton';
 
 @Component({
@@ -19,15 +22,8 @@ import { ApplicationsSkeleton } from './applications.skeleton';
     <div class="flex flex-col gap-8">
       <header class="flex flex-wrap items-start justify-between gap-6">
         <div class="min-w-0 max-w-[680px] flex-1">
-          <p class="m-0 text-xs leading-[18px] font-bold text-launcher-eyebrow">
-            @if (companyLabel()) {
-              {{ 'applications.workspace' | translate }} / {{ companyLabel() }}
-            } @else {
-              {{ 'applications.workspace' | translate }}
-            }
-          </p>
           <h1
-            class="mt-2 mb-0 text-[2.375rem] leading-[1.25] font-normal tracking-[-0.025em] text-text max-w768:text-[1.75rem]"
+            class="m-0 text-[2.375rem] leading-[1.25] font-normal tracking-[-0.025em] text-text max-w768:text-[1.75rem]"
             id="main-content-header"
             tabindex="-1"
           >
@@ -191,32 +187,31 @@ import { ApplicationsSkeleton } from './applications.skeleton';
 export class ApplicationsPage {
   private readonly applicationsService = inject(ApplicationsService);
   private readonly session = inject(SessionStore);
-  private readonly language = inject(LanguageService);
   private readonly route = inject(ActivatedRoute);
 
   protected readonly justOnboarded = signal(
     this.route.snapshot.queryParamMap.get('onboarded') === '1',
   );
 
-  protected readonly apps = computed(() =>
-    buildLauncherApps(this.applicationsService.availableApplications(), (url) =>
-      this.applicationsService.canLaunch(url),
-    ),
-  );
+  protected readonly apps = computed(() => {
+    const available = this.applicationsService.availableApplications();
+    const me = this.session.current();
+    const developer = isDeveloperPersona({
+      roles: me?.roles ?? [],
+      permissions: me?.permissions ?? [],
+      availableApplications: available,
+    });
+    return buildLauncherApps(
+      available,
+      (url) => this.applicationsService.canLaunch(url),
+      { developer },
+    );
+  });
   protected readonly availableCount = computed(
     () => this.apps().filter((app) => app.active).length,
   );
   protected readonly loading = this.session.bootstrapping;
   protected readonly launching = signal<string | null>(null);
-
-  protected readonly companyLabel = computed(() => {
-    const company = this.session.currentCompany();
-    if (company?.code) {
-      return company.code;
-    }
-    const tenant = this.session.currentTenant();
-    return tenant ? this.language.pick(tenant.nameAr, tenant.nameEn) : '';
-  });
 
   protected onPageShow(): void {
     this.launching.set(null);

@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { AvailableApplicationDto } from '../../../../models/auth.model';
-import { buildLauncherApps, productCodeFromApplication } from './application-catalogue';
+import {
+  buildLauncherApps,
+  isDeveloperPersona,
+  productCodeFromApplication,
+} from './application-catalogue';
 
 function app(
   partial: Partial<AvailableApplicationDto> & Pick<AvailableApplicationDto, 'key'>,
@@ -30,8 +34,53 @@ describe('productCodeFromApplication', () => {
     expect(productCodeFromApplication(app({ key: 'crm', nameEn: 'CRM' }))).toBe('sos');
   });
 
+  it('brands CRM as RE DOS for the developer persona', () => {
+    expect(productCodeFromApplication(app({ key: 'crm', nameEn: 'CRM' }), { developer: true })).toBe(
+      'dos',
+    );
+  });
+
   it('ignores the account hub', () => {
     expect(productCodeFromApplication(app({ key: 'account', nameEn: 'Account' }))).toBeNull();
+  });
+});
+
+describe('isDeveloperPersona', () => {
+  it('detects CRM-only access with no workspace permissions', () => {
+    expect(
+      isDeveloperPersona({
+        roles: [],
+        permissions: [],
+        availableApplications: [
+          { key: 'account' },
+          { key: 'crm' },
+        ],
+      }),
+    ).toBe(true);
+  });
+
+  it('keeps agency users with listing or landlord on the sales brand', () => {
+    expect(
+      isDeveloperPersona({
+        roles: [],
+        permissions: [],
+        availableApplications: [
+          { key: 'account' },
+          { key: 'crm' },
+          { key: 'listing' },
+        ],
+      }),
+    ).toBe(false);
+  });
+
+  it('detects the CRM developer-owner role', () => {
+    expect(
+      isDeveloperPersona({
+        roles: [{ code: 'CRM_DEVELOPER_OWNER' }],
+        permissions: [],
+        availableApplications: [{ key: 'account' }, { key: 'crm' }, { key: 'listing' }],
+      }),
+    ).toBe(true);
   });
 });
 
@@ -65,5 +114,23 @@ describe('buildLauncherApps', () => {
     expect(mos.active).toBe(true);
     expect(mos.launchable).toBe(false);
     expect(mos.url).toBeNull();
+  });
+
+  it('activates RE DOS from CRM for developers and keeps the CRM url', () => {
+    const apps = buildLauncherApps(
+      [
+        app({ key: 'account', url: 'https://account.brooch.example', isCurrent: true }),
+        app({ key: 'crm', url: 'https://crm.brooch.example' }),
+      ],
+      canLaunch,
+      { developer: true },
+    );
+
+    expect(apps.filter((item) => item.active).map((item) => item.code)).toEqual(['dos']);
+    expect(apps.find((item) => item.code === 'dos')).toMatchObject({
+      launchable: true,
+      url: 'https://crm.brooch.example',
+    });
+    expect(apps.find((item) => item.code === 'sos')?.active).toBe(false);
   });
 });
