@@ -205,7 +205,7 @@
   --launcher-unavailable-bg: #edf0f3;
   --launcher-icon-bg: #eaedff;
   --launcher-eyebrow: #92abff;
-  --launcher-logo-plate: #f4f6fb;
+  --launcher-logo-plate: transparent;
   --primary-gradient: linear-gradient(180deg, #92abff 0%, #7fb2ff 100%);
   --primary-gradient-hover: linear-gradient(180deg, #7fb2ff 0%, #92abff 100%);
   --border-button: #1e3350;

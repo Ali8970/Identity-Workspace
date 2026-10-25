@@ -25,11 +25,11 @@ test('catalogue apps returned by the backend are openable and the rest stay lock
   );
   await expect(main.getByRole('link', { name: 'Open app' }).nth(1)).toHaveAttribute(
     'href',
-    'https://crm.brooch.example',
+    'https://listing.brooch.example',
   );
   await expect(main.getByRole('link', { name: 'Open app' }).nth(2)).toHaveAttribute(
     'href',
-    'https://listing.brooch.example',
+    'https://crm.brooch.example',
   );
   await expect(main.getByRole('link', { name: 'Open app' }).nth(0)).toHaveCSS(
     'color',

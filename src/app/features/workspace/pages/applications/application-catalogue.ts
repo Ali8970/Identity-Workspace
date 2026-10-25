@@ -9,8 +9,12 @@ export interface LauncherApplication {
   code: ProductCode;
   /** CSS color, usually `var(--app-mos)` and friends. */
   accent: string;
+  /** Light-theme mark (navy Brooch wordmark). */
   mark: string;
+  /** Dark-theme mark (white Brooch wordmark, accent kept). */
+  markDark: string;
   line: string;
+  lineDark: string;
   /** Present in the backend `availableApplications` payload. */
   active: boolean;
   /** Active and the backend URL is an absolute http(s) address. */
@@ -23,7 +27,9 @@ interface CatalogueEntry {
   code: ProductCode;
   accent: string;
   mark: string;
+  markDark: string;
   line: string;
+  lineDark: string;
 }
 
 const CATALOGUE: readonly CatalogueEntry[] = [
@@ -40,19 +46,22 @@ function entry(code: ProductCode, accent: string): CatalogueEntry {
     code,
     accent,
     mark: `/images/apps/${code}-mark.svg`,
+    markDark: `/images/apps/${code}-mark-dark.svg`,
     line: `/images/apps/${code}-line.svg`,
+    lineDark: `/images/apps/${code}-line-dark.svg`,
   };
 }
 
 /**
  * Registry keys from `availableApplications` that are one of the six products.
  * Account is the hub the user is already in, so it does not light up a card.
+ * CRM is RE SOS (sales); landlord is RE MOS; listing is RE LOS.
  */
 const KEY_ALIASES: Readonly<Record<string, ProductCode>> = {
   listing: 'los',
   listings: 'los',
   landlord: 'mos',
-  crm: 'aos',
+  crm: 'sos',
 };
 
 /**
@@ -101,6 +110,8 @@ function matchProductCode(value: string | null | undefined): ProductCode | null 
 /**
  * Every catalogue product, with `active` set for the ones the backend returned.
  * Products the payload does not mention stay inactive.
+ * Available apps are listed first (catalogue order within each group) so the
+ * first grid row is filled with openable cards.
  */
 export function buildLauncherApps(
   returned: readonly AvailableApplicationDto[],
@@ -114,7 +125,7 @@ export function buildLauncherApps(
     }
   }
 
-  return CATALOGUE.map((item) => {
+  const apps = CATALOGUE.map((item) => {
     const match = byCode.get(item.code);
     const url = match?.url ?? null;
     return {
@@ -125,4 +136,6 @@ export function buildLauncherApps(
       isCurrent: match?.isCurrent ?? false,
     };
   });
+
+  return [...apps.filter((item) => item.active), ...apps.filter((item) => !item.active)];
 }

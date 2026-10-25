@@ -1,5 +1,6 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
+import { ThemeService } from '../../../../core/theme/theme.service';
 import { LauncherApplication } from './application-catalogue';
 
 @Component({
@@ -21,11 +22,11 @@ import { LauncherApplication } from './application-catalogue';
 
       <div class="flex flex-wrap items-start justify-between gap-3">
         <div
-          class="flex w-[140px] max-w-full flex-col items-center rounded-lg bg-launcher-logo-plate"
+          class="flex w-[140px] max-w-full flex-col items-center rounded-lg"
           dir="ltr"
         >
-          <img class="h-auto max-w-full" [src]="app().mark" alt="" />
-          <img class="h-auto max-w-full" [src]="app().line" alt="" />
+          <img class="h-auto max-w-full" [src]="markSrc()" alt="" />
+          <img class="h-auto max-w-full" [src]="lineSrc()" alt="" />
         </div>
 
         @if (app().active) {
@@ -100,6 +101,8 @@ import { LauncherApplication } from './application-catalogue';
   `,
 })
 export class ApplicationCard {
+  private readonly theme = inject(ThemeService);
+
   readonly app = input.required<LauncherApplication>();
   readonly busy = input(false);
   readonly blocked = input(false);
@@ -108,6 +111,12 @@ export class ApplicationCard {
   protected readonly nameKey = computed(() => `applications.products.${this.app().code}.name`);
   protected readonly codeKey = computed(() => `applications.products.${this.app().code}.code`);
   protected readonly titleId = computed(() => `application-${this.app().code}-title`);
+  protected readonly markSrc = computed(() =>
+    this.theme.preference() === 'dark' ? this.app().markDark : this.app().mark,
+  );
+  protected readonly lineSrc = computed(() =>
+    this.theme.preference() === 'dark' ? this.app().lineDark : this.app().line,
+  );
 
   protected openApp(event: MouseEvent): void {
     this.launch.emit(event);

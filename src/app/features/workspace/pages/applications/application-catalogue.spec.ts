@@ -27,7 +27,7 @@ describe('productCodeFromApplication', () => {
   it('maps the registry keys the backend returns', () => {
     expect(productCodeFromApplication(app({ key: 'listing', nameEn: 'Listing' }))).toBe('los');
     expect(productCodeFromApplication(app({ key: 'landlord', nameEn: 'Landlord' }))).toBe('mos');
-    expect(productCodeFromApplication(app({ key: 'crm', nameEn: 'CRM' }))).toBe('aos');
+    expect(productCodeFromApplication(app({ key: 'crm', nameEn: 'CRM' }))).toBe('sos');
   });
 
   it('ignores the account hub', () => {
@@ -49,15 +49,15 @@ describe('buildLauncherApps', () => {
       canLaunch,
     );
 
-    expect(apps.map((item) => item.code)).toEqual(['mos', 'aos', 'los', 'ios', 'dos', 'sos']);
-    expect(apps.filter((item) => item.active).map((item) => item.code)).toEqual(['mos', 'aos', 'los']);
+    expect(apps.map((item) => item.code)).toEqual(['mos', 'los', 'sos', 'aos', 'ios', 'dos']);
+    expect(apps.filter((item) => item.active).map((item) => item.code)).toEqual(['mos', 'los', 'sos']);
     expect(apps.find((item) => item.code === 'mos')).toMatchObject({
       launchable: true,
       url: 'https://landlord.brooch.example',
     });
-    expect(apps.find((item) => item.code === 'aos')?.url).toBe('https://crm.brooch.example');
     expect(apps.find((item) => item.code === 'los')?.url).toBe('https://listing.brooch.example');
-    expect(apps.find((item) => item.code === 'sos')?.active).toBe(false);
+    expect(apps.find((item) => item.code === 'sos')?.url).toBe('https://crm.brooch.example');
+    expect(apps.find((item) => item.code === 'aos')?.active).toBe(false);
   });
 
   it('keeps a returned app inactive to launch when its url is not navigable', () => {
