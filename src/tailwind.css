@@ -199,11 +199,11 @@
   --shadow-app-stats: 0 1px 1px rgba(0, 0, 0, 0.28), 0 8px 12px rgba(0, 0, 0, 0.24);
   --launcher-panel: #0e1929;
   --launcher-muted: #8694a6;
-  --launcher-available: #087a49;
-  --launcher-available-bg: #dff7ea;
-  --launcher-unavailable: #687383;
-  --launcher-unavailable-bg: #edf0f3;
-  --launcher-icon-bg: #eaedff;
+  --launcher-available: #4fd39b;
+  --launcher-available-bg: color-mix(in oklab, #4fd39b 16%, #122137);
+  --launcher-unavailable: #8694a6;
+  --launcher-unavailable-bg: color-mix(in oklab, #8694a6 14%, #122137);
+  --launcher-icon-bg: color-mix(in oklab, #92abff 16%, #122137);
   --launcher-eyebrow: #92abff;
   --launcher-logo-plate: transparent;
   --primary-gradient: linear-gradient(180deg, #92abff 0%, #7fb2ff 100%);

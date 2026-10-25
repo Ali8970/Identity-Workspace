@@ -52,10 +52,39 @@ import { ApplicationsSkeleton } from './applications.skeleton';
               </span>
             </span>
             <span
-              class="grid size-[38px] shrink-0 place-items-center rounded-[10px] bg-launcher-icon-bg"
+              class="grid size-[38px] shrink-0 place-items-center rounded-[10px] bg-launcher-icon-bg text-launcher-eyebrow"
               aria-hidden="true"
             >
-              <img src="/images/apps/icon-grid.svg" alt="" />
+              <svg width="15" height="15" viewBox="0 0 14.8014 14.8014" fill="none">
+                <path
+                  d="M1.62262 0.672793H4.47209C4.99667 0.672793 5.42192 1.09804 5.42192 1.62262V4.47209C5.42192 4.99667 4.99667 5.42192 4.47209 5.42192H1.62262C1.09804 5.42192 0.672793 4.99667 0.672793 4.47209V1.62262C0.672793 1.09804 1.09804 0.672793 1.62262 0.672793Z"
+                  stroke="currentColor"
+                  stroke-width="1.34559"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M10.3293 0.672793H13.1788C13.7034 0.672793 14.1286 1.09804 14.1286 1.62262V4.47209C14.1286 4.99667 13.7034 5.42192 13.1788 5.42192H10.3293C9.80477 5.42192 9.37952 4.99667 9.37952 4.47209V1.62262C9.37952 1.09804 9.80477 0.672793 10.3293 0.672793Z"
+                  stroke="currentColor"
+                  stroke-width="1.34559"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M1.62262 9.37952H4.47209C4.99667 9.37952 5.42192 9.80477 5.42192 10.3293V13.1788C5.42192 13.7034 4.99667 14.1286 4.47209 14.1286H1.62262C1.09804 14.1286 0.672793 13.7034 0.672793 13.1788V10.3293C0.672793 9.80477 1.09804 9.37952 1.62262 9.37952Z"
+                  stroke="currentColor"
+                  stroke-width="1.34559"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M10.3293 9.37952H13.1788C13.7034 9.37952 14.1286 9.80477 14.1286 10.3293V13.1788C14.1286 13.7034 13.7034 14.1286 13.1788 14.1286H10.3293C9.80477 14.1286 9.37952 13.7034 9.37952 13.1788V10.3293C9.37952 9.80477 9.80477 9.37952 10.3293 9.37952Z"
+                  stroke="currentColor"
+                  stroke-width="1.34559"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
             </span>
           </div>
           <span class="mx-[13px] w-px self-stretch bg-border-button" aria-hidden="true"></span>
@@ -69,10 +98,18 @@ import { ApplicationsSkeleton } from './applications.skeleton';
               </span>
             </span>
             <span
-              class="grid size-[38px] shrink-0 place-items-center rounded-[10px] bg-launcher-available-bg"
+              class="grid size-[38px] shrink-0 place-items-center rounded-[10px] bg-launcher-available-bg text-launcher-available"
               aria-hidden="true"
             >
-              <img src="/images/apps/icon-check-stat.svg" alt="" />
+              <svg width="13" height="10" viewBox="0 0 12.4269 9.26079" fill="none">
+                <path
+                  d="M0.672793 5.42192L3.83888 8.588L11.7541 0.672793"
+                  stroke="currentColor"
+                  stroke-width="1.34559"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
             </span>
           </div>
         </div>
