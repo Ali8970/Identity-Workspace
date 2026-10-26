@@ -218,12 +218,12 @@
     "justOnboarded": "Company activated. Welcome to your workspace.",
     "loading": "Loading your applications…",
     "products": {
-      "mos": { "name": "Real estate property management", "code": "RE MOS" },
-      "aos": { "name": "Real estate asset management", "code": "RE AOS" },
-      "los": { "name": "Real estate listing and publishing", "code": "RE LOS" },
-      "ios": { "name": "Real estate investment management", "code": "RE IOS" },
-      "dos": { "name": "Real estate development management", "code": "RE DOS" },
-      "sos": { "name": "Real estate sales management", "code": "RE SOS" }
+      "mos": { "name": "Real Estate Management Operating System", "code": "RE MOS" },
+      "aos": { "name": "Real Estate Asset Operating System", "code": "RE AOS" },
+      "los": { "name": "Real Estate Listing Operating System", "code": "RE LOS" },
+      "ios": { "name": "Real Estate Investment Operating System", "code": "RE IOS" },
+      "dos": { "name": "Real Estate Development Operating System", "code": "RE DOS" },
+      "sos": { "name": "Real Estate Sales Operating System", "code": "RE SOS" }
     }
   },
   "members": {

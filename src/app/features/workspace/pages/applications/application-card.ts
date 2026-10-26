@@ -1,20 +1,23 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
+import { LanguageService } from '../../../../core/i18n/language.service';
 import { ThemeService } from '../../../../core/theme/theme.service';
 import { LauncherApplication } from './application-catalogue';
 
 /**
  * Application launcher card — Figma Identity nodes 96:96 / 96:137 / 96:177 / 96:299.
- * Chrome is LTR (badge + button on the left, mark + code on the right) to match
- * the design file; Arabic copy stays dir=auto.
+ * Chrome stays LTR (badge + button on the left, mark + code on the right) to match
+ * the design file; product title alignment follows the active language.
  */
 @Component({
   selector: 'app-application-card',
   imports: [TranslatePipe],
   template: `
     <article
-      class="relative flex h-[180px] w-full flex-col overflow-hidden rounded-2xl border border-solid border-border-button bg-surface p-5"
-      [class.shadow-[var(--shadow-app-card)]]="app().active"
+      class="relative flex h-[180px] w-full flex-col overflow-hidden rounded-2xl border border-solid border-border p-5"
+      [class.bg-surface]="app().active"
+      [class.bg-launcher-panel]="!app().active"
+      [style.box-shadow]="app().active ? 'var(--shadow-app-card)' : 'none'"
       [style.--card-accent]="app().accent"
       role="listitem"
       [attr.aria-labelledby]="titleId()"
@@ -93,10 +96,16 @@ import { LauncherApplication } from './application-catalogue';
             />
           </div>
 
-          <div class="flex flex-col items-end pt-3">
+          <div
+            class="flex flex-col pt-3"
+            [class.items-end]="rtl()"
+            [class.items-start]="!rtl()"
+          >
             <h3
-              class="m-0 text-end text-[17px] leading-[25.5px] font-normal text-text"
-              dir="auto"
+              class="m-0 text-[17px] leading-[25.5px] font-normal text-text"
+              [class.text-end]="rtl()"
+              [class.text-start]="!rtl()"
+              [attr.dir]="rtl() ? 'rtl' : 'ltr'"
               [id]="titleId()"
             >
               {{ nameKey() | translate }}
@@ -117,7 +126,9 @@ import { LauncherApplication } from './application-catalogue';
               @if (busy()) {
                 {{ 'applications.opening' | translate }}
               } @else {
-                <span class="text-[#ffffff]!" dir="auto">{{ 'applications.open' | translate }}</span>
+                <span class="text-[#ffffff]!" [attr.dir]="rtl() ? 'rtl' : 'ltr'">{{
+                  'applications.open' | translate
+                }}</span>
                 <img
                   class="size-[17px] shrink-0"
                   src="/images/apps/icon-external.svg"
@@ -133,13 +144,15 @@ import { LauncherApplication } from './application-catalogue';
               class="inline-flex h-8 cursor-not-allowed items-center justify-center gap-2 rounded-lg bg-(--card-accent) px-4 text-[13px] leading-[19.5px] font-semibold text-[#ffffff]! opacity-60 shadow-[var(--shadow-app-button)]"
               disabled
             >
-              <span class="text-[#ffffff]!" dir="auto">{{ 'applications.open' | translate }}</span>
+              <span class="text-[#ffffff]!" [attr.dir]="rtl() ? 'rtl' : 'ltr'">{{
+                'applications.open' | translate
+              }}</span>
             </button>
           } @else {
             <p
               class="m-0 flex max-w-[176px] items-center gap-1.5 text-[11px] leading-[15.95px] text-launcher-muted"
+              [attr.dir]="rtl() ? 'rtl' : 'ltr'"
             >
-              <span dir="auto">{{ 'applications.unavailableHint' | translate }}</span>
               <svg
                 class="shrink-0"
                 width="9.80831"
@@ -163,6 +176,7 @@ import { LauncherApplication } from './application-catalogue';
                   stroke-linejoin="round"
                 />
               </svg>
+              <span>{{ 'applications.unavailableHint' | translate }}</span>
             </p>
           }
 
@@ -179,12 +193,14 @@ import { LauncherApplication } from './application-catalogue';
 })
 export class ApplicationCard {
   private readonly theme = inject(ThemeService);
+  private readonly language = inject(LanguageService);
 
   readonly app = input.required<LauncherApplication>();
   readonly busy = input(false);
   readonly blocked = input(false);
   readonly launch = output<MouseEvent>();
 
+  protected readonly rtl = computed(() => this.language.current() === 'ar');
   protected readonly nameKey = computed(() => `applications.products.${this.app().code}.name`);
   protected readonly titleId = computed(() => `application-${this.app().code}-title`);
   protected readonly markSrc = computed(() =>
