@@ -4,9 +4,8 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { ShellNavGroup } from '../../layouts/shell-nav.model';
 
 /**
- * Shell sidebar — visual parity with Brooch CRM:
- * Lama Sans, white labels on brand gradient, 13px / 19.5px nav items,
- * 10px uppercase section titles, 12px / 11px footer copy.
+ * Shell sidebar — Figma Identity redesign (node 96:9):
+ * 14px / 21px Medium nav, 20px icons, 44px rows, 11px section titles.
  */
 @Component({
   selector: 'app-shell-sidebar',
@@ -18,7 +17,7 @@ import { ShellNavGroup } from '../../layouts/shell-nav.model';
   },
   template: `
     <div
-      class="m-0 flex shrink-0 items-center justify-center border-b-[1.468px] border-solid border-white/10 px-5 pt-[22px] pb-[18px]"
+      class="m-0 flex h-16 shrink-0 items-center justify-center border-b-[1.468px] border-solid border-white/10 px-[18px]"
     >
       <a
         routerLink="/applications"
@@ -28,10 +27,10 @@ import { ShellNavGroup } from '../../layouts/shell-nav.model';
         [attr.aria-label]="'shell.applications' | translate"
       >
         <img
-          class="block h-10 w-[155px]"
+          class="block h-[49px] w-[156px]"
           src="images/brooch-logo.svg"
-          width="155"
-          height="40"
+          width="156"
+          height="49"
           alt="Brooch"
         />
       </a>
@@ -55,38 +54,38 @@ import { ShellNavGroup } from '../../layouts/shell-nav.model';
     </div>
 
     <nav
-      class="min-h-0 flex-1 overflow-y-auto px-2.5 py-3 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-[3px] [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent"
+      class="min-h-0 flex-1 overflow-y-auto px-[18px] py-3 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-[3px] [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent"
       style="font-family: 'Lama Sans', var(--font-family), sans-serif"
       [attr.aria-label]="'shell.workspace' | translate"
     >
-      @for (group of groups(); track group.labelKey) {
+      @for (group of groups(); track group.labelKey; let first = $first) {
         <div
-          class="m-0 p-0 [&+&]:mt-2.5 [&+&]:border-t-[0.993px] [&+&]:border-solid [&+&]:border-white/10 [&+&]:pt-3.5"
+          class="m-0 p-0 [&+&]:mt-[19px] [&+&]:border-t-[0.993px] [&+&]:border-solid [&+&]:border-white/10"
         >
-          <div class="flex items-center px-2.5 pt-1 pb-2">
-            <span
-              class="text-[10px] leading-[15px] font-semibold tracking-[0.8px] text-white uppercase"
-            >
-              {{ group.labelKey | translate }}
-            </span>
-          </div>
-          <ul class="m-0 flex list-none flex-col p-0">
+          @if (!first) {
+            <div class="flex items-center px-[13px] pt-[18px] pb-2">
+              <span class="text-[11px] leading-[16.5px] font-semibold text-white/50">
+                {{ group.labelKey | translate }}
+              </span>
+            </div>
+          }
+          <ul class="m-0 flex list-none flex-col gap-1 p-0" [class.mt-2]="first">
             @for (item of group.items; track item.route) {
               <li>
                 <a
-                  class="relative flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-3 py-[9px] text-start text-[13px] leading-[19.5px] font-normal text-white no-underline transition-colors duration-200 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  class="relative flex h-11 w-full cursor-pointer items-center gap-2 rounded-xl px-[13px] text-start text-[14px] leading-[21px] font-medium text-white no-underline transition-colors duration-200 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                   style="color: #ffffff; font-family: 'Lama Sans', var(--font-family), sans-serif"
                   [routerLink]="item.route"
-                  routerLinkActive="is-active bg-white/20 font-semibold after:ms-auto after:size-[5px] after:shrink-0 after:rounded-full after:bg-white/70 after:content-['']"
+                  routerLinkActive="is-active bg-white/15 font-medium ltr:shadow-[inset_3px_0_0_0_#fff] rtl:shadow-[inset_-3px_0_0_0_#fff]"
                   ariaCurrentWhenActive="page"
                   (click)="navigate.emit()"
                 >
                   <svg
-                    class="size-4 shrink-0 text-white"
+                    class="size-5 shrink-0 text-white"
                     style="color: var(--sidebar-text, #ffffff)"
                     viewBox="0 0 16 16"
-                    width="16"
-                    height="16"
+                    width="20"
+                    height="20"
                     fill="none"
                     aria-hidden="true"
                   >
@@ -122,7 +121,7 @@ import { ShellNavGroup } from '../../layouts/shell-nav.model';
                     }
                   </svg>
                   <span
-                    class="flex-1 text-[13px] leading-[19.5px] text-white"
+                    class="min-w-0 flex-1 text-[14px] leading-[21px] font-medium text-white"
                     style="color: var(--sidebar-text, #ffffff)"
                   >
                     {{ item.labelKey | translate }}

@@ -23,13 +23,13 @@ import { ApplicationsSkeleton } from './applications.skeleton';
       <header class="flex flex-wrap items-start justify-between gap-6">
         <div class="min-w-0 max-w-[680px] flex-1">
           <h1
-            class="m-0 text-[2.375rem] leading-[1.25] font-normal tracking-[-0.025em] text-text max-w768:text-[1.75rem]"
+            class="m-0 text-[38px] leading-[47.5px] font-normal tracking-[-0.95px] text-text max-w768:text-[1.75rem] max-w768:leading-normal"
             id="main-content-header"
             tabindex="-1"
           >
             {{ 'applications.title' | translate }}
           </h1>
-          <p class="mt-2.5 mb-0 max-w-[656px] text-[15px] leading-[1.75] text-launcher-muted">
+          <p class="mt-2.5 mb-0 max-w-[656px] text-[15px] leading-[26.25px] text-launcher-muted">
             {{ 'applications.subtitle' | translate }}
           </p>
         </div>
@@ -124,23 +124,23 @@ import { ApplicationsSkeleton } from './applications.skeleton';
         <app-applications-skeleton [label]="'applications.loading' | translate" />
       } @else {
         <section
-          class="rounded-[20px] border-[1.468px] border-border-button bg-launcher-panel p-6 max-w480:p-4"
+          class="rounded-[20px] border-[1.447px] border-[#e7eaf0] bg-launcher-panel p-6 max-w480:p-4"
           [attr.aria-label]="'applications.all' | translate"
         >
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-baseline gap-2">
-              <h2 class="m-0 text-lg leading-[27px] font-normal text-text">
+              <h2 class="m-0 text-[18px] leading-[27px] font-normal text-[#142032] dark:text-text">
                 {{ 'applications.all' | translate }}
               </h2>
-              <p class="m-0 text-xs leading-[18px] text-launcher-muted">
+              <p class="m-0 text-[12px] leading-[18px] text-launcher-muted">
                 {{ 'applications.count' | translate: { count: apps().length } }}
               </p>
             </div>
             <p
-              class="m-0 flex items-center gap-1.5 text-xs leading-[18px] font-semibold text-launcher-available"
+              class="m-0 flex items-center gap-1.5 text-[12px] leading-[18px] font-semibold text-launcher-available"
             >
               <span
-                class="size-[7px] rounded-full bg-launcher-available shadow-[0_0_0_4px_var(--launcher-available-bg)]"
+                class="size-[7px] rounded-[3.5px] bg-launcher-available shadow-[0_0_0_4px_var(--launcher-available-bg)]"
                 aria-hidden="true"
               ></span>
               {{ 'applications.availableCount' | translate: { count: availableCount() } }}

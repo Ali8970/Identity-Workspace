@@ -1,7 +1,7 @@
 import { AvailableApplicationDto } from '../../../../models/auth.model';
 
-/** Product codes shown on the applications launcher, in reading order. */
-export const PRODUCT_CODES = ['mos', 'aos', 'los', 'ios', 'dos', 'sos'] as const;
+/** Product codes shown on the applications launcher — Figma grid order (LTR). */
+export const PRODUCT_CODES = ['los', 'aos', 'mos', 'sos', 'dos', 'ios'] as const;
 
 export type ProductCode = (typeof PRODUCT_CODES)[number];
 
@@ -33,12 +33,12 @@ interface CatalogueEntry {
 }
 
 const CATALOGUE: readonly CatalogueEntry[] = [
-  entry('mos', 'var(--app-mos)'),
-  entry('aos', 'var(--app-aos)'),
   entry('los', 'var(--app-los)'),
-  entry('ios', 'var(--app-ios)'),
-  entry('dos', 'var(--app-dos)'),
+  entry('aos', 'var(--app-aos)'),
+  entry('mos', 'var(--app-mos)'),
   entry('sos', 'var(--app-sos)'),
+  entry('dos', 'var(--app-dos)'),
+  entry('ios', 'var(--app-ios)'),
 ];
 
 function entry(code: ProductCode, accent: string): CatalogueEntry {

@@ -65,7 +65,7 @@
   --sidebar-line: rgba(255, 255, 255, 0.07);
   --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
   --shadow-primary-button: 0 2px 4px 0 rgba(43, 91, 249, 0.35);
-  --shadow-app-card: 0 1px 2px rgba(20, 32, 50, 0.04), 0 8px 24px rgba(20, 32, 50, 0.04);
+  --shadow-app-card: -1px -1px 4px rgba(15, 39, 53, 0.1), 1px 1px 4px rgba(15, 39, 53, 0.1);
   --shadow-app-button: 0 5px 6px rgba(30, 0, 176, 0.16);
   --shadow-app-stats: 0 1px 1px rgba(20, 32, 50, 0.04), 0 8px 12px rgba(20, 32, 50, 0.04);
   --launcher-panel: #f8f9fc;
@@ -82,7 +82,7 @@
   --app-aos: #7f8181;
   --app-los: #328af6;
   --app-ios: #f2bf54;
-  --app-dos: #0fbc15;
+  --app-dos: #04cb09;
   --app-sos: #e22e7b;
   --primary-gradient: linear-gradient(180deg, #1e00b0 0%, #2b5bf9 100%);
   --primary-gradient-hover: linear-gradient(180deg, #160088 0%, #1e00b0 100%);
@@ -194,7 +194,7 @@
   --sidebar-line: #122137;
   --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.4);
   --shadow-primary-button: 0 2px 4px 0 rgba(146, 171, 255, 0.25);
-  --shadow-app-card: 0 1px 2px rgba(0, 0, 0, 0.28), 0 8px 24px rgba(0, 0, 0, 0.28);
+  --shadow-app-card: -1px -1px 4px rgba(0, 0, 0, 0.28), 1px 1px 4px rgba(0, 0, 0, 0.28);
   --shadow-app-button: 0 5px 6px rgba(0, 0, 0, 0.28);
   --shadow-app-stats: 0 1px 1px rgba(0, 0, 0, 0.28), 0 8px 12px rgba(0, 0, 0, 0.24);
   --launcher-panel: #0e1929;

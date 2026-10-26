@@ -19,18 +19,16 @@ import { Skeleton, SkeletonHost, times } from '../../../../shared/ui/skeleton/sk
       <div class="mt-[18px] grid grid-cols-3 gap-6 max-w1024:grid-cols-2 max-w480:grid-cols-1">
         @for (card of cards; track card) {
           <article
-            class="flex min-h-[222px] flex-col gap-4 rounded-2xl border-[1.468px] border-border-button bg-surface p-5"
+            class="flex h-[180px] flex-col justify-between rounded-2xl border border-[#ddd] bg-surface p-5 shadow-[var(--shadow-app-card)]"
           >
-            <div class="flex items-start justify-between gap-3">
-              <app-skeleton variant="block" width="8.75rem" height="2.75rem" />
+            <div class="flex items-center justify-between gap-3">
               <app-skeleton variant="pill" width="4.5rem" />
+              <app-skeleton variant="block" width="7.8125rem" height="1.5rem" />
             </div>
-            <span class="ui-skeleton-col">
-              <app-skeleton variant="text" width="9rem" />
-              <app-skeleton variant="text" width="4rem" />
-            </span>
-            <div class="mt-auto flex justify-end">
-              <app-skeleton variant="button" width="7.5rem" />
+            <app-skeleton variant="text" width="9rem" />
+            <div class="flex items-end justify-between">
+              <app-skeleton variant="button" width="8rem" height="2rem" />
+              <app-skeleton variant="text" width="3.25rem" height="0.625rem" />
             </div>
           </article>
         }
