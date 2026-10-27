@@ -5,8 +5,11 @@ export const PRODUCT_CODES = ['los', 'aos', 'mos', 'sos', 'dos', 'ios'] as const
 
 export type ProductCode = (typeof PRODUCT_CODES)[number];
 
+/** Permanent catalogue products plus Administration when `/me` returns it. */
+export type LauncherCode = ProductCode | 'administration';
+
 export interface LauncherApplication {
-  code: ProductCode;
+  code: LauncherCode;
   /** CSS color, usually `var(--app-mos)` and friends. */
   accent: string;
   /** Light-theme mark (navy Brooch wordmark). */
@@ -41,6 +44,17 @@ const CATALOGUE: readonly CatalogueEntry[] = [
   entry('ios', 'var(--app-ios)'),
 ];
 
+/** Platform Administration — shown only when `/me` includes the registry key. */
+const ADMINISTRATION_CARD = {
+  code: 'administration' as const,
+  accent: 'var(--app-hr)',
+  // Reuse AOS marks until dedicated Administration artwork ships.
+  mark: '/images/apps/aos-mark.svg',
+  markDark: '/images/apps/aos-mark-dark.svg',
+  line: '/images/apps/aos-line.svg',
+  lineDark: '/images/apps/aos-line-dark.svg',
+};
+
 function entry(code: ProductCode, accent: string): CatalogueEntry {
   return {
     code,
@@ -61,6 +75,7 @@ export const CRM_DEVELOPER_PORTAL_PERMISSION = 'crm.developer_portal.access';
 /**
  * Registry keys from `availableApplications` that are one of the six products.
  * Account is the hub the user is already in, so it does not light up a card.
+ * Administration is handled separately and only appears when the API returns it.
  * CRM brands as RE SOS (sales) for agency users and RE DOS for developers;
  * landlord is RE MOS; listing is RE LOS.
  */
@@ -95,7 +110,7 @@ export function isDeveloperPersona(input: {
 
   const productKeys = input.availableApplications
     .map((app) => compact(app.key))
-    .filter((key) => key !== 'account');
+    .filter((key) => key !== 'account' && key !== 'administration');
   const onlyCrm = productKeys.length === 1 && productKeys[0] === 'crm';
   const hasWorkspaceAuthz = input.permissions.some(
     (key) => key.startsWith('identity.') || key.startsWith('tenant.'),
@@ -107,15 +122,21 @@ export function isDeveloperPersona(input: {
  * Maps a backend application onto a catalogue product.
  * Accepts the registry keys (`listing`, `landlord`, `crm`) and the product codes
  * (`mos`, `re-mos`, `RE MOS`), including the code inside a display name.
+ * Account and administration are not catalogue products (administration is injected
+ * separately when present).
  */
 export function productCodeFromApplication(
   app: Pick<AvailableApplicationDto, 'key' | 'nameEn' | 'nameAr'>,
   options: { developer?: boolean } = {},
 ): ProductCode | null {
-  if (compact(app.key) === 'crm') {
+  const key = compact(app.key);
+  if (key === 'account' || key === 'administration') {
+    return null;
+  }
+  if (key === 'crm') {
     return options.developer ? 'dos' : 'sos';
   }
-  const alias = KEY_ALIASES[compact(app.key)];
+  const alias = KEY_ALIASES[key];
   if (alias) {
     return alias;
   }
@@ -150,9 +171,29 @@ function matchProductCode(value: string | null | undefined): ProductCode | null 
   return null;
 }
 
+function administrationFromPayload(
+  returned: readonly AvailableApplicationDto[],
+  canLaunch: (url: string | null | undefined) => boolean,
+): LauncherApplication | null {
+  const match = returned.find((app) => compact(app.key) === 'administration');
+  if (!match) {
+    return null;
+  }
+  const url = match.url ?? null;
+  return {
+    ...ADMINISTRATION_CARD,
+    active: true,
+    launchable: canLaunch(url),
+    url: canLaunch(url) ? url : null,
+    isCurrent: match.isCurrent ?? false,
+  };
+}
+
 /**
  * Every catalogue product, with `active` set for the ones the backend returned.
  * Products the payload does not mention stay inactive.
+ * Administration is appended only when `/me.availableApplications` includes it —
+ * it never appears as an unavailable catalogue slot.
  * Available apps are listed first (catalogue order within each group) so the
  * first grid row is filled with openable cards.
  */
@@ -169,7 +210,7 @@ export function buildLauncherApps(
     }
   }
 
-  const apps = CATALOGUE.map((item) => {
+  const apps: LauncherApplication[] = CATALOGUE.map((item) => {
     const match = byCode.get(item.code);
     const url = match?.url ?? null;
     return {
@@ -181,5 +222,10 @@ export function buildLauncherApps(
     };
   });
 
-  return [...apps.filter((item) => item.active), ...apps.filter((item) => !item.active)];
+  const ordered = [
+    ...apps.filter((item) => item.active),
+    ...apps.filter((item) => !item.active),
+  ];
+  const administration = administrationFromPayload(returned, canLaunch);
+  return administration ? [administration, ...ordered] : ordered;
 }

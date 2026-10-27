@@ -43,6 +43,12 @@ describe('productCodeFromApplication', () => {
   it('ignores the account hub', () => {
     expect(productCodeFromApplication(app({ key: 'account', nameEn: 'Account' }))).toBeNull();
   });
+
+  it('ignores administration — it is injected only when the API returns it', () => {
+    expect(
+      productCodeFromApplication(app({ key: 'administration', nameEn: 'Administration' })),
+    ).toBeNull();
+  });
 });
 
 describe('isDeveloperPersona', () => {
@@ -132,5 +138,43 @@ describe('buildLauncherApps', () => {
       url: 'https://crm.brooch.example',
     });
     expect(apps.find((item) => item.code === 'sos')?.active).toBe(false);
+  });
+
+  it('prepends Administration only when the API returns it', () => {
+    const withoutAdmin = buildLauncherApps(
+      [
+        app({ key: 'account', url: 'https://account.brooch.example', isCurrent: true }),
+        app({ key: 'crm', url: 'https://crm.brooch.example' }),
+      ],
+      canLaunch,
+    );
+    expect(withoutAdmin.some((item) => item.code === 'administration')).toBe(false);
+
+    const withAdmin = buildLauncherApps(
+      [
+        app({ key: 'account', url: 'https://account.brooch.example', isCurrent: true }),
+        app({ key: 'crm', url: 'https://crm.brooch.example' }),
+        app({
+          key: 'administration',
+          nameEn: 'Administration',
+          nameAr: 'الإدارة',
+          url: 'https://administration.brooch.example',
+        }),
+        app({ key: 'listing', url: 'https://listing.brooch.example' }),
+      ],
+      canLaunch,
+    );
+
+    expect(withAdmin[0]).toMatchObject({
+      code: 'administration',
+      active: true,
+      launchable: true,
+      url: 'https://administration.brooch.example',
+    });
+    expect(withAdmin.filter((item) => item.active).map((item) => item.code)).toEqual([
+      'administration',
+      'los',
+      'sos',
+    ]);
   });
 });

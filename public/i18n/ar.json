@@ -223,7 +223,8 @@
       "los": { "name": "إدارة العرض والنشر العقاري", "code": "RE LOS" },
       "ios": { "name": "إدارة الاستثمار العقاري", "code": "RE IOS" },
       "dos": { "name": "إدارة التطوير العقاري", "code": "RE DOS" },
-      "sos": { "name": "إدارة المبيعات العقارية", "code": "RE SOS" }
+      "sos": { "name": "إدارة المبيعات العقارية", "code": "RE SOS" },
+      "administration": { "name": "الإدارة", "code": "ADMIN" }
     }
   },
   "members": {

@@ -223,7 +223,8 @@
       "los": { "name": "Real Estate Listing Operating System", "code": "RE LOS" },
       "ios": { "name": "Real Estate Investment Operating System", "code": "RE IOS" },
       "dos": { "name": "Real Estate Development Operating System", "code": "RE DOS" },
-      "sos": { "name": "Real Estate Sales Operating System", "code": "RE SOS" }
+      "sos": { "name": "Real Estate Sales Operating System", "code": "RE SOS" },
+      "administration": { "name": "Administration", "code": "ADMIN" }
     }
   },
   "members": {
