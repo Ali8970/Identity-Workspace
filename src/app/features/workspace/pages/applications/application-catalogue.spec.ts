@@ -104,8 +104,8 @@ describe('buildLauncherApps', () => {
       canLaunch,
     );
 
-    expect(apps.map((item) => item.code)).toEqual(['mos', 'los', 'sos', 'aos', 'ios', 'dos']);
-    expect(apps.filter((item) => item.active).map((item) => item.code)).toEqual(['mos', 'los', 'sos']);
+    expect(apps.map((item) => item.code)).toEqual(['los', 'mos', 'sos', 'aos', 'dos', 'ios']);
+    expect(apps.filter((item) => item.active).map((item) => item.code)).toEqual(['los', 'mos', 'sos']);
     expect(apps.find((item) => item.code === 'mos')).toMatchObject({
       launchable: true,
       url: 'https://landlord.brooch.example',
