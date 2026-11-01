@@ -1,5 +1,4 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { FormControl } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { form, minLength, submit } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
@@ -121,7 +120,7 @@ import { MembersSkeleton } from './members.skeleton';
           </div>
 
           <app-list-filter-bar
-            [searchControl]="searchDraft"
+            [searchField]="searchDraft"
             [searchPlaceholder]="'members.search' | translate"
             [otherFiltersLabel]="'members.otherFilters' | translate"
             [applyLabel]="'members.applyFilters' | translate"
@@ -664,7 +663,8 @@ export class MembersPage {
   /** Applied status — drives the members list API. */
   protected readonly statusFilter = signal<TenantMembershipStatus | ''>('');
   /** Draft filters — applied only on Apply / Enter. */
-  protected readonly searchDraft = new FormControl('', { nonNullable: true });
+  private readonly searchDraftText = signal('');
+  protected readonly searchDraft = form(this.searchDraftText);
   protected readonly roleDraft = signal('');
   protected readonly statusDraft = signal<TenantMembershipStatus | ''>('');
 
@@ -885,13 +885,13 @@ export class MembersPage {
   }
 
   protected applyFilters(): void {
-    this.search.set(this.searchDraft.value);
+    this.search.set(this.searchDraftText());
     this.roleFilter.set(this.roleDraft());
     this.statusFilter.set(this.statusDraft());
   }
 
   protected clearFilters(): void {
-    this.searchDraft.setValue('');
+    this.searchDraftText.set('');
     this.roleDraft.set('');
     this.statusDraft.set('');
     this.search.set('');

@@ -1,5 +1,5 @@
 import { Component, Injector, afterNextRender, computed, inject, signal, untracked } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { form } from '@angular/forms/signals';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { AccessPolicy } from '@core/auth/access-policy';
@@ -140,7 +140,7 @@ interface RoleNotice {
           </div>
 
           <app-list-filter-bar
-            [searchControl]="searchDraft"
+            [searchField]="searchDraft"
             [searchPlaceholder]="'roles.search' | translate"
             [otherFiltersLabel]="'roles.otherFilters' | translate"
             [applyLabel]="'roles.applyFilters' | translate"
@@ -409,7 +409,8 @@ export class RolesPage {
   protected readonly statusFilter = signal<StatusFilter>('');
 
   /** Draft filters — commit only on Apply / Enter. */
-  protected readonly searchDraft = new FormControl('', { nonNullable: true });
+  private readonly searchDraftText = signal('');
+  protected readonly searchDraft = form(this.searchDraftText);
   protected readonly applicationDraft = signal('');
   protected readonly statusDraft = signal<StatusFilter>('');
 
@@ -547,13 +548,13 @@ export class RolesPage {
   }
 
   protected applyFilters(): void {
-    this.search.set(this.searchDraft.value);
+    this.search.set(this.searchDraftText());
     this.applicationFilter.set(this.applicationDraft());
     this.statusFilter.set(this.statusDraft());
   }
 
   protected clearFilters(): void {
-    this.searchDraft.setValue('');
+    this.searchDraftText.set('');
     this.applicationDraft.set('');
     this.statusDraft.set('');
     this.search.set('');

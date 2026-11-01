@@ -51,9 +51,9 @@ Living status of every audit finding. Updated after each fix.
 | CODE-04 | L | `as unknown as` casts in `normalize-error.ts` | Pending | |
 | **Modern Angular** | | | | |
 | NG-01 | M | `rxResource` + Observables → `httpResource` reads | **Verified** | Every single-request read is an `httpResource` (`me.resources.ts`, `TeamsApi.treeResource`, `RolesApi.listResource`, `PermissionsApi.catalogResource`, `MembersApi.listResource`, `TenantApi.tenantResource`) with `apiData`/normalising `parse`; `forkJoin` bundles became composed resources. Kept on purpose: the onboarding package step `rxResource` (atomic catalogue + current-subscription read the navigation effects rely on). Same API calls on every screen. Cost: `httpResource` shares Angular's http module with boot-time `HttpClient`, so initial grew 492.43 → 498.25 kB (+~2 kB transfer), still under the 500 kB budget |
-| NG-02 | M | `ActivatedRoute` reads → `withComponentInputBinding` + `input()` | Pending | |
-| NG-03 | L | Effects that propagate state or write the DOM | Pending | |
-| NG-04 | L | Reactive `FormControl` search drafts → Signal Forms | Pending | |
+| NG-02 | M | `ActivatedRoute` reads → `withComponentInputBinding` + `input()` | Revised — partial by design | No routed page had inputs, but the snapshot reads are intentional one-shot semantics (e.g. `?onboarded=1` keeps its banner when the nav link reuses `/applications`; password and payment pages decide in their constructors). Input binding would change that, so `ActivatedRoute` snapshots stay; the only leak (BUG-05) is fixed |
+| NG-03 | L | Effects that propagate state or write the DOM | Revised — no change | The remaining effects are guarded (`untracked`, value checks) and loop-free; moving them would shift timing in the card, role and team forms. The no-state-propagating-effects rule applies to new code (`angular-best-practices.mdc`) |
+| NG-04 | L | Reactive `FormControl` search drafts → Signal Forms | **Verified** | `ListFilterBar` takes a Signal Forms `FieldTree<string>` (`[formField]`); members and roles drafts are `form(signal(''))`; no Reactive Forms left. New `e2e/list-filter.spec.ts` passes on old and new code |
 | NG-05 | L | `@defer` for heavy dialogs | Pending (AP-9) | |
 | NG-06 | L | `NgOptimizedImage` for static images | Pending | Only if pixel-identical |
 | **UI/UX** | | | | |

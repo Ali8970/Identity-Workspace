@@ -1,9 +1,9 @@
 import { Component, computed, input, output, signal } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FieldTree, FormField } from '@angular/forms/signals';
 
 @Component({
   selector: 'app-list-filter-bar',
-  imports: [ReactiveFormsModule],
+  imports: [FormField],
   template: `
     <div
       class="flex w-full flex-col border-b-[1.468px] border-border-subtle bg-surface"
@@ -31,7 +31,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
           <input
             type="search"
             class="list-filter-control h-10 w-full rounded-lg border-[1.468px] border-border-button bg-surface ps-[42px] pe-3 text-[13px] text-text outline-none placeholder:text-text-muted focus:border-border-button focus:outline-none focus-visible:outline-none disabled:opacity-60 [&::-webkit-search-cancel-button]:appearance-none"
-            [formControl]="searchControl()"
+            [formField]="searchField()"
             [placeholder]="searchPlaceholder()"
             [attr.aria-label]="searchPlaceholder()"
             autocomplete="off"
@@ -101,7 +101,8 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
   host: { class: 'block' },
 })
 export class ListFilterBar {
-  readonly searchControl = input.required<FormControl<string>>();
+  /** The draft search text; applied by the page on Enter or Apply, not as you type. */
+  readonly searchField = input.required<FieldTree<string>>();
   readonly searchPlaceholder = input.required<string>();
   readonly otherFiltersLabel = input.required<string>();
   readonly applyLabel = input.required<string>();
