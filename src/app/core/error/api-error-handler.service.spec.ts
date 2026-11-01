@@ -166,11 +166,11 @@ describe('ApiErrorHandler', () => {
         error({
           status: 403,
           code: 'Auth.ApplicationAccessDenied',
-          redirectUrl: 'https://crm.example/denied',
+          redirectUrl: 'https://crm.brooch.sa/denied',
         }),
         request(),
       );
-      expect(ssoNavigations).toEqual(['https://crm.example/denied']);
+      expect(ssoNavigations).toEqual(['https://crm.brooch.sa/denied']);
       expect(shown.length).toBe(0);
     });
 

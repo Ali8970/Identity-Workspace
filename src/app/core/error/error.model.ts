@@ -1,3 +1,5 @@
+import { environment } from '../../../environments/environment';
+
 export interface FieldValidationError {
   code: string;
   message: string;
@@ -74,16 +76,38 @@ export function isLoginIntentFailure(error: BroochError): boolean {
   return !!error.code?.startsWith('Account.LoginIntent.');
 }
 
+/** Every Brooch app, and so every SSO hand-off target, is served from this domain. */
+const TRUSTED_REDIRECT_DOMAIN = 'brooch.sa';
+/** Local sibling apps during `ng serve`; never trusted by a production build. */
+const DEV_REDIRECT_HOSTS = ['localhost', '127.0.0.1'];
+
+/**
+ * Whether the browser may be handed to `url` (SSO redirectUrl, access-denied redirect, app
+ * launcher). The backend already validates these; this allow-list is defence in depth so a
+ * slipped check can never turn the login page into an open redirect.
+ */
 export function isNavigableRedirect(url: string | null | undefined): url is string {
   if (!url) {
     return false;
   }
+  let parsed: URL;
   try {
-    const parsed = new URL(url);
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    parsed = new URL(url);
   } catch {
     return false;
   }
+  if (parsed.username !== '' || parsed.password !== '') {
+    return false;
+  }
+  const host = parsed.hostname.toLowerCase();
+  if (host === TRUSTED_REDIRECT_DOMAIN || host.endsWith(`.${TRUSTED_REDIRECT_DOMAIN}`)) {
+    return parsed.protocol === 'https:';
+  }
+  return (
+    !environment.production &&
+    DEV_REDIRECT_HOSTS.includes(host) &&
+    (parsed.protocol === 'http:' || parsed.protocol === 'https:')
+  );
 }
 
 /**

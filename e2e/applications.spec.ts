@@ -22,15 +22,15 @@ test('catalogue apps returned by the backend are openable and the rest stay lock
   // Catalogue order is pinned in application-catalogue.spec.ts: listing, landlord, CRM.
   await expect(main.getByRole('link', { name: 'Open app' }).nth(0)).toHaveAttribute(
     'href',
-    'https://listing.brooch.example',
+    'https://listing.brooch.sa',
   );
   await expect(main.getByRole('link', { name: 'Open app' }).nth(1)).toHaveAttribute(
     'href',
-    'https://landlord.brooch.example',
+    'https://landlord.brooch.sa',
   );
   await expect(main.getByRole('link', { name: 'Open app' }).nth(2)).toHaveAttribute(
     'href',
-    'https://crm.brooch.example',
+    'https://crm.brooch.sa',
   );
   await expect(main.getByRole('link', { name: 'Open app' }).nth(0)).toHaveCSS(
     'color',

@@ -20,7 +20,9 @@ alwaysApply: true
 3. Else → stay in Account, `GET /auth/me`, applications launcher
 
 ## Selection stage
-- Picker rows ONLY from `LoginResponse.availableCompanies` — never rebuild from `/me/companies`
+- Picker rows come from `LoginResponse.availableCompanies`. Only after a page reload mid-selection
+  (the login response is gone) fall back to `GET /me/companies` filtered to `isSelectable`
+  (`SelectCompanyService.companies`, `tenantSelectionGuard`) — owner decision 2026-11-01 (audit SEC-09)
 - Keep `intentId` in AuthFlowStore across selection (API does not echo it)
 - Selection allow-list only; other APIs → 401 → local logout → `/login`
 

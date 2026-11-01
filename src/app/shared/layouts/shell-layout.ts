@@ -185,6 +185,9 @@ export class ShellLayout {
     effect(() => {
       this.document.body.classList.toggle('shell-nav-open', this.menuOpen());
     });
+    // Leaving the shell with the mobile drawer open (e.g. a session that expires) must not
+    // leave the next page scroll-locked.
+    this.destroyRef.onDestroy(() => this.document.body.classList.remove('shell-nav-open'));
 
     this.router.events
       .pipe(
@@ -276,15 +279,21 @@ export class ShellLayout {
     }
   }
 
+  /** Storage can be blocked (privacy settings, some webviews); the sidebar then starts expanded. */
   private readSidebarPreference(): boolean {
-    if (typeof window === 'undefined') {
+    try {
+      return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === '1';
+    } catch {
       return false;
     }
-    return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === '1';
   }
 
   private persistSidebarPreference(collapsed: boolean): void {
-    window.localStorage.setItem(SIDEBAR_STORAGE_KEY, collapsed ? '1' : '0');
+    try {
+      window.localStorage.setItem(SIDEBAR_STORAGE_KEY, collapsed ? '1' : '0');
+    } catch {
+      /* the preference just isn't remembered */
+    }
   }
 
   private queryIsMobile(): boolean {

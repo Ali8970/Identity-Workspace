@@ -9,7 +9,7 @@ Living status of every audit finding. Updated after each fix.
 | ID | Sev | Finding (short) | Status | Notes |
 |---|---|---|---|---|
 | **Security** | | | | |
-| SEC-01 | M | `isNavigableRedirect` accepts any http(s) origin | Pending (AP-1) | Needs backend confirmation of the registry domains |
+| SEC-01 | M | `isNavigableRedirect` accepts any http(s) origin | **Verified** (AP-1 approved) | Only `https://*.brooch.sa` (plus localhost in dev builds) is followed; credentials in URL refused; `error.model.spec.ts`; e2e fixtures moved to `*.brooch.sa` |
 | SEC-02 | L | `isSafeReturnUrl` accepts `/\host` and control chars; dead `location.replace` branch | **Verified** | Backslash and control characters rejected; dead `location.replace` branch removed (`9208c61`, `error.model.spec.ts`) |
 | SEC-03 | L | Interceptors key on `url.includes('/api/')` | **Verified** | `core/http/api-url.ts` `isApiRequest`; every `API_ROUTES` URL classified as before (`api-url.spec.ts`) |
 | SEC-04 | L | CSRF exemption: substring match vs suffix match | **Verified** | One exact-path matcher shared by the CSRF interceptor and `ApiErrorHandler`; equivalence spec |
@@ -17,14 +17,14 @@ Living status of every audit finding. Updated after each fix.
 | SEC-06 | C if absent | Grant scope and mutations are UI-only from the FE view | Blocked | Questions in [backend-confirmations.md](backend-confirmations.md) |
 | SEC-07 | M if absent | `X-Brooch-Dev-Client` is client-controlled | Blocked | Questions in [backend-confirmations.md](backend-confirmations.md) |
 | SEC-08 | L | `@angular/router` (SSR-only advisories), `zod` | Pending (AP-6) | |
-| SEC-09 | M | Select-company reload uses `/me/companies`, against the contract | Pending (AP-7) | Owner decision |
+| SEC-09 | M | Select-company reload uses `/me/companies`, against the contract | **Verified** (AP-7: keep code) | `identity-domain.mdc` now documents the reload fallback to `/me/companies` |
 | **Bugs** | | | | |
 | BUG-01 | H | Unit suite did not compile (0 tests ran) | **Verified** | `07cf334`: 19 files, 159 of 159 tests pass |
 | BUG-02 | M | Lint: duplicate `class` (error) + 5 `inject-at-top` warnings in `login.page.ts` | **Verified** | Error fixed upstream (`fa0352c`); inject order fixed (`9208c61`); lint 0 problems |
-| BUG-03 | M | `body.shell-nav-open` can leak after the shell is destroyed | Pending (AP-2) | Reproduce first |
-| BUG-04 | M | Unguarded `localStorage` in `shell-layout.ts` | Pending (AP-2) | |
+| BUG-03 | M | `body.shell-nav-open` can leak after the shell is destroyed | Fixed (AP-2) — not fully verified | Class removed on shell destroy; regression suite green; the drawer-open-on-expiry scenario itself is not automated |
+| BUG-04 | M | Unguarded `localStorage` in `shell-layout.ts` | Fixed (AP-2) — not fully verified | try/catch around both storage calls; regression suite green; blocked-storage scenario not automated |
 | BUG-05 | L | Password pages: untorn `queryParamMap` subscription, double bootstrap | **Verified** | `takeUntilDestroyed` on both pages (`9208c61`); full replacement comes with NG-02 |
-| BUG-06 | L | Language switch race | Pending (AP-2) | |
+| BUG-06 | L | Language switch race | No change needed | ngx-translate 18 `changeLang()` already discards superseded loads (`lastUseLanguage`); `<html lang/dir>` is set synchronously in call order |
 | **Data** | | | | |
 | DATA-01 | M | Account company switch triple-loads `/me/companies` | Pending (AP-3) | |
 | DATA-02 | L | Sequential boot reads; CSRF primed then invalidated | Pending (AP-3) | Backend confirmation (token rotation) |
@@ -65,7 +65,7 @@ Living status of every audit finding. Updated after each fix.
 | TEST-01 | H | = BUG-01 | **Verified** | |
 | TEST-02 | H | Missing specs for auth, interceptors, grant scope, onboarding | Pending | |
 | TEST-03 | M | No `check` gate; spec type-check only inside `ng test` | Pending | |
-| PROD-01 | H | Prod env → staging API; staging built with dev config | Pending (AP-8) / Blocked | Prod API URL needed |
+| PROD-01 | H | Prod env → staging API; staging built with dev config | Declined by owner (AP-8) | `build:stg` stays on the development configuration; prod API URL still pending |
 | PROD-02 | H | No CI, no pre-commit gate | Pending (AP-6) | |
 | PROD-03 | M | No error reporting | Blocked | Vendor decision |
 | PROD-04 | M | Hosting config (rewrites, cache, headers) not versioned | Blocked | DevOps |
