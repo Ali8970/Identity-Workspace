@@ -7,6 +7,7 @@ import { OnboardedNotice, PAYMENT_SUCCEEDED_TOAST } from '@core/auth/onboarded-n
 import { LoadingBar } from '@core/layout/loading-bar/loading-bar';
 import { ToastHost } from '@shared/ui/toast/toast-host';
 import { ToastService } from '@shared/ui/toast/toast.service';
+import { APP_PATHS } from '@core/routing/app-paths';
 
 @Component({
   selector: 'app-root',
@@ -38,7 +39,7 @@ export class App {
       )
       .subscribe((event) => {
         const url = router.parseUrl(event.urlAfterRedirects);
-        const handedOff = event.urlAfterRedirects.startsWith('/login') && url.queryParams['onboarded'] === '1';
+        const handedOff = event.urlAfterRedirects.startsWith(APP_PATHS.login) && url.queryParams['onboarded'] === '1';
         if (handedOff || notice.pending()) {
           toasts.show({ ...PAYMENT_SUCCEEDED_TOAST, onClose: () => notice.clear() });
         }

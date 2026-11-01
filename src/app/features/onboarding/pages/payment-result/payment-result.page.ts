@@ -30,6 +30,7 @@ import { PaymentProgress, PaymentProgressStage } from '../../ui/payment-progress
 import { PaymentReceipt } from '../../ui/payment-receipt';
 import { PaymentReference } from '../../ui/payment-reference';
 import { PaymentEmblemState, PaymentStatusEmblem } from '../../ui/payment-status-emblem';
+import { APP_PATHS } from '@core/routing/app-paths';
 
 /** Every 2s while the backend is fast, then 5s — and never longer than the hard stop. */
 const FAST_POLL_MS = 2_000;
@@ -905,7 +906,7 @@ export class PaymentResultPage {
         next: (result) => {
           this.busy.set(false);
           this.checkout.openOperation(result.operationId, result.paymentConfiguration);
-          void this.router.navigate(['/onboarding/payment'], {
+          void this.router.navigate([APP_PATHS.onboardingPayment], {
             queryParams: { operationId: result.operationId },
           });
         },
@@ -944,7 +945,7 @@ export class PaymentResultPage {
     if (operationId === null) {
       return;
     }
-    void this.router.navigate(['/onboarding/payment'], { queryParams: { operationId } });
+    void this.router.navigate([APP_PATHS.onboardingPayment], { queryParams: { operationId } });
   }
 
   /**
@@ -975,7 +976,7 @@ export class PaymentResultPage {
    */
   protected startAgain(): void {
     this.checkout.clear();
-    void this.router.navigate(['/onboarding/package'], {
+    void this.router.navigate([APP_PATHS.onboardingPackage], {
       queryParams: { change: '1' },
       replaceUrl: true,
     });

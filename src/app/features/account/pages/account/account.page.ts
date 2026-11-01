@@ -14,6 +14,7 @@ import { ListStats } from '@shared/ui/list-stats/list-stats';
 import { PageHeader } from '@shared/ui/page-header/page-header';
 import { PanelSection } from '@shared/ui/panel-section/panel-section';
 import { AccountSkeleton } from './account.skeleton';
+import { APP_PATHS } from '@core/routing/app-paths';
 
 @Component({
   selector: 'app-account-page',
@@ -321,7 +322,7 @@ export class AccountPage {
     this.busy.set(true);
     try {
       await firstValueFrom(request());
-      await this.router.navigate(['/login'], { replaceUrl: true });
+      await this.router.navigate([APP_PATHS.login], { replaceUrl: true });
     } catch {
       this.busy.set(false);
     }

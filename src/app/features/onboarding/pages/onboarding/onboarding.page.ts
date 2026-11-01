@@ -21,6 +21,7 @@ import { TenantApi } from '../../services/tenant-api.service';
 import { OnboardingStepper } from '../../ui/onboarding-stepper';
 import { PackageCard } from '../../ui/package-card';
 import { OnboardingSkeleton } from './onboarding.skeleton';
+import { APP_PATHS } from '@core/routing/app-paths';
 
 /**
  * What the server says about this tenant's purchase, read on entry to the package step.
@@ -411,7 +412,7 @@ export class OnboardingPage {
 
       this.checkout.openOperation(pending.operationId, null);
       void this.router.navigate(
-        [pending.isPayable ? '/onboarding/payment' : '/onboarding/payment-processing'],
+        [pending.isPayable ? APP_PATHS.onboardingPayment : APP_PATHS.paymentProcessing],
         { queryParams: { operationId: pending.operationId }, replaceUrl: true },
       );
     });
@@ -450,7 +451,7 @@ export class OnboardingPage {
       try {
         await firstValueFrom(this.onboardingService.saveCompanyProfile(this.companyModel()));
         // The new /onboarding/package instance loads the catalogue itself — nothing to fetch here.
-        await this.router.navigate(['/onboarding/package']);
+        await this.router.navigate([APP_PATHS.onboardingPackage]);
       } finally {
         this.busy.set(false);
       }
@@ -511,7 +512,7 @@ export class OnboardingPage {
         return;
       }
 
-      await this.router.navigate(['/onboarding/payment'], {
+      await this.router.navigate([APP_PATHS.onboardingPayment], {
         queryParams: { operationId: result.operationId },
       });
     } catch (error: unknown) {
@@ -539,7 +540,7 @@ export class OnboardingPage {
       return;
     }
     this.checkout.openOperation(pending.operationId, null);
-    void this.router.navigate(['/onboarding/payment'], {
+    void this.router.navigate([APP_PATHS.onboardingPayment], {
       queryParams: { operationId: pending.operationId },
     });
   }
@@ -547,7 +548,7 @@ export class OnboardingPage {
   private leaveWizard(): void {
     this.session.markOnboardingComplete();
     this.checkout.clear();
-    void this.router.navigate(['/applications'], { replaceUrl: true });
+    void this.router.navigate([APP_PATHS.applications], { replaceUrl: true });
   }
 }
 

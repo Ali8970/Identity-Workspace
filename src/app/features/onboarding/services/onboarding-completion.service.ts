@@ -5,6 +5,7 @@ import { OnboardedNotice } from '@core/auth/onboarded-notice';
 import { SessionStore } from '@core/auth/session.store';
 import { isNavigableRedirect } from '@core/error/error.model';
 import { CheckoutStore } from './checkout.store';
+import { APP_PATHS } from '@core/routing/app-paths';
 
 /** The two fields every completion-bearing response carries. */
 export interface CompletionOutcome {
@@ -85,7 +86,7 @@ export class OnboardingCompletion {
       window.location.assign(completionUrl);
       return;
     }
-    void this.router.navigate(['/login'], {
+    void this.router.navigate([APP_PATHS.login], {
       queryParams: { onboarded: '1' },
       replaceUrl: true,
     });

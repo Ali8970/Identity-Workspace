@@ -27,6 +27,7 @@ import { CheckoutStore } from '../../services/checkout.store';
 import { OnboardingService } from '../../services/onboarding.service';
 import { CardForm } from '../../ui/card-form';
 import { OnboardingStepper } from '../../ui/onboarding-stepper';
+import { APP_PATHS } from '@core/routing/app-paths';
 
 /** How often the payment-window countdown re-renders. */
 const COUNTDOWN_TICK_MS = 30_000;
@@ -192,7 +193,7 @@ export class PaymentPage {
 
   constructor() {
     if (this.operationId === null) {
-      void this.router.navigate(['/onboarding/package'], { replaceUrl: true });
+      void this.router.navigate([APP_PATHS.onboardingPackage], { replaceUrl: true });
       return;
     }
 
@@ -214,7 +215,7 @@ export class PaymentPage {
       .subscribe({
         next: (operation) => {
           if (operation.status !== 'PendingPayment' && operation.status !== 'PaymentFailed') {
-            void this.router.navigate(['/onboarding/payment-processing'], {
+            void this.router.navigate([APP_PATHS.paymentProcessing], {
               queryParams: { operationId },
               replaceUrl: true,
             });
@@ -300,16 +301,16 @@ export class PaymentPage {
     this.paying.set(false);
 
     if (result.paymentState === 'Paid') {
-      void this.router.navigate(['/onboarding/payment-done'], { queryParams: { operationId } });
+      void this.router.navigate([APP_PATHS.paymentDone], { queryParams: { operationId } });
       return;
     }
     if (result.paymentState === 'Failed') {
-      void this.router.navigate(['/onboarding/payment-failed'], { queryParams: { operationId } });
+      void this.router.navigate([APP_PATHS.paymentFailed], { queryParams: { operationId } });
       return;
     }
     // Anything else is the backend still deciding. The processing screen polls it; this one
     // must not guess.
-    void this.router.navigate(['/onboarding/payment-processing'], {
+    void this.router.navigate([APP_PATHS.paymentProcessing], {
       queryParams: { operationId },
     });
   }
@@ -339,10 +340,10 @@ export class PaymentPage {
    */
   protected backToPackages(): void {
     if (this.session.onboardingCompleted()) {
-      void this.router.navigate(['/applications'], { replaceUrl: true });
+      void this.router.navigate([APP_PATHS.applications], { replaceUrl: true });
       return;
     }
-    void this.router.navigate(['/onboarding/package'], { queryParams: { change: '1' } });
+    void this.router.navigate([APP_PATHS.onboardingPackage], { queryParams: { change: '1' } });
   }
 
   /**

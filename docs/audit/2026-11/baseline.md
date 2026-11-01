@@ -39,6 +39,11 @@ no drift (finite animations are finished, looping ones frozen, web fonts awaited
 - 91 of 114 e2e tests failed on unchanged code: the snapshots predated about 40 UI commits, and the functional spec expected the old
   catalogue order and product name → snapshots regenerated and spec aligned with `application-catalogue.spec.ts` (`f108c37`).
 
+## Known flakiness
+- 2026-11-01: `routes-baseline › styles root light en` failed once in a full parallel run (2 workers) during ARCH-06, then
+  passed 4 isolated runs and the next full run (215/215). Treated as capture timing under load, not drift. If it recurs, look
+  at the drifting properties before suspecting the change.
+
 ## Regenerating the computed-style baseline
 It's git-ignored. To compare a change against a commit: check out that commit, run
 `BASELINE_UPDATE=1 npx playwright test e2e/routes-baseline.spec.ts e2e/states.spec.ts`, then check out the change and run the

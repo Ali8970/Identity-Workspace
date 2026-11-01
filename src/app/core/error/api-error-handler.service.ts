@@ -14,6 +14,7 @@ import {
   isSafeReturnUrl,
 } from './error.model';
 import { GlobalErrorService } from './global-error.service';
+import { APP_PATHS } from '../routing/app-paths';
 
 export interface ApiErrorRequestContext {
   url: string;
@@ -63,7 +64,7 @@ export class ApiErrorHandler {
     if (error.code === 'Auth.SessionExpired') {
       this.session.markAnonymous();
       const returnUrl = this.readReturnUrl();
-      void this.router.navigate(['/session-expired'], {
+      void this.router.navigate([APP_PATHS.sessionExpired], {
         queryParams: returnUrl ? { returnUrl } : {},
       });
       return;
@@ -71,8 +72,8 @@ export class ApiErrorHandler {
 
     if (this.shouldLogoutOnUnauthorized(error, request)) {
       this.session.markAnonymous();
-      if (!this.router.url.startsWith('/login')) {
-        void this.router.navigate(['/login']);
+      if (!this.router.url.startsWith(APP_PATHS.login)) {
+        void this.router.navigate([APP_PATHS.login]);
       }
     }
   }
@@ -134,7 +135,7 @@ export class ApiErrorHandler {
       return null;
     }
     const path = this.router.url;
-    if (path.startsWith('/login') || path.startsWith('/session-expired')) {
+    if (path.startsWith(APP_PATHS.login) || path.startsWith(APP_PATHS.sessionExpired)) {
       return null;
     }
     return isSafeReturnUrl(path) ? path : null;

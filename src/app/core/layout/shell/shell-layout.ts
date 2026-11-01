@@ -12,6 +12,7 @@ import { GlobalErrorBanner } from '../global-error-banner/global-error-banner';
 import { ShellHeader } from '../shell-header/shell-header';
 import { ShellSidebar } from '../shell-sidebar/shell-sidebar';
 import { ShellNavGroup, ShellNavItem } from './shell-nav.model';
+import { APP_PATHS } from '../../routing/app-paths';
 
 const SIDEBAR_STORAGE_KEY = 'brooch.shell.sidebarCollapsed';
 const MOBILE_BREAKPOINT = 1025;
@@ -159,20 +160,20 @@ export class ShellLayout {
 
   protected readonly navGroups = computed((): ShellNavGroup[] => {
     const personal: ShellNavItem[] = [
-      { route: '/applications', labelKey: 'shell.applications', icon: 'applications' },
-      { route: '/my-access', labelKey: 'shell.myAccess', icon: 'my-access' },
-      { route: '/account', labelKey: 'shell.account', icon: 'account' },
+      { route: APP_PATHS.applications, labelKey: 'shell.applications', icon: 'applications' },
+      { route: APP_PATHS.myAccess, labelKey: 'shell.myAccess', icon: 'my-access' },
+      { route: APP_PATHS.account, labelKey: 'shell.account', icon: 'account' },
     ];
 
     const admin: ShellNavItem[] = [];
     if (this.access.canReadMembers()) {
-      admin.push({ route: '/members', labelKey: 'shell.members', icon: 'members' });
+      admin.push({ route: APP_PATHS.members, labelKey: 'shell.members', icon: 'members' });
     }
     if (this.access.canReadRoles()) {
-      admin.push({ route: '/roles', labelKey: 'shell.roles', icon: 'roles' });
+      admin.push({ route: APP_PATHS.roles, labelKey: 'shell.roles', icon: 'roles' });
     }
     if (this.access.canReadTeams()) {
-      admin.push({ route: '/teams', labelKey: 'shell.teams', icon: 'teams' });
+      admin.push({ route: APP_PATHS.teams, labelKey: 'shell.teams', icon: 'teams' });
     }
 
     const groups: ShellNavGroup[] = [{ labelKey: 'shell.nav.workspace', items: personal }];
@@ -262,7 +263,7 @@ export class ShellLayout {
     this.loggingOut.set(true);
     try {
       await firstValueFrom(this.session.logoutAll());
-      await this.router.navigate(['/login'], { replaceUrl: true });
+      await this.router.navigate([APP_PATHS.login], { replaceUrl: true });
     } catch {
       this.loggingOut.set(false);
     }

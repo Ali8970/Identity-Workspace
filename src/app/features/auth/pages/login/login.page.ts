@@ -12,6 +12,7 @@ import { redirectAwayIfAuthenticated } from '@core/guards/auth.guards';
 import { AuthLayout } from '@core/layout/auth-layout/auth-layout';
 import { BusyOverlay } from '@shared/ui/busy-overlay/busy-overlay';
 import { LoginService } from '../../services/login.service';
+import { APP_PATHS } from '@core/routing/app-paths';
 
 @Component({
   selector: 'app-login-page',
@@ -300,7 +301,7 @@ export class LoginPage {
 
         if (response.requiresTenantSelection) {
           this.flow.setAvailableCompanies(response.availableCompanies);
-          await this.router.navigate(['/select-company'], { replaceUrl: true });
+          await this.router.navigate([APP_PATHS.selectCompany], { replaceUrl: true });
           return;
         }
 
@@ -316,7 +317,7 @@ export class LoginPage {
         const target = this.returnUrl();
         await (target
           ? this.router.navigateByUrl(target, { replaceUrl: true })
-          : this.router.navigate(['/'], { replaceUrl: true }));
+          : this.router.navigate([APP_PATHS.home], { replaceUrl: true }));
       } finally {
         this.busy.set(false);
       }

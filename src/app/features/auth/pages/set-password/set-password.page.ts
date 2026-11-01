@@ -6,6 +6,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom, map } from 'rxjs';
 import { AuthLayout } from '@core/layout/auth-layout/auth-layout';
 import { PasswordService } from '../../services/password.service';
+import { APP_PATHS } from '@core/routing/app-paths';
 
 /**
  * Email link → `/set-password?userId=…&code=1234`
@@ -314,7 +315,7 @@ export class SetPasswordPage {
           this.passwordService.setPassword(this.userId(), this.code(), value),
         );
         this.passwordService.clearAuthFlow();
-        const reachedLogin = await this.router.navigate(['/login'], {
+        const reachedLogin = await this.router.navigate([APP_PATHS.login], {
           queryParams: { activated: '1' },
           replaceUrl: true,
         });

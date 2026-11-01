@@ -15,6 +15,7 @@ import { AuthApi } from './auth-api.service';
 import { AuthFlowStore } from './auth-flow.store';
 import { CsrfService } from './csrf.service';
 import { MeApi } from './me-api.service';
+import { APP_PATHS } from '../routing/app-paths';
 
 @Service()
 export class SessionStore {
@@ -70,7 +71,7 @@ export class SessionStore {
   }
 
   bootstrap(): Observable<SessionStage> {
-    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/access-denied')) {
+    if (typeof window !== 'undefined' && window.location.pathname.startsWith(APP_PATHS.accessDenied)) {
       this.stageSignal.set(SessionStage.Anonymous);
       return of(SessionStage.Anonymous);
     }
@@ -106,8 +107,8 @@ export class SessionStore {
         this.stageSignal.set(SessionStage.Anonymous);
         const failure = error as BroochError;
         if (failure?.code === 'Auth.SessionExpired') {
-          const returnUrl = this.router.url.startsWith('/login') ? null : this.router.url;
-          void this.router.navigate(['/session-expired'], {
+          const returnUrl = this.router.url.startsWith(APP_PATHS.login) ? null : this.router.url;
+          void this.router.navigate([APP_PATHS.sessionExpired], {
             queryParams: returnUrl ? { returnUrl } : {},
           });
         }

@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard, onboardingGuard } from '@core/guards/auth.guards';
 import { AUTH_ROUTES } from '@features/auth/auth.routes';
 import { ONBOARDING_ROUTES } from '@features/onboarding/onboarding.routes';
+import { ROUTE_SEGMENTS } from '@core/routing/app-paths';
 
 /**
  * Composition only: each feature owns its routes. Auth and onboarding mount at the root because
@@ -24,33 +25,37 @@ export const routes: Routes = [
             path: '',
             pathMatch: 'full',
             loadChildren: () =>
-              import('@features/applications/applications.routes').then((m) => m.APPLICATIONS_ROUTES),
+              import('@features/applications/applications.routes').then(
+                (m) => m.APPLICATIONS_ROUTES,
+              ),
           },
           {
-            path: 'applications',
+            path: ROUTE_SEGMENTS.applications,
             loadChildren: () =>
-              import('@features/applications/applications.routes').then((m) => m.APPLICATIONS_ROUTES),
+              import('@features/applications/applications.routes').then(
+                (m) => m.APPLICATIONS_ROUTES,
+              ),
           },
           {
-            path: 'members',
+            path: ROUTE_SEGMENTS.members,
             loadChildren: () =>
               import('@features/members/members.routes').then((m) => m.MEMBERS_ROUTES),
           },
           {
-            path: 'roles',
+            path: ROUTE_SEGMENTS.roles,
             loadChildren: () => import('@features/roles/roles.routes').then((m) => m.ROLES_ROUTES),
           },
           {
-            path: 'teams',
+            path: ROUTE_SEGMENTS.teams,
             loadChildren: () => import('@features/teams/teams.routes').then((m) => m.TEAMS_ROUTES),
           },
           {
-            path: 'my-access',
+            path: ROUTE_SEGMENTS.myAccess,
             loadChildren: () =>
               import('@features/my-access/my-access.routes').then((m) => m.MY_ACCESS_ROUTES),
           },
           {
-            path: 'account',
+            path: ROUTE_SEGMENTS.account,
             loadChildren: () =>
               import('@features/account/account.routes').then((m) => m.ACCOUNT_ROUTES),
           },

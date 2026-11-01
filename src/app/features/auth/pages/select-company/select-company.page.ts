@@ -9,6 +9,7 @@ import { LanguageService } from '@core/i18n/language.service';
 import { AuthLayout } from '@core/layout/auth-layout/auth-layout';
 import { BusyOverlay } from '@shared/ui/busy-overlay/busy-overlay';
 import { SelectCompanyService } from '../../services/select-company.service';
+import { APP_PATHS } from '@core/routing/app-paths';
 
 @Component({
   selector: 'app-select-company-page',
@@ -171,7 +172,7 @@ export class SelectCompanyPage {
       this.selectCompanyService.markSignedOut();
     } finally {
       this.selectCompanyService.clearFlow();
-      await this.router.navigate(['/login'], { replaceUrl: true });
+      await this.router.navigate([APP_PATHS.login], { replaceUrl: true });
       this.busy.set(false);
     }
   }
@@ -194,7 +195,7 @@ export class SelectCompanyPage {
       }
       this.selectCompanyService.clearFlow();
       await firstValueFrom(this.selectCompanyService.refreshSession());
-      await this.router.navigate(['/'], { replaceUrl: true });
+      await this.router.navigate([APP_PATHS.home], { replaceUrl: true });
     } finally {
       this.busy.set(false);
       this.selectingId.set(null);

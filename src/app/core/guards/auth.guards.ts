@@ -5,6 +5,7 @@ import { SessionStage } from '../auth/auth.enums';
 import { AuthFlowStore } from '../auth/auth-flow.store';
 import { SessionStore } from '../auth/session.store';
 import { isSafeReturnUrl } from '../error/error.model';
+import { APP_PATHS } from '../routing/app-paths';
 
 /**
  * True when stage alone is not enough — e.g. login() sets Active before /me runs.
@@ -46,7 +47,7 @@ function resolveAuth(
 ): boolean | RedirectCommand {
   if (stage === SessionStage.Selection) {
     return new RedirectCommand(
-      router.createUrlTree(['/select-company'], {
+      router.createUrlTree([APP_PATHS.selectCompany], {
         queryParams: flow.intentId() ? { intentId: flow.intentId() } : {},
       }),
       { replaceUrl: true },
@@ -56,7 +57,7 @@ function resolveAuth(
     return true;
   }
   return new RedirectCommand(
-    router.createUrlTree(['/login'], {
+    router.createUrlTree([APP_PATHS.login], {
       queryParams: { returnUrl: url },
     }),
     { replaceUrl: true },
@@ -91,7 +92,7 @@ function resolveGuest(
     return new RedirectCommand(guestHomeUrlTree(router, returnUrl), { replaceUrl: true });
   }
   if (stage === SessionStage.Selection) {
-    return new RedirectCommand(router.createUrlTree(['/select-company']), {
+    return new RedirectCommand(router.createUrlTree([APP_PATHS.selectCompany]), {
       replaceUrl: true,
     });
   }
@@ -102,7 +103,7 @@ function guestHomeUrlTree(router: Router, returnUrl: string | null) {
   if (isSafeReturnUrl(returnUrl)) {
     return router.parseUrl(returnUrl);
   }
-  return router.createUrlTree(['/']);
+  return router.createUrlTree([APP_PATHS.home]);
 }
 
 /** Replace the guest URL in history so Back skips the auth form. */
@@ -129,7 +130,7 @@ export function redirectAwayIfAuthenticated(
     return of(goHome());
   }
   if (session.isSelection() && session.current()) {
-    void router.navigateByUrl('/select-company', { replaceUrl: true });
+    void router.navigateByUrl(APP_PATHS.selectCompany, { replaceUrl: true });
     return of(true);
   }
 
@@ -145,7 +146,7 @@ export function redirectAwayIfAuthenticated(
           return goHome();
         }
         if (stage === SessionStage.Selection) {
-          void router.navigateByUrl('/select-company', { replaceUrl: true });
+          void router.navigateByUrl(APP_PATHS.selectCompany, { replaceUrl: true });
           return true;
         }
         return false;
@@ -189,11 +190,11 @@ function resolveTenantSelection(
 
   // Already bound to a company — there is nothing to select.
   if (session.isActive()) {
-    return new RedirectCommand(router.createUrlTree(['/']), { replaceUrl: true });
+    return new RedirectCommand(router.createUrlTree([APP_PATHS.home]), { replaceUrl: true });
   }
 
   return new RedirectCommand(
-    router.createUrlTree(['/login'], {
+    router.createUrlTree([APP_PATHS.login], {
       queryParams: {
         selectionRestartRequired: '1',
         ...(flow.intentId() ? { intentId: flow.intentId() } : {}),
@@ -207,7 +208,7 @@ export const onboardingGuard: CanActivateFn = () => {
   const session = inject(SessionStore);
   const router = inject(Router);
   if (session.isOnboarding()) {
-    return router.createUrlTree(['/onboarding/company']);
+    return router.createUrlTree([APP_PATHS.onboardingCompany]);
   }
   return true;
 };
@@ -223,7 +224,7 @@ export const onboardingCompleteGuard: CanActivateFn = () => {
   const router = inject(Router);
   const company = session.currentCompany();
   if (session.onboardingCompleted() || (company && company.tenantStatus !== 'Onboarding')) {
-    return new RedirectCommand(router.createUrlTree(['/applications']), { replaceUrl: true });
+    return new RedirectCommand(router.createUrlTree([APP_PATHS.applications]), { replaceUrl: true });
   }
   return true;
 };
