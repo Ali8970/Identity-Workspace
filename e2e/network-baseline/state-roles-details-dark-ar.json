@@ -1,0 +1,8 @@
+[
+  "GET /api/v1/me",
+  "GET /api/v1/me/companies",
+  "GET /api/v1/memberships",
+  "GET /api/v1/permissions",
+  "GET /api/v1/roles",
+  "GET /api/v1/roles/44444444-4444-4444-8444-444444444445/memberships"
+]

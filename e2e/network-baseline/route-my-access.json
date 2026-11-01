@@ -1,0 +1,5 @@
+[
+  "GET /api/v1/me",
+  "GET /api/v1/me/access",
+  "GET /api/v1/me/companies"
+]

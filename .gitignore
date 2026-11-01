@@ -39,6 +39,8 @@ testem.log
 /typings
 __screenshots__/
 /test-results/
+# Computed-style refactor baseline: large and regenerable from any commit (e2e/baseline-helpers.ts)
+/e2e/.style-baseline/
 /playwright-report/
 /blob-report/
 
