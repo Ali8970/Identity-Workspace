@@ -1,169 +1,58 @@
 import { Routes } from '@angular/router';
-import {
-  authGuard,
-  guestGuard,
-  onboardingCompleteGuard,
-  onboardingGuard,
-  tenantSelectionGuard,
-} from '@core/guards/auth.guards';
+import { authGuard, onboardingGuard } from '@core/guards/auth.guards';
+import { AUTH_ROUTES } from '@features/auth/auth.routes';
+import { ONBOARDING_ROUTES } from '@features/onboarding/onboarding.routes';
 
+/**
+ * Composition only: each feature owns its routes. Auth and onboarding mount at the root because
+ * sibling apps, emails and the payment provider link to those exact paths.
+ */
 export const routes: Routes = [
-  {
-    path: 'login',
-    canActivate: [guestGuard],
-    loadComponent: () =>
-      import('@features/auth/pages/login/login.page').then((m) => m.LoginPage),
-  },
-  {
-    path: 'register',
-    canActivate: [guestGuard],
-    loadComponent: () =>
-      import('@features/auth/pages/register/register.page').then((m) => m.RegisterPage),
-  },
-  {
-    path: 'forgot-password',
-    canActivate: [guestGuard],
-    loadComponent: () =>
-      import('@features/auth/pages/forgot-password/forgot-password.page').then(
-        (m) => m.ForgotPasswordPage,
-      ),
-  },
-  {
-    path: 'reset-password',
-    canActivate: [guestGuard],
-    loadComponent: () =>
-      import('@features/auth/pages/reset-password/reset-password.page').then(
-        (m) => m.ResetPasswordPage,
-      ),
-  },
-  {
-    path: 'set-password',
-    canActivate: [guestGuard],
-    loadComponent: () =>
-      import('@features/auth/pages/set-password/set-password.page').then(
-        (m) => m.SetPasswordPage,
-      ),
-  },
-  {
-    path: 'select-company',
-    canActivate: [tenantSelectionGuard],
-    loadComponent: () =>
-      import('@features/auth/pages/select-company/select-company.page').then(
-        (m) => m.SelectCompanyPage,
-      ),
-  },
-  {
-    path: 'onboarding/company',
-    canActivate: [authGuard, onboardingCompleteGuard],
-    data: { step: 'company' },
-    loadComponent: () =>
-      import('@features/onboarding/pages/onboarding/onboarding.page').then(
-        (m) => m.OnboardingPage,
-      ),
-  },
-  {
-    path: 'onboarding/package',
-    canActivate: [authGuard, onboardingCompleteGuard],
-    data: { step: 'package' },
-    loadComponent: () =>
-      import('@features/onboarding/pages/onboarding/onboarding.page').then(
-        (m) => m.OnboardingPage,
-      ),
-  },
-  {
-    // The card step of a paid purchase. Still behind onboardingCompleteGuard: nothing has been
-    // charged yet, so a tenant that already subscribed has no business here.
-    path: 'onboarding/payment',
-    canActivate: [authGuard, onboardingCompleteGuard],
-    loadComponent: () =>
-      import('@features/onboarding/pages/payment/payment.page').then((m) => m.PaymentPage),
-  },
-  // Payment results — the four paths the backend builds its callbacks against. Deliberately
-  // OUTSIDE onboardingCompleteGuard: a verified payment flips the tenant to active, and that
-  // guard would bounce the payer away from their own result.
-  ...['payment-return', 'payment-processing', 'payment-done', 'payment-failed'].map((path) => ({
-    path: `onboarding/${path}`,
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('@features/onboarding/pages/payment-result/payment-result.page').then(
-        (m) => m.PaymentResultPage,
-      ),
-  })),
-  {
-    path: 'access-denied',
-    loadComponent: () =>
-      import('@features/auth/pages/access-denied/access-denied.page').then(
-        (m) => m.AccessDeniedPage,
-      ),
-  },
-  {
-    path: 'denied',
-    loadComponent: () =>
-      import('@features/auth/pages/denied/denied.page').then((m) => m.DeniedPage),
-  },
-  {
-    path: 'session-expired',
-    canActivate: [guestGuard],
-    loadComponent: () =>
-      import('@features/auth/pages/session-expired/session-expired.page').then(
-        (m) => m.SessionExpiredPage,
-      ),
-  },
+  ...AUTH_ROUTES,
+  ...ONBOARDING_ROUTES,
   {
     path: '',
     canActivate: [authGuard],
-    loadComponent: () =>
-      import('@core/layout/shell/shell-layout').then((m) => m.ShellLayout),
+    loadComponent: () => import('@core/layout/shell/shell-layout').then((m) => m.ShellLayout),
     children: [
       {
         path: '',
         canActivate: [onboardingGuard],
         children: [
+          // `/` and `/applications` both show the launcher.
           {
             path: '',
             pathMatch: 'full',
-            loadComponent: () =>
-              import('@features/applications/pages/applications/applications.page').then(
-                (m) => m.ApplicationsPage,
-              ),
+            loadChildren: () =>
+              import('@features/applications/applications.routes').then((m) => m.APPLICATIONS_ROUTES),
           },
           {
             path: 'applications',
-            loadComponent: () =>
-              import('@features/applications/pages/applications/applications.page').then(
-                (m) => m.ApplicationsPage,
-              ),
+            loadChildren: () =>
+              import('@features/applications/applications.routes').then((m) => m.APPLICATIONS_ROUTES),
           },
           {
             path: 'members',
-            loadComponent: () =>
-              import('@features/members/pages/members/members.page').then(
-                (m) => m.MembersPage,
-              ),
+            loadChildren: () =>
+              import('@features/members/members.routes').then((m) => m.MEMBERS_ROUTES),
           },
           {
             path: 'roles',
-            loadComponent: () =>
-              import('@features/roles/pages/roles/roles.page').then((m) => m.RolesPage),
+            loadChildren: () => import('@features/roles/roles.routes').then((m) => m.ROLES_ROUTES),
           },
           {
             path: 'teams',
-            loadComponent: () =>
-              import('@features/teams/pages/teams/teams.page').then((m) => m.TeamsPage),
+            loadChildren: () => import('@features/teams/teams.routes').then((m) => m.TEAMS_ROUTES),
           },
           {
             path: 'my-access',
-            loadComponent: () =>
-              import('@features/my-access/pages/my-access/my-access.page').then(
-                (m) => m.MyAccessPage,
-              ),
+            loadChildren: () =>
+              import('@features/my-access/my-access.routes').then((m) => m.MY_ACCESS_ROUTES),
           },
           {
             path: 'account',
-            loadComponent: () =>
-              import('@features/account/pages/account/account.page').then(
-                (m) => m.AccountPage,
-              ),
+            loadChildren: () =>
+              import('@features/account/account.routes').then((m) => m.ACCOUNT_ROUTES),
           },
         ],
       },

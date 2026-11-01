@@ -40,7 +40,7 @@ Living status of every audit finding. Updated after each fix.
 | ARCH-02 | M | No path aliases or boundary lint | **Verified** | tsconfig aliases; 67 files codemodded; `no-restricted-imports` layer rules catch all 4 probe violations; prod bundle byte-identical |
 | ARCH-03 | H | Feature data access in `core/api`, `core/payments` | Pending | |
 | ARCH-04 | M | App chrome in `shared/` | **Verified** | Chrome moved to `core/layout/{shell,shell-header,shell-sidebar,auth-layout,loading-bar,global-error-banner}`; 285/285 unit, 213/213 e2e |
-| ARCH-05 | M | One flat route table | Pending | URLs stay byte-identical |
+| ARCH-05 | M | One flat route table | **Verified** | Every feature owns `<name>.routes.ts`; `app.routes.ts` only composes; same URLs, guards and data (all 23 routes in the e2e baselines unchanged). `/` and `/applications` both kept (AP-5 safe option). Titles (AP-4) not done |
 | ARCH-06 | L | Hard-coded route paths in the store and guards | Pending | |
 | ARCH-07 | M | Root singletons hold feature state | Pending | |
 | ARCH-08 | M | Docs contradict each other; `ONBOARDING_FRONTEND_GUIDE.md` missing | **Verified** | Stack docs reconciled (`5689b7a`); `architecture.mdc` added |
