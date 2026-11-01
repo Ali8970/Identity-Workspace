@@ -1,21 +1,29 @@
- **Verified** | takeUntilDestroyed on both pages; full replacement in NG-02 || Error fixed upstream (fa0352c); inject order fixed; lint 0 problems || Questions in backend-confirmations.md || Questions in backend-confirmations.md || Spec written: security-headers.md (CSP with hashes); awaiting hosting owner || One exact-path matcher for the CSRF interceptor and ApiErrorHandler; equivalence spec || core/http/api-url.ts isApiRequest; every API_ROUTES URL classified as before (api-url.spec.ts) || Backslash and control characters rejected; dead location.replace branch removed; error.model.spec.ts || ID | Sev | Finding (short) | Status | Notes |
+# Findings register — 2026-11 audit
+
+Living status of every audit finding. Updated after each fix.
+
+- **Status:** Pending → In progress → Fixed → **Verified** (validation passed), or Blocked (with a reason).
+- **AP-n:** needs explicit owner approval before implementation (behaviour, contract, dependency or deployment change).
+- Plan and full rationale: approved remediation plan (2026-11-01). Baseline: [baseline.md](baseline.md).
+
+| ID | Sev | Finding (short) | Status | Notes |
 |---|---|---|---|---|
 | **Security** | | | | |
 | SEC-01 | M | `isNavigableRedirect` accepts any http(s) origin | Pending (AP-1) | Needs backend confirmation of the registry domains |
-| SEC-02 | L | `isSafeReturnUrl` accepts `/\host` and control chars; dead `location.replace` branch | Pending | |
-| SEC-03 | L | Interceptors key on `url.includes('/api/')` | Pending | |
-| SEC-04 | L | CSRF exemption: substring match vs suffix match | Pending | |
-| SEC-05 | M | No CSP, frame-ancestors or security headers; card page in PCI scope | Blocked | Hosting config is not in the repo; header spec to be written |
-| SEC-06 | C if absent | Grant scope and mutations are UI-only from the FE view | Blocked | Backend confirmation |
-| SEC-07 | M if absent | `X-Brooch-Dev-Client` is client-controlled | Blocked | Backend confirmation |
+| SEC-02 | L | `isSafeReturnUrl` accepts `/\host` and control chars; dead `location.replace` branch | **Verified** | Backslash and control characters rejected; dead `location.replace` branch removed (`9208c61`, `error.model.spec.ts`) |
+| SEC-03 | L | Interceptors key on `url.includes('/api/')` | **Verified** | `core/http/api-url.ts` `isApiRequest`; every `API_ROUTES` URL classified as before (`api-url.spec.ts`) |
+| SEC-04 | L | CSRF exemption: substring match vs suffix match | **Verified** | One exact-path matcher shared by the CSRF interceptor and `ApiErrorHandler`; equivalence spec |
+| SEC-05 | M | No CSP, frame-ancestors or security headers; card page in PCI scope | Blocked | Spec written: [security-headers.md](security-headers.md) (CSP with hashes); awaiting the hosting owner |
+| SEC-06 | C if absent | Grant scope and mutations are UI-only from the FE view | Blocked | Questions in [backend-confirmations.md](backend-confirmations.md) |
+| SEC-07 | M if absent | `X-Brooch-Dev-Client` is client-controlled | Blocked | Questions in [backend-confirmations.md](backend-confirmations.md) |
 | SEC-08 | L | `@angular/router` (SSR-only advisories), `zod` | Pending (AP-6) | |
 | SEC-09 | M | Select-company reload uses `/me/companies`, against the contract | Pending (AP-7) | Owner decision |
 | **Bugs** | | | | |
 | BUG-01 | H | Unit suite did not compile (0 tests ran) | **Verified** | `07cf334`: 19 files, 159 of 159 tests pass |
-| BUG-02 | M | Lint: duplicate `class` (error) + 5 `inject-at-top` warnings in `login.page.ts` | In progress | The error was fixed upstream in `fa0352c`; the 5 warnings remain |
+| BUG-02 | M | Lint: duplicate `class` (error) + 5 `inject-at-top` warnings in `login.page.ts` | **Verified** | Error fixed upstream (`fa0352c`); inject order fixed (`9208c61`); lint 0 problems |
 | BUG-03 | M | `body.shell-nav-open` can leak after the shell is destroyed | Pending (AP-2) | Reproduce first |
 | BUG-04 | M | Unguarded `localStorage` in `shell-layout.ts` | Pending (AP-2) | |
-| BUG-05 | L | Password pages: untorn `queryParamMap` subscription, double bootstrap | Pending | Absorbed by NG-02 |
+| BUG-05 | L | Password pages: untorn `queryParamMap` subscription, double bootstrap | **Verified** | `takeUntilDestroyed` on both pages (`9208c61`); full replacement comes with NG-02 |
 | BUG-06 | L | Language switch race | Pending (AP-2) | |
 | **Data** | | | | |
 | DATA-01 | M | Account company switch triple-loads `/me/companies` | Pending (AP-3) | |
