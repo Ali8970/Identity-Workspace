@@ -1,5 +1,4 @@
-import { Component, Injector, afterNextRender, computed, inject, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { Component, Injector, afterNextRender, computed, inject, signal, untracked } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
@@ -15,9 +14,11 @@ import { ListFilterBar } from '@shared/ui/list-filter-bar/list-filter-bar';
 import type { ListStatCard } from '@shared/ui/list-stats/list-stat-card';
 import { ListStats } from '@shared/ui/list-stats/list-stats';
 import { PageHeader } from '@shared/ui/page-header/page-header';
-import { MemberListItem, PermissionCatalogItem, RoleListItem } from '@domains/access/models/access.model';
+import { MemberListItem, RoleListItem } from '@domains/access/models/access.model';
 import { RoleGrantScope } from '@domains/access/models/grant-scope.model';
 import { GrantScopeService } from '@domains/access/services/grant-scope.service';
+import { PermissionsApi } from '@domains/access/services/permissions-api.service';
+import { RolesApi } from '@domains/access/services/roles-api.service';
 import { RolesService } from '../../services/roles.service';
 import { RoleDetailsDialog } from '../../components/role-details-dialog/role-details-dialog';
 import {
@@ -366,6 +367,8 @@ interface RoleNotice {
 })
 export class RolesPage {
   private readonly rolesService = inject(RolesService);
+  private readonly rolesApi = inject(RolesApi);
+  private readonly permissionsApi = inject(PermissionsApi);
   private readonly grantScopeService = inject(GrantScopeService);
   private readonly session = inject(SessionStore);
   private readonly access = inject(AccessPolicy);
@@ -376,19 +379,25 @@ export class RolesPage {
 
   protected readonly applicationModifier = applicationModifier;
 
-  private readonly catalog = rxResource({
-    params: () => this.session.currentTenant()?.tenantMembershipId,
-    stream: () => this.rolesService.loadRolesAndPermissionCatalog(),
-    defaultValue: { roles: [], permissions: [] } as {
-      roles: RoleListItem[];
-      permissions: PermissionCatalogItem[];
-    },
-  });
+  // Both reads follow the bound company. Whether the catalogue may be read is checked when a
+  // load starts (untracked), exactly as the previous one-shot load did.
+  private readonly roleList = this.rolesApi.listResource(
+    () => this.session.currentTenant()?.tenantMembershipId,
+  );
+  private readonly catalogList = this.permissionsApi.catalogResource(
+    () =>
+      this.session.currentTenant()?.tenantMembershipId !== undefined &&
+      untracked(() => this.access.canReadPermissions()),
+  );
 
-  protected readonly roles = computed(() => this.catalog.value().roles);
-  protected readonly permissionCatalog = computed(() => this.catalog.value().permissions);
-  protected readonly initialLoading = computed(() => this.catalog.status() === 'loading');
-  protected readonly loadFailed = computed(() => this.catalog.status() === 'error');
+  protected readonly roles = computed(() => this.roleList.value());
+  protected readonly permissionCatalog = computed(() => this.catalogList.value());
+  protected readonly initialLoading = computed(
+    () => this.roleList.status() === 'loading' || this.catalogList.status() === 'loading',
+  );
+  protected readonly loadFailed = computed(
+    () => this.roleList.status() === 'error' || this.catalogList.status() === 'error',
+  );
 
   protected readonly canManage = this.access.canManageRoles;
   protected readonly canReadMembers = this.access.canReadMembers;
@@ -529,7 +538,12 @@ export class RolesPage {
   });
 
   protected reload(): void {
-    this.catalog.reload();
+    this.reloadCatalog();
+  }
+
+  private reloadCatalog(): void {
+    this.roleList.reload();
+    this.catalogList.reload();
   }
 
   protected applyFilters(): void {
@@ -681,7 +695,7 @@ export class RolesPage {
       });
     } catch {
       if (metadataSaved) {
-        this.catalog.reload();
+        this.reloadCatalog();
       }
     } finally {
       this.saving.set(false);
@@ -714,7 +728,7 @@ export class RolesPage {
         key: isActive ? 'roles.notice.activated' : 'roles.notice.deactivated',
         name: this.roleName(role),
       });
-      this.catalog.reload();
+      this.reloadCatalog();
     } catch {
       this.deactivateTarget.set(null);
     } finally {
@@ -725,7 +739,7 @@ export class RolesPage {
   private finishForm(notice: RoleNotice): void {
     this.closeFormState();
     this.notice.set(notice);
-    this.catalog.reload();
+    this.reloadCatalog();
   }
 
   private closeFormState(): void {

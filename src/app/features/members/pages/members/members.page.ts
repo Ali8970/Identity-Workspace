@@ -1,5 +1,4 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { form, minLength, submit } from '@angular/forms/signals';
@@ -26,10 +25,13 @@ import {
   ResendActivationResult,
   RoleListItem,
 } from '@domains/access/models/access.model';
-import { TeamListItem, TeamNode } from '@domains/team/models/team.model';
+import { TeamListItem } from '@domains/team/models/team.model';
 import { AddMemberFormValue } from '../../models/member-invite.model';
 import { MEMBER_STATUSES, MembersService } from '../../services/members.service';
 import { RoleGrantScope } from '@domains/access/models/grant-scope.model';
+import { MembersApi } from '@domains/access/services/members-api.service';
+import { RolesApi } from '@domains/access/services/roles-api.service';
+import { TeamsApi } from '@domains/team/services/teams-api.service';
 import { MemberInviteDialog } from '../../components/member-invite-dialog/member-invite-dialog';
 import { MembersSkeleton } from './members.skeleton';
 
@@ -646,6 +648,9 @@ import { MembersSkeleton } from './members.skeleton';
 })
 export class MembersPage {
   private readonly membersService = inject(MembersService);
+  private readonly membersApi = inject(MembersApi);
+  private readonly rolesApi = inject(RolesApi);
+  private readonly teamsApi = inject(TeamsApi);
   private readonly session = inject(SessionStore);
   private readonly access = inject(AccessPolicy);
   private readonly applicationLabels = inject(ApplicationLabels);
@@ -663,35 +668,39 @@ export class MembersPage {
   protected readonly roleDraft = signal('');
   protected readonly statusDraft = signal<TenantMembershipStatus | ''>('');
 
-  private readonly directory = rxResource({
-    // Keyed on the active company: switching companies re-fetches automatically,
-    // so no route remount is needed to refresh tenant-scoped lists.
-    params: () => ({
-      tenant: this.session.currentTenant()?.tenantMembershipId,
-      status: this.statusFilter(),
-    }),
-    stream: ({ params }) => this.membersService.loadMembers(params.status),
-    defaultValue: [] as MemberListItem[],
+  // Keyed on the active company: switching companies re-fetches automatically, so no route
+  // remount is needed to refresh tenant-scoped lists. The directory loads even before a company
+  // is bound; the lookups wait for one.
+  private readonly directory = this.membersApi.listResource(() => {
+    this.session.currentTenant();
+    const status = this.statusFilter();
+    return status ? { status } : {};
   });
-
-  private readonly lookups = rxResource({
-    params: () => this.session.currentTenant()?.tenantMembershipId,
-    stream: () => this.membersService.loadLookups(),
-    defaultValue: { roles: [], teams: [] } as { roles: RoleListItem[]; teams: TeamNode[] },
-  });
+  private readonly roleLookup = this.rolesApi.listResource(
+    () => this.session.currentTenant()?.tenantMembershipId,
+  );
+  private readonly teamLookup = this.teamsApi.treeResource(
+    () => this.session.currentTenant()?.tenantMembershipId,
+  );
 
   protected readonly members = this.directory.value;
-  protected readonly roles = computed(() => this.lookups.value().roles);
+  protected readonly roles = computed(() => this.roleLookup.value());
   protected readonly inviteCatalog = computed(() =>
-    this.membersService.inviteCatalog(this.roles(), this.lookups.value().teams),
+    this.membersService.inviteCatalog(this.roles(), this.teamLookup.value()),
+  );
+  private readonly lookupsLoading = computed(
+    () => this.roleLookup.isLoading() || this.teamLookup.isLoading(),
   );
   protected readonly loading = computed(
-    () => this.lookups.isLoading() || (this.directory.isLoading() && !this.directory.hasValue()),
+    () => this.lookupsLoading() || (this.directory.isLoading() && !this.directory.hasValue()),
   );
   protected readonly refreshing = this.directory.isLoading;
   /** The error interceptor already raised the banner; this only offers the retry. */
   protected readonly loadFailed = computed(
-    () => this.directory.status() === 'error' || this.lookups.status() === 'error',
+    () =>
+      this.directory.status() === 'error' ||
+      this.roleLookup.status() === 'error' ||
+      this.teamLookup.status() === 'error',
   );
 
   protected readonly busy = signal(false);
@@ -871,7 +880,8 @@ export class MembersPage {
 
   protected reload(): void {
     this.directory.reload();
-    this.lookups.reload();
+    this.roleLookup.reload();
+    this.teamLookup.reload();
   }
 
   protected applyFilters(): void {

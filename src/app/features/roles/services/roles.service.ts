@@ -1,8 +1,6 @@
 import { Service, inject } from '@angular/core';
-import { Observable, forkJoin, of } from 'rxjs';
-import { AccessPolicy } from '@core/auth/access-policy';
+import { Observable } from 'rxjs';
 import { MembersApi } from '@domains/access/services/members-api.service';
-import { PermissionsApi } from '@domains/access/services/permissions-api.service';
 import { RolesApi } from '@domains/access/services/roles-api.service';
 import { RoleGrantScope } from '@domains/access/models/grant-scope.model';
 import {
@@ -18,9 +16,7 @@ import {
 @Service()
 export class RolesService {
   private readonly rolesApi = inject(RolesApi);
-  private readonly permissionsApi = inject(PermissionsApi);
   private readonly membersApi = inject(MembersApi);
-  private readonly access = inject(AccessPolicy);
 
   isProtected(role: RoleListItem): boolean {
     return role.isSystem || role.isOwnerRole;
@@ -29,18 +25,6 @@ export class RolesService {
   /** Roles of the company the session is bound to; optionally one application. */
   listForCurrentTenant(applicationKey?: string): Observable<RoleListItem[]> {
     return this.rolesApi.list(applicationKey);
-  }
-
-  loadRolesAndPermissionCatalog(): Observable<{
-    roles: RoleListItem[];
-    permissions: PermissionCatalogItem[];
-  }> {
-    return forkJoin({
-      roles: this.rolesApi.list(),
-      permissions: this.access.canReadPermissions()
-        ? this.permissionsApi.catalog()
-        : of([] as PermissionCatalogItem[]),
-    });
   }
 
   roleMemberships(roleId: string): Observable<RoleMembershipsDto> {

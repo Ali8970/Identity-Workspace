@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, httpResource } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { ACCESS_ENDPOINTS } from '../constants/access.endpoints';
@@ -10,7 +10,7 @@ import {
   MemberRolesDto,
   ResendActivationResult,
 } from '../models/access.model';
-import { unwrapData } from '@core/http/unwrap';
+import { apiData, unwrapData } from '@core/http/unwrap';
 import { toParams } from '@core/http/http-params';
 import { ApiResponse } from '@shared/models/api-response.model';
 
@@ -21,6 +21,21 @@ import { ApiResponse } from '@shared/models/api-response.model';
 @Service()
 export class MembersApi {
   private readonly http = inject(HttpClient);
+
+  /** GET /memberships as a resource; re-read whenever any signal `filters()` reads changes. */
+  listResource(filters: () => MemberListFilters) {
+    return httpResource<MemberListItem[]>(
+      () => {
+        const { search, status } = filters();
+        return {
+          url: ACCESS_ENDPOINTS.memberships,
+          withCredentials: true,
+          params: toParams({ search, status }),
+        };
+      },
+      { parse: apiData<MemberListItem[]>, defaultValue: [] },
+    );
+  }
 
   list(filters: MemberListFilters = {}): Observable<MemberListItem[]> {
     return this.http

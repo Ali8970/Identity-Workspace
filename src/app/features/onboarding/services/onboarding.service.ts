@@ -12,7 +12,6 @@ import {
   SubscriptionRetryPaymentResult,
 } from '../models/subscription.model';
 import { CompanyProfileFormValue } from '../models/onboarding-feature.model';
-import { TenantDto } from '../models/tenant.model';
 
 /**
  * The onboarding journey's view of the API: company profile from Tenant, everything about the
@@ -24,10 +23,6 @@ export class OnboardingService {
   private readonly subscriptionApi = inject(SubscriptionApi);
 
   /** The authority on onboarding progress. */
-  loadTenant(): Observable<TenantDto> {
-    return this.tenantApi.get();
-  }
-
   /** Where an interrupted journey resumes from — never `sessionStorage`. */
   loadCurrentSubscription(): Observable<CurrentSubscriptionView> {
     return this.subscriptionApi.current();

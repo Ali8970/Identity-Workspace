@@ -1,9 +1,9 @@
-import { HttpClient, HttpParams, httpResource } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Service, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { AUTH_ENDPOINTS } from './auth.endpoints';
 import { ApiResponse } from '@shared/models/api-response.model';
-import { apiData, unwrapData } from '../http/unwrap';
+import { unwrapData } from '../http/unwrap';
 import {
   CurrentUserResponse,
   MyAccessResponse,
@@ -56,33 +56,6 @@ export class MeApi {
   }
 
   /** Active-stage only: roles across every application in the current company. */
-  /**
-   * GET /me/access as a resource, re-read whenever `scope()` changes (e.g. a company switch) and
-   * idle while it is undefined.
-   */
-  accessResource(scope: () => string | undefined) {
-    return httpResource<MyAccessResponse>(
-      () => (scope() === undefined ? undefined : { url: AUTH_ENDPOINTS.myAccess, withCredentials: true }),
-      { parse: apiData<MyAccessResponse> },
-    );
-  }
-
-  /** GET /me/companies (server default filtering) as a resource; idle while `scope()` is undefined. */
-  companiesResource(scope: () => string | undefined) {
-    return httpResource<MyCompanyDto[]>(
-      () => (scope() === undefined ? undefined : { url: AUTH_ENDPOINTS.myCompanies, withCredentials: true }),
-      { parse: apiData<MyCompanyDto[]>, defaultValue: [] },
-    );
-  }
-
-  /** GET /me/sessions as a resource; idle while `scope()` is undefined. */
-  sessionsResource(scope: () => string | undefined) {
-    return httpResource<SessionDto[]>(
-      () => (scope() === undefined ? undefined : { url: AUTH_ENDPOINTS.mySessions, withCredentials: true }),
-      { parse: apiData<SessionDto[]>, defaultValue: [] },
-    );
-  }
-
   access(): Observable<MyAccessResponse> {
     return this.http
       .get<ApiResponse<MyAccessResponse>>(AUTH_ENDPOINTS.myAccess, { withCredentials: true })

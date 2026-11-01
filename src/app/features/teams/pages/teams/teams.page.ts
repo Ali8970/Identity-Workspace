@@ -1,6 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, Injector, afterNextRender, computed, inject, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { AccessPolicy } from '@core/auth/access-policy';
@@ -16,6 +15,7 @@ import { ListStats } from '@shared/ui/list-stats/list-stats';
 import { PageHeader } from '@shared/ui/page-header/page-header';
 import { MemberListItem } from '@domains/access/models/access.model';
 import { TeamMembershipDdlItem, TeamNode } from '@domains/team/models/team.model';
+import { TeamsApi } from '@domains/team/services/teams-api.service';
 import { TeamsService } from '../../services/teams.service';
 import { TeamDetailsDialog } from '../../components/team-details-dialog/team-details-dialog';
 import {
@@ -652,6 +652,7 @@ interface TeamRow {
 })
 export class TeamsPage {
   private readonly teamsService = inject(TeamsService);
+  private readonly teamsApi = inject(TeamsApi);
   private readonly session = inject(SessionStore);
   private readonly access = inject(AccessPolicy);
   private readonly applicationLabels = inject(ApplicationLabels);
@@ -662,12 +663,10 @@ export class TeamsPage {
   protected readonly maxDepth = MAX_TEAM_DEPTH;
   protected readonly viewMode = signal<'chart' | 'list'>('list');
 
-  private readonly tree = rxResource({
-    // Keyed on the active company so a company switch re-fetches automatically.
-    params: () => this.session.currentTenant()?.tenantMembershipId,
-    stream: () => this.teamsService.loadTree(),
-    defaultValue: [] as TeamNode[],
-  });
+  // Keyed on the active company so a company switch re-fetches automatically.
+  private readonly tree = this.teamsApi.treeResource(
+    () => this.session.currentTenant()?.tenantMembershipId,
+  );
 
   protected readonly teams = this.tree.value;
   protected readonly loading = this.tree.isLoading;

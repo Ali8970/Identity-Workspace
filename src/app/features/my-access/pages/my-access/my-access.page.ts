@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { MeApi } from '@core/auth/me-api.service';
+import { myAccessResource } from '@core/auth/me.resources';
 import { SessionStore } from '@core/auth/session.store';
 import {
   humanizePermissionToken,
@@ -170,12 +170,11 @@ import { MyAccessSkeleton } from './my-access.skeleton';
   `,
 })
 export class MyAccessPage {
-  private readonly meApi = inject(MeApi);
   private readonly session = inject(SessionStore);
   protected readonly language = inject(LanguageService);
   private readonly translate = inject(TranslateService);
 
-  private readonly access = this.meApi.accessResource(
+  private readonly access = myAccessResource(
     () => this.session.currentTenant()?.tenantMembershipId,
   );
 

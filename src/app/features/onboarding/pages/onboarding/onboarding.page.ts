@@ -17,6 +17,7 @@ import { OnboardingStep } from '../../models/onboarding-feature.model';
 import { CheckoutStore } from '../../services/checkout.store';
 import { OnboardingCompletion } from '../../services/onboarding-completion.service';
 import { OnboardingService } from '../../services/onboarding.service';
+import { TenantApi } from '../../services/tenant-api.service';
 import { OnboardingStepper } from '../../ui/onboarding-stepper';
 import { PackageCard } from '../../ui/package-card';
 import { OnboardingSkeleton } from './onboarding.skeleton';
@@ -230,6 +231,7 @@ const NO_PACKAGE_STEP: PackageStepData = { packages: [], subscribed: false, pend
 })
 export class OnboardingPage {
   private readonly onboardingService = inject(OnboardingService);
+  private readonly tenantApi = inject(TenantApi);
   private readonly checkout = inject(CheckoutStore);
   private readonly completion = inject(OnboardingCompletion);
   private readonly globalErrors = inject(GlobalErrorService);
@@ -254,9 +256,7 @@ export class OnboardingPage {
     this.route.snapshot.queryParamMap.get('change') === '1',
   );
 
-  private readonly tenant = rxResource({
-    stream: () => this.onboardingService.loadTenant(),
-  });
+  private readonly tenant = this.tenantApi.tenantResource();
 
   /**
    * The package step needs two answers before it can render: the catalogue, and whether a

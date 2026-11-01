@@ -32,9 +32,9 @@ Living status of every audit finding. Updated after each fix.
 | DATA-03 | M | Root `models/`, `enums/`, `constants/` buckets and re-export shims | **Verified** | Root `models/`, `enums/`, `constants/` removed: each type/enum/endpoint lives with its owner; endpoint templates proven byte-identical; dead types dropped (ApplicationStatus, ApplicationKey, EligibilityReason, RemediationAction, REMEDIATION_BY_REASON, PagedResult, unused `applications` endpoint). Initial bundle 494.49 → 492.48 kB |
 | DATA-04 | M | Scattered permission checks → `AccessPolicy` | **Verified** | `core/auth/access-policy.ts`: 7 computed capabilities replace the `canX()` copies in shell, members, roles and teams (and the unused `SessionStore.hasPermission`); same permission keys (`access-policy.spec.ts`); 290/290 unit, 213/213 e2e |
 | DATA-05 | L | `withCredentials` repeated on every call | Pending | After SEC-03 |
-| DATA-06 | L | Pass-through facades | In progress | `MyAccessService` and `AccountService` (pass-throughs) removed |
+| DATA-06 | L | Pass-through facades | **Verified** | Pass-throughs removed: MyAccessService, AccountService, TeamsService.loadTree, MembersService.loadMembers/loadLookups, RolesService.loadRolesAndPermissionCatalog, OnboardingService.loadTenant. `ApplicationsService` kept (it holds the redirect guard) |
 | **Performance** | | | | |
-| PERF-01 | M | Initial bundle near the budget (see baseline) | Pending | Measured every phase |
+| PERF-01 | M | Initial bundle near the budget (see baseline) | In progress | Initial: 494.06 (baseline) → 492.43 (dead code, endpoint split) → 498.25 kB (httpResource). Headroom 1.75 kB: the Tailwind migration must not grow the initial bundle |
 | PERF-02 | L | Full client-side lists (suspected) | Pending | Benchmark before acting |
 | **Architecture and code** | | | | |
 | ARCH-01 | H | `features/workspace` holds six domains | **Verified** | `features/workspace` → `applications`, `members`, `roles`, `teams`, `my-access`, `account` (dialogs in `components/`, catalogue in `utils/`); grant scope moved to `domains/access`; lint proves no cross-feature imports; 285/285 unit, 213/213 e2e |
@@ -50,7 +50,7 @@ Living status of every audit finding. Updated after each fix.
 | CODE-03 | M | Duplicated dialog shell and confirm-state logic | Pending | |
 | CODE-04 | L | `as unknown as` casts in `normalize-error.ts` | Pending | |
 | **Modern Angular** | | | | |
-| NG-01 | M | `rxResource` + Observables → `httpResource` reads | In progress | `apiData` parse helper; my-access and account read through `MeApi.*Resource` (`httpResource`), same API calls |
+| NG-01 | M | `rxResource` + Observables → `httpResource` reads | **Verified** | Every single-request read is an `httpResource` (`me.resources.ts`, `TeamsApi.treeResource`, `RolesApi.listResource`, `PermissionsApi.catalogResource`, `MembersApi.listResource`, `TenantApi.tenantResource`) with `apiData`/normalising `parse`; `forkJoin` bundles became composed resources. Kept on purpose: the onboarding package step `rxResource` (atomic catalogue + current-subscription read the navigation effects rely on). Same API calls on every screen. Cost: `httpResource` shares Angular's http module with boot-time `HttpClient`, so initial grew 492.43 → 498.25 kB (+~2 kB transfer), still under the 500 kB budget |
 | NG-02 | M | `ActivatedRoute` reads → `withComponentInputBinding` + `input()` | Pending | |
 | NG-03 | L | Effects that propagate state or write the DOM | Pending | |
 | NG-04 | L | Reactive `FormControl` search drafts → Signal Forms | Pending | |

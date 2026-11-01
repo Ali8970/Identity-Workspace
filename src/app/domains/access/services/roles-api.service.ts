@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, httpResource } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { ACCESS_ENDPOINTS } from '../constants/access.endpoints';
@@ -9,14 +9,33 @@ import {
   RolePermissionsDto,
   UpdateRoleRequest,
 } from '../models/access.model';
-import { unwrapData } from '@core/http/unwrap';
+import { apiData, unwrapData } from '@core/http/unwrap';
 import { toParams } from '@core/http/http-params';
 import { ApiResponse } from '@shared/models/api-response.model';
 
 /** Roles defined in the current company, optionally narrowed to one application. */
+/**
+ * `permissionKeys` is declared non-nullable, so make that true here rather than defending
+ * against null in every consumer.
+ */
+function withPermissionKeys(roles: RoleListItem[]): RoleListItem[] {
+  return roles.map((role) => ({ ...role, permissionKeys: role.permissionKeys ?? [] }));
+}
+
 @Service()
 export class RolesApi {
   private readonly http = inject(HttpClient);
+
+  /**
+   * GET /roles (every application) as a resource, re-read whenever `scope()` changes and idle
+   * while it is undefined. Same normalisation as `list()`.
+   */
+  listResource(scope: () => string | undefined) {
+    return httpResource<RoleListItem[]>(
+      () => (scope() === undefined ? undefined : { url: ACCESS_ENDPOINTS.roles, withCredentials: true }),
+      { parse: (body) => withPermissionKeys(apiData<RoleListItem[]>(body)), defaultValue: [] },
+    );
+  }
 
   list(applicationKey?: string): Observable<RoleListItem[]> {
     return this.http
@@ -26,11 +45,7 @@ export class RolesApi {
       })
       .pipe(
         unwrapData(),
-        // `permissionKeys` is declared non-nullable, so make that true here rather than
-        // defending against null in every consumer.
-        map((roles) =>
-          roles.map((role) => ({ ...role, permissionKeys: role.permissionKeys ?? [] })),
-        ),
+        map(withPermissionKeys),
       );
   }
 

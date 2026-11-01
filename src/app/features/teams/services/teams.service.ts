@@ -19,10 +19,6 @@ export class TeamsService {
   private readonly rolesApi = inject(RolesApi);
   private readonly membersApi = inject(MembersApi);
 
-  loadTree(): Observable<TeamNode[]> {
-    return this.teamsApi.tree();
-  }
-
   loadMembershipsDdl(teamId: string): Observable<TeamMembershipDdlItem[]> {
     return this.teamsApi.membershipsDdl(teamId);
   }

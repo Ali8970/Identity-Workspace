@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Observable, firstValueFrom } from 'rxjs';
-import { MeApi } from '@core/auth/me-api.service';
+import { myCompaniesResource, mySessionsResource } from '@core/auth/me.resources';
 import { SessionStore } from '@core/auth/session.store';
 import { LanguageService } from '@core/i18n/language.service';
 import { BusyOverlay } from '@shared/ui/busy-overlay/busy-overlay';
@@ -213,17 +213,16 @@ import { AccountSkeleton } from './account.skeleton';
   `,
 })
 export class AccountPage {
-  private readonly meApi = inject(MeApi);
   private readonly router = inject(Router);
   protected readonly language = inject(LanguageService);
   private readonly translate = inject(TranslateService);
   protected readonly session = inject(SessionStore);
 
   // Both reads follow the bound company, so a company switch re-reads them.
-  private readonly companiesData = this.meApi.companiesResource(
+  private readonly companiesData = myCompaniesResource(
     () => this.session.currentTenant()?.tenantMembershipId,
   );
-  private readonly sessionsData = this.meApi.sessionsResource(
+  private readonly sessionsData = mySessionsResource(
     () => this.session.currentTenant()?.tenantMembershipId,
   );
 

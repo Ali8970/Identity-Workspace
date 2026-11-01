@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, httpResource } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { TEAM_ENDPOINTS } from '../constants/team.endpoints';
@@ -32,6 +32,20 @@ function normalizeTeamNodes(nodes: TeamNode[] | null | undefined): TeamNode[] {
 @Service()
 export class TeamsApi {
   private readonly http = inject(HttpClient);
+
+  /**
+   * GET /teams/tree as a resource, re-read whenever `scope()` changes and idle while it is
+   * undefined. Same normalisation as `tree()`: a null payload is an empty tree.
+   */
+  treeResource(scope: () => string | undefined) {
+    return httpResource<TeamNode[]>(
+      () => (scope() === undefined ? undefined : { url: TEAM_ENDPOINTS.teamsTree, withCredentials: true }),
+      {
+        parse: (body) => normalizeTeamNodes((body as ApiResponse<TeamNode[] | null>).data),
+        defaultValue: [],
+      },
+    );
+  }
 
   tree(): Observable<TeamNode[]> {
     return this.http

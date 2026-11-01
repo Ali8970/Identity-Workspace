@@ -1,7 +1,6 @@
 import { Service, inject } from '@angular/core';
-import { Observable, catchError, forkJoin, of } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 import { MembersApi } from '@domains/access/services/members-api.service';
-import { RolesApi } from '@domains/access/services/roles-api.service';
 import { TeamsApi } from '@domains/team/services/teams-api.service';
 import { TenantMembershipStatus } from '@core/auth/auth.enums';
 import {
@@ -49,20 +48,8 @@ export const MEMBER_STATUSES: readonly TenantMembershipStatus[] = [
 @Service()
 export class MembersService {
   private readonly membersApi = inject(MembersApi);
-  private readonly rolesApi = inject(RolesApi);
   private readonly teamsApi = inject(TeamsApi);
   private readonly grantScope = inject(GrantScopeService);
-
-  loadMembers(status?: TenantMembershipStatus | ''): Observable<MemberListItem[]> {
-    return this.membersApi.list(status ? { status } : {});
-  }
-
-  loadLookups(): Observable<{ roles: RoleListItem[]; teams: TeamNode[] }> {
-    return forkJoin({
-      roles: this.rolesApi.list(),
-      teams: this.teamsApi.tree(),
-    });
-  }
 
   loadMemberTeams(tenantMembershipId: string): Observable<TeamListItem[]> {
     return this.teamsApi.list({ tenantMembershipId });
