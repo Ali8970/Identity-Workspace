@@ -13,10 +13,17 @@ import { ApiResponse } from '@shared/models/api-response.model';
  * `void` directly rather than reaching for this.
  */
 export function unwrapData<T>(): OperatorFunction<ApiResponse<T>, T> {
-  return map((response) => {
-    if (response.data === undefined) {
-      throw new Error(response.message || 'Empty API response');
-    }
-    return response.data;
-  });
+  return map((response) => apiData<T>(response));
+}
+
+/**
+ * The same envelope rule for `httpResource({ parse })`, which hands over the raw body:
+ * `httpResource(() => url, { parse: apiData<T> })`.
+ */
+export function apiData<T>(body: unknown): T {
+  const response = body as ApiResponse<T>;
+  if (response.data === undefined) {
+    throw new Error(response.message || 'Empty API response');
+  }
+  return response.data;
 }

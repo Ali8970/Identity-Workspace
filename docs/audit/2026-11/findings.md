@@ -25,13 +25,14 @@ Living status of every audit finding. Updated after each fix.
 | BUG-04 | M | Unguarded `localStorage` in `shell-layout.ts` | Fixed (AP-2) — not fully verified | try/catch around both storage calls; regression suite green; blocked-storage scenario not automated |
 | BUG-05 | L | Password pages: untorn `queryParamMap` subscription, double bootstrap | **Verified** | `takeUntilDestroyed` on both pages (`9208c61`); full replacement comes with NG-02 |
 | BUG-06 | L | Language switch race | No change needed | ngx-translate 18 `changeLang()` already discards superseded loads (`lastUseLanguage`); `<html lang/dir>` is set synchronously in call order |
+| BUG-07 | L | Suspected: a page whose load fails still renders its stats strip, which reads the failed resource; Angular 22 `value()` throws `ResourceValueError` in that state (account, likely members/roles/teams) | Pending (approval) | Found 2026-11-01 during NG-01; preserved as-is; fixing it changes failure-state rendering |
 | **Data** | | | | |
 | DATA-01 | M | Account company switch triple-loads `/me/companies` | Pending (AP-3) | |
 | DATA-02 | L | Sequential boot reads; CSRF primed then invalidated | Pending (AP-3) | Backend confirmation (token rotation) |
 | DATA-03 | M | Root `models/`, `enums/`, `constants/` buckets and re-export shims | **Verified** | Root `models/`, `enums/`, `constants/` removed: each type/enum/endpoint lives with its owner; endpoint templates proven byte-identical; dead types dropped (ApplicationStatus, ApplicationKey, EligibilityReason, RemediationAction, REMEDIATION_BY_REASON, PagedResult, unused `applications` endpoint). Initial bundle 494.49 → 492.48 kB |
 | DATA-04 | M | Scattered permission checks → `AccessPolicy` | **Verified** | `core/auth/access-policy.ts`: 7 computed capabilities replace the `canX()` copies in shell, members, roles and teams (and the unused `SessionStore.hasPermission`); same permission keys (`access-policy.spec.ts`); 290/290 unit, 213/213 e2e |
 | DATA-05 | L | `withCredentials` repeated on every call | Pending | After SEC-03 |
-| DATA-06 | L | Pass-through facades | Pending | |
+| DATA-06 | L | Pass-through facades | In progress | `MyAccessService` and `AccountService` (pass-throughs) removed |
 | **Performance** | | | | |
 | PERF-01 | M | Initial bundle near the budget (see baseline) | Pending | Measured every phase |
 | PERF-02 | L | Full client-side lists (suspected) | Pending | Benchmark before acting |
@@ -42,14 +43,14 @@ Living status of every audit finding. Updated after each fix.
 | ARCH-04 | M | App chrome in `shared/` | **Verified** | Chrome moved to `core/layout/{shell,shell-header,shell-sidebar,auth-layout,loading-bar,global-error-banner}`; 285/285 unit, 213/213 e2e |
 | ARCH-05 | M | One flat route table | **Verified** | Every feature owns `<name>.routes.ts`; `app.routes.ts` only composes; same URLs, guards and data (all 23 routes in the e2e baselines unchanged). `/` and `/applications` both kept (AP-5 safe option). Titles (AP-4) not done |
 | ARCH-06 | L | Hard-coded route paths in the store and guards | Pending | |
-| ARCH-07 | M | Root singletons hold feature state | Pending | |
+| ARCH-07 | M | Root singletons hold feature state | Revised — no change | Angular route `providers` create an injector once and keep it for the app's lifetime, so route scoping would not reset feature state. Facades are stateless; `CheckoutStore` persists to `sessionStorage` on purpose |
 | ARCH-08 | M | Docs contradict each other; `ONBOARDING_FRONTEND_GUIDE.md` missing | **Verified** | Stack docs reconciled (`5689b7a`); `architecture.mdc` added |
 | CODE-01 | H | Oversized pages and dialogs (>500 lines) | Pending | |
 | CODE-02 | M | Large inline templates | Pending | |
 | CODE-03 | M | Duplicated dialog shell and confirm-state logic | Pending | |
 | CODE-04 | L | `as unknown as` casts in `normalize-error.ts` | Pending | |
 | **Modern Angular** | | | | |
-| NG-01 | M | `rxResource` + Observables → `httpResource` reads | Pending | Network baseline must match |
+| NG-01 | M | `rxResource` + Observables → `httpResource` reads | In progress | `apiData` parse helper; my-access and account read through `MeApi.*Resource` (`httpResource`), same API calls |
 | NG-02 | M | `ActivatedRoute` reads → `withComponentInputBinding` + `input()` | Pending | |
 | NG-03 | L | Effects that propagate state or write the DOM | Pending | |
 | NG-04 | L | Reactive `FormControl` search drafts → Signal Forms | Pending | |

@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { MeApi } from '@core/auth/me-api.service';
 import { SessionStore } from '@core/auth/session.store';
 import {
   humanizePermissionToken,
@@ -14,7 +14,6 @@ import { ErrorPanel } from '@shared/ui/error-panel/error-panel';
 import type { ListStatCard } from '@shared/ui/list-stats/list-stat-card';
 import { ListStats } from '@shared/ui/list-stats/list-stats';
 import { PageHeader } from '@shared/ui/page-header/page-header';
-import { MyAccessService } from '../../services/my-access.service';
 import { MyAccessSkeleton } from './my-access.skeleton';
 
 @Component({
@@ -171,15 +170,14 @@ import { MyAccessSkeleton } from './my-access.skeleton';
   `,
 })
 export class MyAccessPage {
-  private readonly myAccessService = inject(MyAccessService);
+  private readonly meApi = inject(MeApi);
   private readonly session = inject(SessionStore);
   protected readonly language = inject(LanguageService);
   private readonly translate = inject(TranslateService);
 
-  private readonly access = rxResource({
-    params: () => this.session.currentTenant()?.tenantMembershipId,
-    stream: () => this.myAccessService.loadAccess(),
-  });
+  private readonly access = this.meApi.accessResource(
+    () => this.session.currentTenant()?.tenantMembershipId,
+  );
 
   protected readonly loading = this.access.isLoading;
   protected readonly loadFailed = computed(() => this.access.status() === 'error');

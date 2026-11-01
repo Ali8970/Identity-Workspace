@@ -1,11 +1,10 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Observable, firstValueFrom } from 'rxjs';
+import { MeApi } from '@core/auth/me-api.service';
 import { SessionStore } from '@core/auth/session.store';
 import { LanguageService } from '@core/i18n/language.service';
-import { MyCompanyDto } from '@core/auth/auth.model';
 import { BusyOverlay } from '@shared/ui/busy-overlay/busy-overlay';
 import { nameInitials } from '@shared/ui/display';
 import { EmptyState } from '@shared/ui/empty-state/empty-state';
@@ -14,8 +13,6 @@ import type { ListStatCard } from '@shared/ui/list-stats/list-stat-card';
 import { ListStats } from '@shared/ui/list-stats/list-stats';
 import { PageHeader } from '@shared/ui/page-header/page-header';
 import { PanelSection } from '@shared/ui/panel-section/panel-section';
-import { SessionDto } from '@core/auth/auth.model';
-import { AccountService } from '../../services/account.service';
 import { AccountSkeleton } from './account.skeleton';
 
 @Component({
@@ -216,25 +213,28 @@ import { AccountSkeleton } from './account.skeleton';
   `,
 })
 export class AccountPage {
-  private readonly accountService = inject(AccountService);
+  private readonly meApi = inject(MeApi);
   private readonly router = inject(Router);
   protected readonly language = inject(LanguageService);
   private readonly translate = inject(TranslateService);
   protected readonly session = inject(SessionStore);
 
-  private readonly accountData = rxResource({
-    params: () => this.session.currentTenant()?.tenantMembershipId,
-    stream: () => this.accountService.loadAccountData(),
-    defaultValue: { companies: [], sessions: [] } as {
-      companies: MyCompanyDto[];
-      sessions: SessionDto[];
-    },
-  });
+  // Both reads follow the bound company, so a company switch re-reads them.
+  private readonly companiesData = this.meApi.companiesResource(
+    () => this.session.currentTenant()?.tenantMembershipId,
+  );
+  private readonly sessionsData = this.meApi.sessionsResource(
+    () => this.session.currentTenant()?.tenantMembershipId,
+  );
 
-  protected readonly companies = computed(() => this.accountData.value().companies);
-  protected readonly sessions = computed(() => this.accountData.value().sessions);
-  protected readonly loading = this.accountData.isLoading;
-  protected readonly loadFailed = computed(() => this.accountData.status() === 'error');
+  protected readonly companies = computed(() => this.companiesData.value());
+  protected readonly sessions = computed(() => this.sessionsData.value());
+  protected readonly loading = computed(
+    () => this.companiesData.isLoading() || this.sessionsData.isLoading(),
+  );
+  protected readonly loadFailed = computed(
+    () => this.companiesData.status() === 'error' || this.sessionsData.status() === 'error',
+  );
   protected readonly busy = signal(false);
   protected readonly switching = signal(false);
 
@@ -270,7 +270,12 @@ export class AccountPage {
   });
 
   protected reload(): void {
-    this.accountData.reload();
+    this.reloadAccountData();
+  }
+
+  private reloadAccountData(): void {
+    this.companiesData.reload();
+    this.sessionsData.reload();
   }
 
   protected isKnownSessionStage(stage: string): boolean {
@@ -295,19 +300,19 @@ export class AccountPage {
   protected async switchTo(tenantMembershipId: string): Promise<void> {
     this.switching.set(true);
     try {
-      await firstValueFrom(this.accountService.switchCompany(tenantMembershipId));
-      this.accountData.reload();
+      await firstValueFrom(this.session.switchCompany(tenantMembershipId));
+      this.reloadAccountData();
     } finally {
       this.switching.set(false);
     }
   }
 
   protected async logout(): Promise<void> {
-    await this.signOut(() => this.accountService.logout());
+    await this.signOut(() => this.session.logout());
   }
 
   protected async logoutAll(): Promise<void> {
-    await this.signOut(() => this.accountService.logoutAll());
+    await this.signOut(() => this.session.logoutAll());
   }
 
   private async signOut(request: () => Observable<unknown>): Promise<void> {
