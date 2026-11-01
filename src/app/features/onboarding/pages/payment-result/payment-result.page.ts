@@ -16,12 +16,8 @@ import { OnboardedNotice } from '@core/auth/onboarded-notice';
 import { SessionStore } from '@core/auth/session.store';
 import { BroochError, isTransientError } from '@core/error/error.model';
 import { LanguageService } from '@core/i18n/language.service';
-import { isTerminalOperationStatus } from '../../../../enums/domain.enums';
-import {
-  SubscriptionOperationStatusView,
-  SubscriptionPaymentResult,
-  isOperationSettling,
-} from '../../../../models/subscription.model';
+import { isTerminalOperationStatus } from '../../enums/subscription.enums';
+import { isOperationSettling, SubscriptionOperationStatusView, SubscriptionPaymentResult } from '../../models/subscription.model';
 import { AuthLayout } from '@core/layout/auth-layout/auth-layout';
 import { BusyOverlay } from '@shared/ui/busy-overlay/busy-overlay';
 import { formatDateTime, formatTimeAgo } from '@shared/utils/format-date-time';

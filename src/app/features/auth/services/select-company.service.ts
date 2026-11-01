@@ -2,7 +2,7 @@ import { Service, computed, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthFlowStore } from '@core/auth/auth-flow.store';
 import { SessionStore } from '@core/auth/session.store';
-import { SelectMembershipResponse } from '../../../models/auth.model';
+import { SelectMembershipResponse } from '@core/auth/auth.model';
 
 /**
  * What the picker needs to render one company, from either source.

@@ -27,10 +27,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { permissionDisplayLabel } from '@core/i18n/permission-label';
 import { LanguageService } from '@core/i18n/language.service';
 import { FocusTrap } from '@shared/ui/focus-trap/focus-trap';
-import {
-  PermissionCatalogItem,
-  RoleListItem,
-} from '../../../../models/workspace.model';
+import { PermissionCatalogItem, RoleListItem } from '@domains/access/models/access.model';
 import { RoleGrantScope } from '@domains/access/models/grant-scope.model';
 import { RolesService } from '../../services/roles.service';
 import { RolePermissionTree } from '../role-permission-tree/role-permission-tree';

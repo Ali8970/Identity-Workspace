@@ -1,9 +1,11 @@
 import { Service, inject } from '@angular/core';
 import { Observable, catchError, forkJoin, of } from 'rxjs';
-import { MembersApi, RolesApi, TeamsApi } from '@core/api/workspace-api.service';
+import { MembersApi } from '@domains/access/services/members-api.service';
+import { RolesApi } from '@domains/access/services/roles-api.service';
+import { TeamsApi } from '@domains/team/services/teams-api.service';
 import { SessionStore } from '@core/auth/session.store';
-import { PERMISSIONS } from '../../../constants/app.constants';
-import { TenantMembershipStatus } from '../../../enums/domain.enums';
+import { PERMISSIONS } from '@core/auth/permission-keys';
+import { TenantMembershipStatus } from '@core/auth/auth.enums';
 import {
   AddMemberRequest,
   AddMemberResult,
@@ -11,9 +13,8 @@ import {
   MemberRolesDto,
   ResendActivationResult,
   RoleListItem,
-  TeamListItem,
-  TeamNode,
-} from '../../../models/workspace.model';
+} from '@domains/access/models/access.model';
+import { TeamListItem, TeamNode } from '@domains/team/models/team.model';
 import { AddMemberFormValue } from '../models/member-invite.model';
 import { RoleGrantScope } from '@domains/access/models/grant-scope.model';
 import { GrantScopeService } from '@domains/access/services/grant-scope.service';

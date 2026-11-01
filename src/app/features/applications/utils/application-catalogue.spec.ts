@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AvailableApplicationDto } from '../../../models/auth.model';
+import { AvailableApplicationDto } from '@core/auth/auth.model';
 import {
   buildLauncherApps,
   isDeveloperPersona,

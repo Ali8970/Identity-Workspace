@@ -1,6 +1,6 @@
 import { Service, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { API_ROUTES } from '../../constants/api-routes';
+import { AUTH_ENDPOINTS } from '../auth/auth.endpoints';
 import { AuthFlowStore } from '../auth/auth-flow.store';
 import { CsrfService } from '../auth/csrf.service';
 import { SessionStore } from '../auth/session.store';
@@ -86,7 +86,7 @@ export class ApiErrorHandler {
   private shouldSuppressDisplay(request: ApiErrorRequestContext): boolean {
     const path = request.url.split('?')[0].replace(/\/$/, '');
     return (
-      path === API_ROUTES.me || path === API_ROUTES.myCompanies || path === API_ROUTES.csrf
+      path === AUTH_ENDPOINTS.me || path === AUTH_ENDPOINTS.myCompanies || path === AUTH_ENDPOINTS.csrf
     );
   }
 

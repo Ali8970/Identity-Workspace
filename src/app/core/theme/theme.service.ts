@@ -1,5 +1,5 @@
 import { DOCUMENT, Service, inject, signal } from '@angular/core';
-import { STORAGE_KEYS } from '../../constants/app.constants';
+import { STORAGE_KEYS } from '../constants/storage-keys';
 import { readSharedTheme, writeSharedTheme } from './shared-theme-cookie';
 
 /** Explicit user choice only — never follows the OS / browser. */

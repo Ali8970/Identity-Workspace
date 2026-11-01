@@ -1,7 +1,7 @@
 import { HttpContextToken, HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, switchMap, throwError } from 'rxjs';
-import { HTTP_HEADERS } from '../../constants/app.constants';
+import { HTTP_HEADERS } from '../http/http-headers';
 import { CsrfService } from '../auth/csrf.service';
 import { isApiRequest, isCsrfExemptRequest } from '../http/api-url';
 

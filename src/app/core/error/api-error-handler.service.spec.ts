@@ -1,7 +1,7 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
-import { API_ROUTES } from '../../constants/api-routes';
+import { AUTH_ENDPOINTS } from '../auth/auth.endpoints';
 import { AuthFlowStore } from '../auth/auth-flow.store';
 import { CsrfService } from '../auth/csrf.service';
 import { SessionStore } from '../auth/session.store';
@@ -94,7 +94,7 @@ describe('ApiErrorHandler', () => {
       expect(shown.length).toBe(0);
     });
 
-    it.each([API_ROUTES.me, API_ROUTES.myCompanies, API_ROUTES.csrf])(
+    it.each([AUTH_ENDPOINTS.me, AUTH_ENDPOINTS.myCompanies, AUTH_ENDPOINTS.csrf])(
       'suppresses the banner for bootstrap probe %s',
       (url) => {
         handler.handle(error({ status: 401 }), request({ url }));
@@ -103,7 +103,7 @@ describe('ApiErrorHandler', () => {
     );
 
     it('still shows the banner for a path that merely starts like /me', () => {
-      handler.handle(error({ status: 500 }), request({ url: `${API_ROUTES.me}mberships` }));
+      handler.handle(error({ status: 500 }), request({ url: `${AUTH_ENDPOINTS.me}mberships` }));
       expect(shown.length).toBe(1);
     });
   });

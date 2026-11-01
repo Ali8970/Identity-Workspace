@@ -1,7 +1,7 @@
 import { Service, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, catchError, finalize, map, of, switchMap, tap, throwError } from 'rxjs';
-import { SessionStage } from '../../enums/domain.enums';
+import { SessionStage } from './auth.enums';
 import {
   CurrentUserResponse,
   LoginRequest,
@@ -9,7 +9,7 @@ import {
   MyCompanyDto,
   SelectMembershipRequest,
   SelectMembershipResponse,
-} from '../../models/auth.model';
+} from './auth.model';
 import { BroochError } from '../error/error.model';
 import { AuthApi } from './auth-api.service';
 import { AuthFlowStore } from './auth-flow.store';

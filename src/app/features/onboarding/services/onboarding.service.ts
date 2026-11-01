@@ -1,7 +1,7 @@
 import { Service, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { SubscriptionApi } from '@core/api/subscription-api.service';
-import { TenantApi } from '@core/api/workspace-api.service';
+import { SubscriptionApi } from './subscription-api.service';
+import { TenantApi } from './tenant-api.service';
 import {
   AvailablePackageView,
   CurrentSubscriptionView,
@@ -10,8 +10,9 @@ import {
   SubscriptionPaymentResult,
   SubscriptionProvisioningRetryResult,
   SubscriptionRetryPaymentResult,
-} from '../../../models/subscription.model';
-import { CompanyProfileFormValue, TenantDto } from '../models/onboarding-feature.model';
+} from '../models/subscription.model';
+import { CompanyProfileFormValue } from '../models/onboarding-feature.model';
+import { TenantDto } from '../models/tenant.model';
 
 /**
  * The onboarding journey's view of the API: company profile from Tenant, everything about the

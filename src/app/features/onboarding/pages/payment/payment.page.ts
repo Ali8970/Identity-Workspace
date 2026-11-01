@@ -11,16 +11,13 @@ import {
   MoyasarTokenizationService,
   TokenizationFailureReason,
   tokenizationFailureReason,
-} from '@core/payments/moyasar-tokenization.service';
+} from '../../services/payments/moyasar-tokenization.service';
 import {
   PaymentAuthenticationNavigator,
   RedirectRejectionReason,
   validateAuthenticationUrl,
-} from '@core/payments/payment-redirect';
-import {
-  SubscriptionOperationStatusView,
-  SubscriptionPaymentResult,
-} from '../../../../models/subscription.model';
+} from '../../services/payments/payment-redirect';
+import { SubscriptionOperationStatusView, SubscriptionPaymentResult } from '../../models/subscription.model';
 import { AuthLayout } from '@core/layout/auth-layout/auth-layout';
 import { BusyOverlay } from '@shared/ui/busy-overlay/busy-overlay';
 import { durationLabel } from '@shared/utils/format-duration';

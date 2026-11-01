@@ -31,6 +31,9 @@ features → domains → shared → core
 (facades and stores that hold real logic; no pass-throughs) · `models/` · `enums/` · `constants/` (`<name>.endpoints.ts`) · `utils/`.
 Types never live in components. There are no re-export shims: import a type from its owner.
 
-## Migration status
-The audit (docs/audit/2026-11/findings.md) is moving the remaining legacy layout into this shape: root `constants/`,
-`models/` and `enums/`; `core/api`; and `core/payments`. Don't add files to those locations.
+## Endpoints and models
+- Endpoint maps are owned like everything else: `core/auth/auth.endpoints.ts` (auth + /me), `domains/access/constants/access.endpoints.ts`,
+  `domains/team/constants/team.endpoints.ts` and `features/onboarding/constants/onboarding.endpoints.ts`. They are all built on `core/http/api-base.ts`.
+  There is no global route map.
+- Wire DTOs live with their API: `core/auth/auth.model.ts`, `domains/*/models/`, `features/onboarding/models/`. The generic envelope lives in
+  `shared/models/api-response.model.ts`.

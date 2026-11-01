@@ -2,9 +2,9 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { API_ROUTES } from '../../constants/api-routes';
-import { SILENT_ERROR } from '../error/http-context';
-import { SKIP_LOADING } from '../loading/loading-context';
+import { ONBOARDING_ENDPOINTS } from '../constants/onboarding.endpoints';
+import { SILENT_ERROR } from '@core/error/http-context';
+import { SKIP_LOADING } from '@core/loading/loading-context';
 import { SubscriptionApi } from './subscription-api.service';
 
 const OPERATION_ID = '11111111-2222-3333-4444-555555555555';
@@ -36,7 +36,7 @@ describe('SubscriptionApi', () => {
   it('starts a subscription with the package id alone', () => {
     api.start({ packageId: 'pkg-1' }).subscribe();
 
-    const request = backend.expectOne(API_ROUTES.subscriptions);
+    const request = backend.expectOne(ONBOARDING_ENDPOINTS.subscriptions);
 
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual({ packageId: 'pkg-1' });
@@ -47,7 +47,7 @@ describe('SubscriptionApi', () => {
   it('charges with the token and nothing else', () => {
     api.pay(OPERATION_ID, { token: 'token_1' }).subscribe();
 
-    const request = backend.expectOne(API_ROUTES.paySubscriptionOperation(OPERATION_ID));
+    const request = backend.expectOne(ONBOARDING_ENDPOINTS.paySubscriptionOperation(OPERATION_ID));
 
     expect(request.request.body).toEqual({ token: 'token_1' });
     request.flush({ statusCode: 200, message: 'ok', data: { paymentState: 'Paid' } });
@@ -56,7 +56,7 @@ describe('SubscriptionApi', () => {
   it('verifies with the provider payment id, never the callback status', () => {
     api.verifyPayment(OPERATION_ID, { providerPaymentId: 'pay_1' }).subscribe();
 
-    const request = backend.expectOne(API_ROUTES.verifySubscriptionPayment(OPERATION_ID));
+    const request = backend.expectOne(ONBOARDING_ENDPOINTS.verifySubscriptionPayment(OPERATION_ID));
 
     expect(request.request.body).toEqual({ providerPaymentId: 'pay_1' });
     request.flush({ statusCode: 200, message: 'ok', data: { paymentState: 'Paid' } });
@@ -67,7 +67,7 @@ describe('SubscriptionApi', () => {
     const read = new Promise((resolve) => api.operation(OPERATION_ID).subscribe(resolve));
 
     backend
-      .expectOne(API_ROUTES.subscriptionOperation(OPERATION_ID))
+      .expectOne(ONBOARDING_ENDPOINTS.subscriptionOperation(OPERATION_ID))
       .flush({ statusCode: 200, message: 'ok', data: status });
 
     await expect(read).resolves.toEqual(status);
@@ -78,7 +78,7 @@ describe('SubscriptionApi', () => {
     api.operation(OPERATION_ID, { background: true }).subscribe();
 
     const [foreground, background] = backend.match(
-      API_ROUTES.subscriptionOperation(OPERATION_ID),
+      ONBOARDING_ENDPOINTS.subscriptionOperation(OPERATION_ID),
     );
 
     expect(foreground.request.context.get(SKIP_LOADING)).toBe(false);
@@ -93,9 +93,9 @@ describe('SubscriptionApi', () => {
     api.retryPayment(OPERATION_ID).subscribe();
     api.retryProvisioning(OPERATION_ID).subscribe();
 
-    const retryPayment = backend.expectOne(API_ROUTES.retrySubscriptionPayment(OPERATION_ID));
+    const retryPayment = backend.expectOne(ONBOARDING_ENDPOINTS.retrySubscriptionPayment(OPERATION_ID));
     const retryProvisioning = backend.expectOne(
-      API_ROUTES.retrySubscriptionProvisioning(OPERATION_ID),
+      ONBOARDING_ENDPOINTS.retrySubscriptionProvisioning(OPERATION_ID),
     );
 
     expect(retryPayment.request.body).toEqual({});

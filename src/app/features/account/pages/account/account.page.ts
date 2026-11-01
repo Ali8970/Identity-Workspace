@@ -5,7 +5,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Observable, firstValueFrom } from 'rxjs';
 import { SessionStore } from '@core/auth/session.store';
 import { LanguageService } from '@core/i18n/language.service';
-import { MyCompanyDto } from '../../../../models/auth.model';
+import { MyCompanyDto } from '@core/auth/auth.model';
 import { BusyOverlay } from '@shared/ui/busy-overlay/busy-overlay';
 import { nameInitials } from '@shared/ui/display';
 import { EmptyState } from '@shared/ui/empty-state/empty-state';
@@ -14,9 +14,7 @@ import type { ListStatCard } from '@shared/ui/list-stats/list-stat-card';
 import { ListStats } from '@shared/ui/list-stats/list-stats';
 import { PageHeader } from '@shared/ui/page-header/page-header';
 import { PanelSection } from '@shared/ui/panel-section/panel-section';
-import {
-  SessionDto,
-} from '../../../../models/workspace.model';
+import { SessionDto } from '@core/auth/auth.model';
 import { AccountService } from '../../services/account.service';
 import { AccountSkeleton } from './account.skeleton';
 

@@ -13,11 +13,8 @@ import { FocusTrap } from '@shared/ui/focus-trap/focus-trap';
 import type { ListStatCard } from '@shared/ui/list-stats/list-stat-card';
 import { ListStats } from '@shared/ui/list-stats/list-stats';
 import { PageHeader } from '@shared/ui/page-header/page-header';
-import {
-  MemberListItem,
-  TeamMembershipDdlItem,
-  TeamNode,
-} from '../../../../models/workspace.model';
+import { MemberListItem } from '@domains/access/models/access.model';
+import { TeamMembershipDdlItem, TeamNode } from '@domains/team/models/team.model';
 import { TeamsService } from '../../services/teams.service';
 import { TeamDetailsDialog } from '../../components/team-details-dialog/team-details-dialog';
 import {

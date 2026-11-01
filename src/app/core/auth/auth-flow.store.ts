@@ -1,6 +1,6 @@
 import { Service, computed, signal } from '@angular/core';
-import { STORAGE_KEYS } from '../../constants/app.constants';
-import { AvailableTenantDto } from '../../models/auth.model';
+import { STORAGE_KEYS } from '../constants/storage-keys';
+import { AvailableTenantDto } from './auth.model';
 
 @Service()
 export class AuthFlowStore {

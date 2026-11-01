@@ -14,11 +14,7 @@ import { ListFilterBar } from '@shared/ui/list-filter-bar/list-filter-bar';
 import type { ListStatCard } from '@shared/ui/list-stats/list-stat-card';
 import { ListStats } from '@shared/ui/list-stats/list-stats';
 import { PageHeader } from '@shared/ui/page-header/page-header';
-import {
-  MemberListItem,
-  PermissionCatalogItem,
-  RoleListItem,
-} from '../../../../models/workspace.model';
+import { MemberListItem, PermissionCatalogItem, RoleListItem } from '@domains/access/models/access.model';
 import { RoleGrantScope } from '@domains/access/models/grant-scope.model';
 import { GrantScopeService } from '@domains/access/services/grant-scope.service';
 import { RolesService } from '../../services/roles.service';

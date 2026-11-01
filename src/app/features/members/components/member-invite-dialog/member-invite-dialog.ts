@@ -23,9 +23,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { ApplicationLabels } from '@core/i18n/application-labels.service';
 import { LanguageService } from '@core/i18n/language.service';
 import { FocusTrap } from '@shared/ui/focus-trap/focus-trap';
-import {
-  RoleListItem,
-} from '../../../../models/workspace.model';
+import { RoleListItem } from '@domains/access/models/access.model';
 import { AddMemberFormValue } from '../../models/member-invite.model';
 import { RoleGrantScope } from '@domains/access/models/grant-scope.model';
 import {

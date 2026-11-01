@@ -2,7 +2,7 @@ import { Service, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthApi } from '@core/auth/auth-api.service';
 import { RegisterFormValue } from '../models/auth-feature.model';
-import { RegisterTenantRequest, RegisterTenantResult } from '../../../models/auth.model';
+import { RegisterTenantRequest, RegisterTenantResult } from '@core/auth/auth.model';
 
 @Service()
 export class RegisterService {

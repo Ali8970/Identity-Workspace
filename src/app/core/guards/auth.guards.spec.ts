@@ -8,7 +8,7 @@ import {
   provideRouter,
 } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { SessionStage } from '../../enums/domain.enums';
+import { SessionStage } from '../auth/auth.enums';
 import { AuthFlowStore } from '../auth/auth-flow.store';
 import { SessionStore } from '../auth/session.store';
 import {

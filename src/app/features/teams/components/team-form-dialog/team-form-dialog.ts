@@ -23,9 +23,7 @@ import {
 } from '@angular/forms/signals';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FocusTrap } from '@shared/ui/focus-trap/focus-trap';
-import {
-  TeamNode,
-} from '../../../../models/workspace.model';
+import { TeamNode } from '@domains/team/models/team.model';
 
 export type TeamFormMode = 'create' | 'edit';
 

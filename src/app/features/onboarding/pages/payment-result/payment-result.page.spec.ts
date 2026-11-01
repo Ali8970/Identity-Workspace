@@ -5,10 +5,7 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { Observable, of, throwError } from 'rxjs';
 import { SessionStore } from '@core/auth/session.store';
 import { BroochError } from '@core/error/error.model';
-import {
-  SubscriptionOperationStatusView,
-  SubscriptionPaymentResult,
-} from '../../../../models/subscription.model';
+import { SubscriptionOperationStatusView, SubscriptionPaymentResult } from '../../models/subscription.model';
 import { OnboardingCompletion } from '../../services/onboarding-completion.service';
 import { OnboardingService } from '../../services/onboarding.service';
 import { PaymentResultPage } from './payment-result.page';

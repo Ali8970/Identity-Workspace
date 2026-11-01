@@ -7,12 +7,9 @@ import { firstValueFrom, forkJoin, map, of } from 'rxjs';
 import { SessionStore } from '@core/auth/session.store';
 import { BroochError, clientError } from '@core/error/error.model';
 import { GlobalErrorService } from '@core/error/global-error.service';
-import { hasSubscription } from '../../../../enums/domain.enums';
+import { hasSubscription } from '../../enums/subscription.enums';
 import { LanguageService } from '@core/i18n/language.service';
-import {
-  AvailablePackageView,
-  PendingOperationView,
-} from '../../../../models/subscription.model';
+import { AvailablePackageView, PendingOperationView } from '../../models/subscription.model';
 import { AuthLayout } from '@core/layout/auth-layout/auth-layout';
 import { BusyOverlay } from '@shared/ui/busy-overlay/busy-overlay';
 import { durationLabel } from '@shared/utils/format-duration';

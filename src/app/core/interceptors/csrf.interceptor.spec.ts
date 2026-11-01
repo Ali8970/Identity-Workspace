@@ -4,7 +4,8 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
-import { API_ROUTES } from '../../constants/api-routes';
+import { API_BASE } from '../http/api-base';
+import { AUTH_ENDPOINTS } from '../auth/auth.endpoints';
 import { AuthFlowStore } from '../auth/auth-flow.store';
 import { CsrfService } from '../auth/csrf.service';
 import { SessionStore } from '../auth/session.store';
@@ -13,6 +14,9 @@ import { GlobalErrorService } from '../error/global-error.service';
 import { LanguageService } from '../i18n/language.service';
 import { csrfInterceptor } from './csrf.interceptor';
 import { errorInterceptor } from './error.interceptor';
+
+/** Ordinary tenant-scoped API URLs (core may not import the access domain). */
+const MEMBERSHIPS_URL = `${API_BASE}/memberships`;
 
 /**
  * Exercises the REAL interceptor chain in the order app.config.ts registers it,
@@ -64,23 +68,23 @@ describe('csrfInterceptor', () => {
   afterEach(() => backend.verify());
 
   it('primes a token then attaches it to an unsafe request', () => {
-    http.post(API_ROUTES.memberships, {}).subscribe({ error: () => undefined });
+    http.post(MEMBERSHIPS_URL, {}).subscribe({ error: () => undefined });
 
-    const req = backend.expectOne(API_ROUTES.memberships);
+    const req = backend.expectOne(MEMBERSHIPS_URL);
     expect(primeCalls).toBe(1);
     expect(req.request.headers.get('X-XSRF-TOKEN')).toBe('token-1');
     req.flush({ statusCode: 200, message: 'ok', data: {} });
   });
 
   it('does not prime for a safe method', () => {
-    http.get(API_ROUTES.memberships).subscribe({ error: () => undefined });
-    backend.expectOne(API_ROUTES.memberships).flush({ statusCode: 200, message: 'ok', data: [] });
+    http.get(MEMBERSHIPS_URL).subscribe({ error: () => undefined });
+    backend.expectOne(MEMBERSHIPS_URL).flush({ statusCode: 200, message: 'ok', data: [] });
     expect(primeCalls).toBe(0);
   });
 
   it('does not attach a token to a CSRF-exempt auth route', () => {
-    http.post(API_ROUTES.login, {}).subscribe({ error: () => undefined });
-    const req = backend.expectOne(API_ROUTES.login);
+    http.post(AUTH_ENDPOINTS.login, {}).subscribe({ error: () => undefined });
+    const req = backend.expectOne(AUTH_ENDPOINTS.login);
     expect(primeCalls).toBe(0);
     expect(req.request.headers.has('X-XSRF-TOKEN')).toBe(false);
     req.flush({ statusCode: 200, message: 'ok', data: {} });
@@ -114,26 +118,26 @@ describe('csrfInterceptor', () => {
     const isolatedHttp = TestBed.inject(HttpClient);
     const isolatedBackend = TestBed.inject(HttpTestingController);
 
-    isolatedHttp.post(API_ROUTES.memberships, {}).subscribe({ error: () => undefined });
+    isolatedHttp.post(MEMBERSHIPS_URL, {}).subscribe({ error: () => undefined });
     isolatedBackend
-      .expectOne(API_ROUTES.memberships)
+      .expectOne(MEMBERSHIPS_URL)
       .flush({ code: 'Auth.AntiforgeryFailed' }, { status: 400, statusText: 'Bad Request' });
 
-    const retry = isolatedBackend.expectOne(API_ROUTES.memberships);
+    const retry = isolatedBackend.expectOne(MEMBERSHIPS_URL);
     expect(calls).toBe(2);
     retry.flush({ statusCode: 200, message: 'ok', data: {} });
     isolatedBackend.verify();
   });
 
   it('retries once with a fresh token after Auth.AntiforgeryFailed', () => {
-    http.post(API_ROUTES.memberships, {}).subscribe({ error: () => undefined });
+    http.post(MEMBERSHIPS_URL, {}).subscribe({ error: () => undefined });
 
     backend
-      .expectOne(API_ROUTES.memberships)
+      .expectOne(MEMBERSHIPS_URL)
       .flush({ code: 'Auth.AntiforgeryFailed' }, { status: 400, statusText: 'Bad Request' });
 
     // The retry must go out with a newly primed token.
-    const retry = backend.expectOne(API_ROUTES.memberships);
+    const retry = backend.expectOne(MEMBERSHIPS_URL);
     expect(primeCalls).toBe(2);
     expect(retry.request.headers.get('X-XSRF-TOKEN')).toBe('token-2');
     retry.flush({ statusCode: 200, message: 'ok', data: {} });

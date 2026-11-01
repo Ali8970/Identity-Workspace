@@ -1,17 +1,19 @@
 import { Service, inject } from '@angular/core';
 import { Observable, map, of, switchMap } from 'rxjs';
-import { PERMISSIONS } from '../../../constants/app.constants';
-import { MembersApi, RolesApi, TeamsApi } from '@core/api/workspace-api.service';
+import { PERMISSIONS } from '@core/auth/permission-keys';
+import { MembersApi } from '@domains/access/services/members-api.service';
+import { RolesApi } from '@domains/access/services/roles-api.service';
+import { TeamsApi } from '@domains/team/services/teams-api.service';
 import { SessionStore } from '@core/auth/session.store';
+import { MemberListItem } from '@domains/access/models/access.model';
 import {
   AddTeamMemberRequest,
   CreateTeamRequest,
-  MemberListItem,
   TeamDetailDto,
   TeamMembershipDdlItem,
   TeamNode,
   UpdateTeamRequest,
-} from '../../../models/workspace.model';
+} from '@domains/team/models/team.model';
 
 @Service()
 export class TeamsService {

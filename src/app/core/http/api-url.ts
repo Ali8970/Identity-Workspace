@@ -1,7 +1,16 @@
-import { CSRF_EXEMPT_PATHS } from '../../constants/api-routes';
-import { environment } from '@env/environment';
+import { API_BASE } from './api-base';
 
-const API_BASE = environment.apiBaseUrl.replace(/\/$/, '');
+/** Anonymous auth endpoints: no CSRF token, and a 401 there is not a lost session. */
+export const CSRF_EXEMPT_PATHS = [
+  '/auth/login',
+  '/auth/set-password',
+  '/auth/forgot-password',
+  '/auth/forgot-password/complete',
+  '/auth/login-intent',
+  '/auth/csrf',
+  '/tenants/register',
+] as const;
+
 const API_BASE_PATH = new URL(API_BASE).pathname;
 
 /**

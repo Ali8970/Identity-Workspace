@@ -1,10 +1,10 @@
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Service, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { API_ROUTES } from '../../constants/api-routes';
-import { SILENT_ERROR } from '../error/http-context';
-import { SKIP_LOADING } from '../loading/loading-context';
-import { ApiResponse } from '../../models/api-response.model';
+import { ONBOARDING_ENDPOINTS } from '../constants/onboarding.endpoints';
+import { SILENT_ERROR } from '@core/error/http-context';
+import { SKIP_LOADING } from '@core/loading/loading-context';
+import { ApiResponse } from '@shared/models/api-response.model';
 import {
   AvailablePackageView,
   CurrentSubscriptionView,
@@ -16,8 +16,8 @@ import {
   SubscriptionProvisioningRetryResult,
   SubscriptionRetryPaymentResult,
   VerifySubscriptionPaymentRequest,
-} from '../../models/subscription.model';
-import { unwrapData } from './unwrap';
+} from '../models/subscription.model';
+import { unwrapData } from '@core/http/unwrap';
 
 /**
  * The tenant-facing purchase surface — and, for onboarding, the only one.
@@ -37,7 +37,7 @@ export class SubscriptionApi {
    */
   availablePackages(): Observable<AvailablePackageView[]> {
     return this.http
-      .get<ApiResponse<AvailablePackageView[]>>(API_ROUTES.availablePackages, {
+      .get<ApiResponse<AvailablePackageView[]>>(ONBOARDING_ENDPOINTS.availablePackages, {
         withCredentials: true,
       })
       .pipe(unwrapData());
@@ -46,7 +46,7 @@ export class SubscriptionApi {
   /** Where an interrupted journey left off: live term, pending operation, pending payment. */
   current(): Observable<CurrentSubscriptionView> {
     return this.http
-      .get<ApiResponse<CurrentSubscriptionView>>(API_ROUTES.currentSubscription, {
+      .get<ApiResponse<CurrentSubscriptionView>>(ONBOARDING_ENDPOINTS.currentSubscription, {
         withCredentials: true,
       })
       .pipe(unwrapData());
@@ -59,7 +59,7 @@ export class SubscriptionApi {
    */
   start(request: StartSubscriptionRequest): Observable<SubscriptionChangeResult> {
     return this.http
-      .post<ApiResponse<SubscriptionChangeResult>>(API_ROUTES.subscriptions, request, {
+      .post<ApiResponse<SubscriptionChangeResult>>(ONBOARDING_ENDPOINTS.subscriptions, request, {
         withCredentials: true,
       })
       .pipe(unwrapData());
@@ -76,7 +76,7 @@ export class SubscriptionApi {
   ): Observable<SubscriptionPaymentResult> {
     return this.http
       .post<ApiResponse<SubscriptionPaymentResult>>(
-        API_ROUTES.paySubscriptionOperation(operationId),
+        ONBOARDING_ENDPOINTS.paySubscriptionOperation(operationId),
         request,
         { withCredentials: true },
       )
@@ -94,7 +94,7 @@ export class SubscriptionApi {
   ): Observable<SubscriptionPaymentResult> {
     return this.http
       .post<ApiResponse<SubscriptionPaymentResult>>(
-        API_ROUTES.verifySubscriptionPayment(operationId),
+        ONBOARDING_ENDPOINTS.verifySubscriptionPayment(operationId),
         request,
         { withCredentials: true },
       )
@@ -119,7 +119,7 @@ export class SubscriptionApi {
 
     return this.http
       .get<ApiResponse<SubscriptionOperationStatusView>>(
-        API_ROUTES.subscriptionOperation(operationId),
+        ONBOARDING_ENDPOINTS.subscriptionOperation(operationId),
         { withCredentials: true, context },
       )
       .pipe(unwrapData());
@@ -133,7 +133,7 @@ export class SubscriptionApi {
   retryPayment(operationId: string): Observable<SubscriptionRetryPaymentResult> {
     return this.http
       .post<ApiResponse<SubscriptionRetryPaymentResult>>(
-        API_ROUTES.retrySubscriptionPayment(operationId),
+        ONBOARDING_ENDPOINTS.retrySubscriptionPayment(operationId),
         {},
         { withCredentials: true },
       )
@@ -147,7 +147,7 @@ export class SubscriptionApi {
   retryProvisioning(operationId: string): Observable<SubscriptionProvisioningRetryResult> {
     return this.http
       .post<ApiResponse<SubscriptionProvisioningRetryResult>>(
-        API_ROUTES.retrySubscriptionProvisioning(operationId),
+        ONBOARDING_ENDPOINTS.retrySubscriptionProvisioning(operationId),
         {},
         { withCredentials: true },
       )

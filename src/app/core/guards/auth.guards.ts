@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, RedirectCommand, Router } from '@angular/router';
 import { Observable, catchError, map, of } from 'rxjs';
-import { SessionStage } from '../../enums/domain.enums';
+import { SessionStage } from '../auth/auth.enums';
 import { AuthFlowStore } from '../auth/auth-flow.store';
 import { SessionStore } from '../auth/session.store';
 import { isSafeReturnUrl } from '../error/error.model';

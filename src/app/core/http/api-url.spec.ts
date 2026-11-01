@@ -1,10 +1,18 @@
-import { API_ROUTES, CSRF_EXEMPT_PATHS } from '../../constants/api-routes';
-import { isApiRequest, isCsrfExemptRequest } from './api-url';
+import { AUTH_ENDPOINTS } from '../auth/auth.endpoints';
+// This spec proves every endpoint of every owner keeps its classification, so it reads all of them.
+/* eslint-disable no-restricted-imports */
+import { ACCESS_ENDPOINTS } from '@domains/access/constants/access.endpoints';
+import { TEAM_ENDPOINTS } from '@domains/team/constants/team.endpoints';
+import { ONBOARDING_ENDPOINTS } from '@features/onboarding/constants/onboarding.endpoints';
+/* eslint-enable no-restricted-imports */
+import { CSRF_EXEMPT_PATHS, isApiRequest, isCsrfExemptRequest } from './api-url';
 
 /** Every URL the app requests, parameterised routes filled with sample ids. */
-const allApiUrls = Object.values(API_ROUTES).map((route) =>
-  typeof route === 'function' ? (route as (...ids: string[]) => string)('id-1', 'id-2') : route,
-);
+const allApiUrls = [AUTH_ENDPOINTS, ACCESS_ENDPOINTS, TEAM_ENDPOINTS, ONBOARDING_ENDPOINTS]
+  .flatMap((endpoints) => Object.values(endpoints))
+  .map((route) =>
+    typeof route === 'function' ? (route as (...ids: string[]) => string)('id-1', 'id-2') : route,
+  );
 
 // The matchers this replaced, kept verbatim so the equivalence is proven route by route.
 const legacyIsApi = (url: string) => url.includes('/api/');
@@ -26,19 +34,19 @@ describe('api-url', () => {
   it('exempts exactly the documented public auth endpoints', () => {
     expect(allApiUrls.filter(isCsrfExemptRequest).sort()).toEqual(
       [
-        API_ROUTES.login,
-        API_ROUTES.setPassword,
-        API_ROUTES.forgotPassword,
-        API_ROUTES.forgotPasswordComplete,
-        API_ROUTES.loginIntent,
-        API_ROUTES.csrf,
-        API_ROUTES.registerTenant,
+        AUTH_ENDPOINTS.login,
+        AUTH_ENDPOINTS.setPassword,
+        AUTH_ENDPOINTS.forgotPassword,
+        AUTH_ENDPOINTS.forgotPasswordComplete,
+        AUTH_ENDPOINTS.loginIntent,
+        AUTH_ENDPOINTS.csrf,
+        AUTH_ENDPOINTS.registerTenant,
       ].sort(),
     );
   });
 
   it('ignores the query string', () => {
-    expect(isCsrfExemptRequest(`${API_ROUTES.login}?x=1`)).toBe(true);
+    expect(isCsrfExemptRequest(`${AUTH_ENDPOINTS.login}?x=1`)).toBe(true);
   });
 
   it('never treats a foreign URL containing /api/ as a Brooch API call', () => {
@@ -48,7 +56,7 @@ describe('api-url', () => {
   });
 
   it('does not exempt a future endpoint that merely contains an exempt path', () => {
-    expect(isCsrfExemptRequest(`${API_ROUTES.login}-history`)).toBe(false);
-    expect(isCsrfExemptRequest(`${API_ROUTES.csrf}/rotate`)).toBe(false);
+    expect(isCsrfExemptRequest(`${AUTH_ENDPOINTS.login}-history`)).toBe(false);
+    expect(isCsrfExemptRequest(`${AUTH_ENDPOINTS.csrf}/rotate`)).toBe(false);
   });
 });

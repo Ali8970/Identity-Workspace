@@ -1,10 +1,10 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { MembersApi, RolesApi, TeamsApi } from '@core/api/workspace-api.service';
+import { MembersApi } from '@domains/access/services/members-api.service';
+import { RolesApi } from '@domains/access/services/roles-api.service';
+import { TeamsApi } from '@domains/team/services/teams-api.service';
 import { SessionStore } from '@core/auth/session.store';
-import {
-  TeamNode,
-} from '../../../models/workspace.model';
+import { TeamNode } from '@domains/team/models/team.model';
 import { MembersService } from './members.service';
 
 function node(id: string, name: string, children: TeamNode[] = []): TeamNode {

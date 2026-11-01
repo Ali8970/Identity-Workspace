@@ -1,7 +1,7 @@
 import { ApplicationRef, DOCUMENT, Service, inject, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, tap } from 'rxjs';
-import { STORAGE_KEYS } from '../../constants/app.constants';
+import { STORAGE_KEYS } from '../constants/storage-keys';
 import { readSharedLanguage, writeSharedLanguage } from './shared-language-cookie';
 
 export type AppLanguage = 'en' | 'ar';

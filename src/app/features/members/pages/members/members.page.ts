@@ -8,7 +8,7 @@ import { SessionStore } from '@core/auth/session.store';
 import { ApplicationLabels } from '@core/i18n/application-labels.service';
 import { permissionDisplayLabel } from '@core/i18n/permission-label';
 import { LanguageService } from '@core/i18n/language.service';
-import { TenantMembershipStatus } from '../../../../enums/domain.enums';
+import { TenantMembershipStatus } from '@core/auth/auth.enums';
 import { ConfirmDialog } from '@shared/ui/confirm-dialog/confirm-dialog';
 import { nameInitials } from '@shared/ui/display';
 import { EmptyState } from '@shared/ui/empty-state/empty-state';
@@ -24,9 +24,8 @@ import {
   MemberRolesDto,
   ResendActivationResult,
   RoleListItem,
-  TeamListItem,
-  TeamNode,
-} from '../../../../models/workspace.model';
+} from '@domains/access/models/access.model';
+import { TeamListItem, TeamNode } from '@domains/team/models/team.model';
 import { AddMemberFormValue } from '../../models/member-invite.model';
 import { MEMBER_STATUSES, MembersService } from '../../services/members.service';
 import { RoleGrantScope } from '@domains/access/models/grant-scope.model';

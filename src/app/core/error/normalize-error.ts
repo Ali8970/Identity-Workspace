@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ProblemDetails, ValidationFieldError } from '../../models/api-response.model';
+import { ProblemDetails, ValidationFieldError } from '@shared/models/api-response.model';
 import { BroochError, FieldValidationError } from './error.model';
 
 function pickLocalizedMessage(

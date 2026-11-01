@@ -5,7 +5,7 @@ import {
   SubscriptionProvisioningState,
   SubscriptionStatus,
   TokenizedPaymentState,
-} from '../enums/domain.enums';
+} from '../enums/subscription.enums';
 
 /**
  * Wire DTOs for the tenant-facing Subscription surface (purchase + payment).
@@ -15,7 +15,6 @@ import {
  * derived from a price or a display string, and the SPA never sends an amount, a currency
  * or a status back.
  */
-
 export interface SubscriptionFeatureView {
   code: string;
   nameAr: string | null;

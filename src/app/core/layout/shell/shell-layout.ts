@@ -4,7 +4,7 @@ import { DOCUMENT } from '@angular/common';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { filter, firstValueFrom } from 'rxjs';
-import { PERMISSIONS } from '../../../constants/app.constants';
+import { PERMISSIONS } from '../../auth/permission-keys';
 import { SessionStore } from '../../auth/session.store';
 import { LanguageService } from '../../i18n/language.service';
 import { BusyOverlay } from '@shared/ui/busy-overlay/busy-overlay';

@@ -2,10 +2,14 @@ import { HttpClient, HttpContext, provideHttpClient, withInterceptors } from '@a
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { API_ROUTES } from '../../constants/api-routes';
+import { API_BASE } from '../http/api-base';
 import { HttpActivityService } from '../loading/http-activity.service';
 import { SKIP_LOADING } from '../loading/loading-context';
 import { loadingInterceptor } from './loading.interceptor';
+
+/** Ordinary tenant-scoped API URLs (core may not import the access domain). */
+const MEMBERSHIPS_URL = `${API_BASE}/memberships`;
+const ROLES_URL = `${API_BASE}/roles`;
 
 describe('loadingInterceptor', () => {
   let http: HttpClient;
@@ -31,17 +35,17 @@ describe('loadingInterceptor', () => {
   it('counts an API call for the duration of the request', () => {
     expect(activity.busy()).toBe(false);
 
-    http.get(API_ROUTES.memberships).subscribe({ error: () => undefined });
+    http.get(MEMBERSHIPS_URL).subscribe({ error: () => undefined });
     expect(activity.busy()).toBe(true);
 
-    backend.expectOne(API_ROUTES.memberships).flush({ statusCode: 200, message: 'ok', data: [] });
+    backend.expectOne(MEMBERSHIPS_URL).flush({ statusCode: 200, message: 'ok', data: [] });
     expect(activity.busy()).toBe(false);
   });
 
   it('releases the count when the request fails', () => {
-    http.get(API_ROUTES.memberships).subscribe({ error: () => undefined });
+    http.get(MEMBERSHIPS_URL).subscribe({ error: () => undefined });
     backend
-      .expectOne(API_ROUTES.memberships)
+      .expectOne(MEMBERSHIPS_URL)
       .flush({}, { status: 500, statusText: 'Server Error' });
 
     expect(activity.busy()).toBe(false);
@@ -49,33 +53,33 @@ describe('loadingInterceptor', () => {
 
   it('releases the count when the caller unsubscribes', () => {
     const subscription = http
-      .get(API_ROUTES.memberships)
+      .get(MEMBERSHIPS_URL)
       .subscribe({ error: () => undefined });
     expect(activity.busy()).toBe(true);
 
     subscription.unsubscribe();
     expect(activity.busy()).toBe(false);
-    backend.expectOne(API_ROUTES.memberships);
+    backend.expectOne(MEMBERSHIPS_URL);
   });
 
   it('stays busy until the last of several parallel calls settles', () => {
-    http.get(API_ROUTES.memberships).subscribe({ error: () => undefined });
-    http.get(API_ROUTES.roles).subscribe({ error: () => undefined });
+    http.get(MEMBERSHIPS_URL).subscribe({ error: () => undefined });
+    http.get(ROLES_URL).subscribe({ error: () => undefined });
 
-    backend.expectOne(API_ROUTES.memberships).flush({ statusCode: 200, message: 'ok', data: [] });
+    backend.expectOne(MEMBERSHIPS_URL).flush({ statusCode: 200, message: 'ok', data: [] });
     expect(activity.busy()).toBe(true);
 
-    backend.expectOne(API_ROUTES.roles).flush({ statusCode: 200, message: 'ok', data: [] });
+    backend.expectOne(ROLES_URL).flush({ statusCode: 200, message: 'ok', data: [] });
     expect(activity.busy()).toBe(false);
   });
 
   it('ignores requests marked SKIP_LOADING', () => {
     http
-      .get(API_ROUTES.memberships, { context: new HttpContext().set(SKIP_LOADING, true) })
+      .get(MEMBERSHIPS_URL, { context: new HttpContext().set(SKIP_LOADING, true) })
       .subscribe({ error: () => undefined });
 
     expect(activity.busy()).toBe(false);
-    backend.expectOne(API_ROUTES.memberships).flush({ statusCode: 200, message: 'ok', data: [] });
+    backend.expectOne(MEMBERSHIPS_URL).flush({ statusCode: 200, message: 'ok', data: [] });
   });
 
   it('ignores non-API requests such as i18n bundles', () => {

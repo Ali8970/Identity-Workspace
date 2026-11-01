@@ -1,5 +1,5 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { APP_KEY, HTTP_HEADERS } from '../../constants/app.constants';
+import { APP_KEY, HTTP_HEADERS } from '../http/http-headers';
 import { environment } from '@env/environment';
 import { isApiRequest } from '../http/api-url';
 

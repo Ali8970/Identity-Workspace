@@ -13,11 +13,3 @@ export interface CardFormValue {
   year: string;
   cvc: string;
 }
-
-export type { TenantDto } from '../../../models/workspace.model';
-export type {
-  AvailablePackageView,
-  PaymentConfiguration,
-  SubscriptionOperationStatusView,
-  SubscriptionPaymentResult,
-} from '../../../models/subscription.model';

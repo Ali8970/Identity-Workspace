@@ -1,9 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Service, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { API_ROUTES } from '../../constants/api-routes';
-import { ApiResponse } from '../../models/api-response.model';
-import { unwrapData } from '../api/unwrap';
+import { AUTH_ENDPOINTS } from './auth.endpoints';
+import { ApiResponse } from '@shared/models/api-response.model';
+import { unwrapData } from '../http/unwrap';
 import {
   CurrentUserResponse,
   MyAccessResponse,
@@ -11,7 +11,7 @@ import {
   ProfileDto,
   SessionDto,
   UpdateProfileRequest,
-} from '../../models/auth.model';
+} from './auth.model';
 
 @Service()
 export class MeApi {
@@ -24,20 +24,20 @@ export class MeApi {
    */
   me(): Observable<CurrentUserResponse> {
     return this.http
-      .get<ApiResponse<CurrentUserResponse>>(API_ROUTES.me, { withCredentials: true })
+      .get<ApiResponse<CurrentUserResponse>>(AUTH_ENDPOINTS.me, { withCredentials: true })
       .pipe(unwrapData());
   }
 
   profile(): Observable<ProfileDto> {
     return this.http
-      .get<ApiResponse<ProfileDto>>(API_ROUTES.myProfile, { withCredentials: true })
+      .get<ApiResponse<ProfileDto>>(AUTH_ENDPOINTS.myProfile, { withCredentials: true })
       .pipe(unwrapData());
   }
 
   /** Returns the freshly re-read profile — the handler re-runs GetProfileQuery. */
   updateProfile(request: UpdateProfileRequest): Observable<ProfileDto> {
     return this.http
-      .put<ApiResponse<ProfileDto>>(API_ROUTES.myProfile, request, { withCredentials: true })
+      .put<ApiResponse<ProfileDto>>(AUTH_ENDPOINTS.myProfile, request, { withCredentials: true })
       .pipe(unwrapData());
   }
 
@@ -48,7 +48,7 @@ export class MeApi {
         ? undefined
         : new HttpParams().set('includeUnavailable', includeUnavailable);
     return this.http
-      .get<ApiResponse<MyCompanyDto[]>>(API_ROUTES.myCompanies, {
+      .get<ApiResponse<MyCompanyDto[]>>(AUTH_ENDPOINTS.myCompanies, {
         withCredentials: true,
         params,
       })
@@ -58,20 +58,20 @@ export class MeApi {
   /** Active-stage only: roles across every application in the current company. */
   access(): Observable<MyAccessResponse> {
     return this.http
-      .get<ApiResponse<MyAccessResponse>>(API_ROUTES.myAccess, { withCredentials: true })
+      .get<ApiResponse<MyAccessResponse>>(AUTH_ENDPOINTS.myAccess, { withCredentials: true })
       .pipe(unwrapData());
   }
 
   sessions(): Observable<SessionDto[]> {
     return this.http
-      .get<ApiResponse<SessionDto[]>>(API_ROUTES.mySessions, { withCredentials: true })
+      .get<ApiResponse<SessionDto[]>>(AUTH_ENDPOINTS.mySessions, { withCredentials: true })
       .pipe(unwrapData());
   }
 
   /** Signs one device out, addressed by the opaque fingerprint from sessions(). */
   revokeSession(sessionRef: string): Observable<void> {
     return this.http
-      .delete<ApiResponse<unknown>>(API_ROUTES.mySession(sessionRef), { withCredentials: true })
+      .delete<ApiResponse<unknown>>(AUTH_ENDPOINTS.mySession(sessionRef), { withCredentials: true })
       .pipe(map(() => undefined));
   }
 }

@@ -1,6 +1,6 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { HTTP_HEADERS } from '../../constants/app.constants';
+import { HTTP_HEADERS } from '../http/http-headers';
 import { LanguageService } from '../i18n/language.service';
 import { isApiRequest } from '../http/api-url';
 

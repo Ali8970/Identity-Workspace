@@ -1,5 +1,5 @@
 import { OperatorFunction, map } from 'rxjs';
-import { ApiResponse } from '../../models/api-response.model';
+import { ApiResponse } from '@shared/models/api-response.model';
 
 /**
  * Unwraps the Brooch `ApiResponse<T>` envelope, throwing when the payload is absent.

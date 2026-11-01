@@ -11,11 +11,7 @@ import {
 import { TranslatePipe } from '@ngx-translate/core';
 import { LanguageService } from '@core/i18n/language.service';
 import { FocusTrap } from '@shared/ui/focus-trap/focus-trap';
-import {
-  MemberListItem,
-  PermissionCatalogItem,
-  RoleListItem,
-} from '../../../../models/workspace.model';
+import { MemberListItem, PermissionCatalogItem, RoleListItem } from '@domains/access/models/access.model';
 import { RolePermissionTree } from '../role-permission-tree/role-permission-tree';
 
 export type RoleDetailsTab = 'overview' | 'permissions' | 'members';

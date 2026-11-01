@@ -1,5 +1,5 @@
 import { Service, computed, signal } from '@angular/core';
-import { PaymentConfiguration } from '../../../models/subscription.model';
+import { PaymentConfiguration } from '../models/subscription.model';
 
 /**
  * The little that must outlive a single onboarding page.

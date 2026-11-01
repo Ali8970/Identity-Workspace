@@ -3,7 +3,7 @@ import {
   CompanyUnavailableReason,
   TenantMembershipStatus,
   TenantStatus,
-} from '../enums/domain.enums';
+} from './auth.enums';
 
 export interface LoginRequest {
   email: string;

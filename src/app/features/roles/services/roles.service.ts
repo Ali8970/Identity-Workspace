@@ -1,7 +1,9 @@
 import { Service, inject } from '@angular/core';
 import { Observable, forkJoin, of } from 'rxjs';
-import { PERMISSIONS } from '../../../constants/app.constants';
-import { MembersApi, PermissionsApi, RolesApi } from '@core/api/workspace-api.service';
+import { PERMISSIONS } from '@core/auth/permission-keys';
+import { MembersApi } from '@domains/access/services/members-api.service';
+import { PermissionsApi } from '@domains/access/services/permissions-api.service';
+import { RolesApi } from '@domains/access/services/roles-api.service';
 import { SessionStore } from '@core/auth/session.store';
 import { RoleGrantScope } from '@domains/access/models/grant-scope.model';
 import {
@@ -12,7 +14,7 @@ import {
   RoleMembershipsDto,
   RolePermissionsDto,
   UpdateRoleRequest,
-} from '../../../models/workspace.model';
+} from '@domains/access/models/access.model';
 
 @Service()
 export class RolesService {
