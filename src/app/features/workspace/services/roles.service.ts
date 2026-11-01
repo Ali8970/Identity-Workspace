@@ -1,9 +1,9 @@
 import { Service, inject } from '@angular/core';
-import { Observable, forkJoin, map, of } from 'rxjs';
+import { Observable, forkJoin, of } from 'rxjs';
 import { PERMISSIONS } from '../../../constants/app.constants';
 import { MembersApi, PermissionsApi, RolesApi } from '@core/api/workspace-api.service';
-import { MeApi } from '@core/auth/me-api.service';
 import { SessionStore } from '@core/auth/session.store';
+import { RoleGrantScope } from '@domains/access/models/grant-scope.model';
 import {
   CreateRoleRequest,
   MemberListItem,
@@ -12,19 +12,13 @@ import {
   RoleMembershipsDto,
   RolePermissionsDto,
   UpdateRoleRequest,
-} from '../models/workspace-feature.model';
-
-export interface RoleGrantScope {
-  isOwner: boolean;
-  keysByApplication: ReadonlyMap<string, ReadonlySet<string>>;
-}
+} from '../../../models/workspace.model';
 
 @Service()
 export class RolesService {
   private readonly rolesApi = inject(RolesApi);
   private readonly permissionsApi = inject(PermissionsApi);
   private readonly membersApi = inject(MembersApi);
-  private readonly meApi = inject(MeApi);
   private readonly session = inject(SessionStore);
 
   canReadMembers(): boolean {
@@ -70,22 +64,6 @@ export class RolesService {
 
   loadMembers(): Observable<MemberListItem[]> {
     return this.membersApi.list();
-  }
-
-  loadGrantScope(): Observable<RoleGrantScope> {
-    return this.meApi.access().pipe(
-      map((access) => {
-        const keysByApplication = new Map<string, Set<string>>();
-        for (const role of access.roles) {
-          const keys = keysByApplication.get(role.application.code) ?? new Set<string>();
-          for (const key of role.permissionKeys ?? []) {
-            keys.add(key);
-          }
-          keysByApplication.set(role.application.code, keys);
-        }
-        return { isOwner: access.isOwner, keysByApplication };
-      }),
-    );
   }
 
   offeredKeys(catalog: PermissionCatalogItem[], applicationKey: string): Set<string> {

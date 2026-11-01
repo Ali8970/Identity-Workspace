@@ -3,7 +3,10 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { ApplicationLabels } from '@core/i18n/application-labels.service';
 import { LanguageService } from '@core/i18n/language.service';
 import { FocusTrap } from '@shared/ui/focus-trap/focus-trap';
-import { TeamMembershipDdlItem, TeamNode } from '../../models/workspace-feature.model';
+import {
+  TeamMembershipDdlItem,
+  TeamNode,
+} from '../../../../models/workspace.model';
 
 export type TeamDetailsTab = 'overview' | 'members' | 'subteams' | 'settings';
 

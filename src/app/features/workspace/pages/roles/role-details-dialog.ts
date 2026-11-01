@@ -15,7 +15,7 @@ import {
   MemberListItem,
   PermissionCatalogItem,
   RoleListItem,
-} from '../../models/workspace-feature.model';
+} from '../../../../models/workspace.model';
 import { RolePermissionTree } from './role-permission-tree';
 
 export type RoleDetailsTab = 'overview' | 'permissions' | 'members';

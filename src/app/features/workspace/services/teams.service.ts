@@ -11,7 +11,7 @@ import {
   TeamMembershipDdlItem,
   TeamNode,
   UpdateTeamRequest,
-} from '../models/workspace-feature.model';
+} from '../../../models/workspace.model';
 
 @Service()
 export class TeamsService {

@@ -19,7 +19,6 @@ import type { ListStatCard } from '@shared/ui/list-stats/list-stat-card';
 import { ListStats } from '@shared/ui/list-stats/list-stats';
 import { PageHeader } from '@shared/ui/page-header/page-header';
 import {
-  AddMemberFormValue,
   AddMemberResult,
   MemberListItem,
   MemberRolesDto,
@@ -27,9 +26,10 @@ import {
   RoleListItem,
   TeamListItem,
   TeamNode,
-} from '../../models/workspace-feature.model';
+} from '../../../../models/workspace.model';
+import { AddMemberFormValue } from '../../models/member-invite.model';
 import { MEMBER_STATUSES, MembersService } from '../../services/members.service';
-import { RoleGrantScope } from '../../services/roles.service';
+import { RoleGrantScope } from '@domains/access/models/grant-scope.model';
 import { MemberInviteDialog } from './member-invite-dialog';
 import { MembersSkeleton } from './members.skeleton';
 

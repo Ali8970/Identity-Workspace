@@ -14,7 +14,9 @@ import type { ListStatCard } from '@shared/ui/list-stats/list-stat-card';
 import { ListStats } from '@shared/ui/list-stats/list-stats';
 import { PageHeader } from '@shared/ui/page-header/page-header';
 import { PanelSection } from '@shared/ui/panel-section/panel-section';
-import { SessionDto } from '../../models/workspace-feature.model';
+import {
+  SessionDto,
+} from '../../../../models/workspace.model';
 import { AccountService } from '../../services/account.service';
 import { AccountSkeleton } from './account.skeleton';
 

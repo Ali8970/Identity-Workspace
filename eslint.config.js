@@ -57,6 +57,40 @@ const boundaries = [
   },
   {
     files: ['src/app/core/**/*.ts'],
+    ignores: ['src/app/core/layout/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            ...NO_FEATURES,
+            { group: ['@domains/*'], message: 'Only core/layout may host domain widgets.' },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/app/core/layout/**/*.ts'],
+    rules: { 'no-restricted-imports': ['error', { patterns: NO_FEATURES }] },
+  },
+  {
+    // Domains are ranked (access 0, team 1): a domain may only use a lower-ranked one.
+    files: ['src/app/domains/access/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            ...NO_FEATURES,
+            { group: ['@domains/team/*'], message: 'access (rank 0) cannot depend on team (rank 1).' },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/app/domains/team/**/*.ts'],
     rules: { 'no-restricted-imports': ['error', { patterns: NO_FEATURES }] },
   },
 ];

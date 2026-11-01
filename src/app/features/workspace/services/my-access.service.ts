@@ -1,7 +1,9 @@
 import { Service, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { MeApi } from '@core/auth/me-api.service';
-import { MyAccessResponse } from '../models/workspace-feature.model';
+import {
+  MyAccessResponse,
+} from '../../../models/workspace.model';
 
 @Service()
 export class MyAccessService {

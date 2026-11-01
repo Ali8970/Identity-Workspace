@@ -18,8 +18,10 @@ import {
   MemberListItem,
   PermissionCatalogItem,
   RoleListItem,
-} from '../../models/workspace-feature.model';
-import { RoleGrantScope, RolesService } from '../../services/roles.service';
+} from '../../../../models/workspace.model';
+import { RoleGrantScope } from '@domains/access/models/grant-scope.model';
+import { GrantScopeService } from '@domains/access/services/grant-scope.service';
+import { RolesService } from '../../services/roles.service';
 import { RoleDetailsDialog } from './role-details-dialog';
 import {
   RoleApplicationOption,
@@ -367,6 +369,7 @@ interface RoleNotice {
 })
 export class RolesPage {
   private readonly rolesService = inject(RolesService);
+  private readonly grantScopeService = inject(GrantScopeService);
   private readonly session = inject(SessionStore);
   private readonly applicationLabels = inject(ApplicationLabels);
   private readonly language = inject(LanguageService);
@@ -736,7 +739,7 @@ export class RolesPage {
 
   private async loadGrantScope(): Promise<RoleGrantScope | null> {
     try {
-      const scope = await firstValueFrom(this.rolesService.loadGrantScope());
+      const scope = await firstValueFrom(this.grantScopeService.load());
       this.grantScope.set(scope);
       return scope;
     } catch {

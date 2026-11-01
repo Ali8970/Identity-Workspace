@@ -5,7 +5,9 @@ import {
   permissionDisplayLabel,
 } from '@core/i18n/permission-label';
 import { LanguageService } from '@core/i18n/language.service';
-import { PermissionCatalogItem } from '../../models/workspace-feature.model';
+import {
+  PermissionCatalogItem,
+} from '../../../../models/workspace.model';
 
 interface PermissionEntry {
   key: string;

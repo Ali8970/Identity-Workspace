@@ -27,8 +27,12 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { permissionDisplayLabel } from '@core/i18n/permission-label';
 import { LanguageService } from '@core/i18n/language.service';
 import { FocusTrap } from '@shared/ui/focus-trap/focus-trap';
-import { PermissionCatalogItem, RoleListItem } from '../../models/workspace-feature.model';
-import { RoleGrantScope, RolesService } from '../../services/roles.service';
+import {
+  PermissionCatalogItem,
+  RoleListItem,
+} from '../../../../models/workspace.model';
+import { RoleGrantScope } from '@domains/access/models/grant-scope.model';
+import { RolesService } from '../../services/roles.service';
 import { RolePermissionTree } from './role-permission-tree';
 
 export type RoleFormMode = 'create' | 'edit';

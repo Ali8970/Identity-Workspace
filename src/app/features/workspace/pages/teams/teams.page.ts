@@ -17,7 +17,7 @@ import {
   MemberListItem,
   TeamMembershipDdlItem,
   TeamNode,
-} from '../../models/workspace-feature.model';
+} from '../../../../models/workspace.model';
 import { TeamsService } from '../../services/teams.service';
 import { TeamDetailsDialog } from './team-details-dialog';
 import {

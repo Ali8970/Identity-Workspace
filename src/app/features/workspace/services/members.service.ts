@@ -5,7 +5,6 @@ import { SessionStore } from '@core/auth/session.store';
 import { PERMISSIONS } from '../../../constants/app.constants';
 import { TenantMembershipStatus } from '../../../enums/domain.enums';
 import {
-  AddMemberFormValue,
   AddMemberRequest,
   AddMemberResult,
   MemberListItem,
@@ -14,8 +13,10 @@ import {
   RoleListItem,
   TeamListItem,
   TeamNode,
-} from '../models/workspace-feature.model';
-import { RoleGrantScope, RolesService } from './roles.service';
+} from '../../../models/workspace.model';
+import { AddMemberFormValue } from '../models/member-invite.model';
+import { RoleGrantScope } from '@domains/access/models/grant-scope.model';
+import { GrantScopeService } from '@domains/access/services/grant-scope.service';
 
 export interface InviteTeamOption {
   id: string;
@@ -51,7 +52,7 @@ export class MembersService {
   private readonly membersApi = inject(MembersApi);
   private readonly rolesApi = inject(RolesApi);
   private readonly teamsApi = inject(TeamsApi);
-  private readonly rolesService = inject(RolesService);
+  private readonly grantScope = inject(GrantScopeService);
   private readonly session = inject(SessionStore);
 
   canReadMembers(): boolean {
@@ -93,7 +94,7 @@ export class MembersService {
   }
 
   loadInviteGrantScope(): Observable<RoleGrantScope | null> {
-    return this.rolesService.loadGrantScope().pipe(catchError(() => of(null)));
+    return this.grantScope.load().pipe(catchError(() => of(null)));
   }
 
   inviteCatalog(roles: RoleListItem[], teams: TeamNode[]): InviteApplication[] {
