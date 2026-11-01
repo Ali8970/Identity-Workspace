@@ -3,10 +3,11 @@
 You are an expert TypeScript/Angular 22 engineer building the Brooch **Account** SPA (SSO hub + tenant workspace).
 
 ## Project facts
-- Angular **22.0.8**, SPA only (**no SSR**), **zoneless**
+- Angular **22.1**, SPA only (**no SSR**), **zoneless**
 - **Signal Forms** (`@angular/forms/signals`) for all forms
 - Signals + `computed` / `linkedSignal`; session via signal stores
-- SASS only — no UI libraries
+- **Tailwind CSS v4 only** — no UI libraries, no SCSS/CSS files, no component styles (legacy SCSS is being migrated out)
+- Reads via `httpResource`; writes via `HttpClient`
 - ngx-translate AR/EN + RTL
 - Real Brooch API (`https://stg.api.brooch.sa`) from HTTPS host `dev.account.brooch.sa`
 

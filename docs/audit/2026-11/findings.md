@@ -43,7 +43,7 @@ Living status of every audit finding. Updated after each fix.
 | ARCH-05 | M | One flat route table | Pending | URLs stay byte-identical |
 | ARCH-06 | L | Hard-coded route paths in the store and guards | Pending | |
 | ARCH-07 | M | Root singletons hold feature state | Pending | |
-| ARCH-08 | M | Docs contradict each other; `ONBOARDING_FRONTEND_GUIDE.md` missing | Pending | |
+| ARCH-08 | M | Docs contradict each other; `ONBOARDING_FRONTEND_GUIDE.md` missing | In progress | Stack contradictions fixed (CLAUDE, README, AGENTS, `tailwind-ui.mdc`, `angular-best-practices.mdc`); missing guide reference resolved. `architecture.mdc` lands with ARCH-02 |
 | CODE-01 | H | Oversized pages and dialogs (>500 lines) | Pending | |
 | CODE-02 | M | Large inline templates | Pending | |
 | CODE-03 | M | Duplicated dialog shell and confirm-state logic | Pending | |

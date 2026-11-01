@@ -57,7 +57,9 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 
 ## Brooch Account project
 
-- SPA only (no SSR), zoneless, Signal Forms, Tailwind CSS v4, ngx-translate AR/EN
+- SPA only (no SSR), zoneless, Signal Forms, **Tailwind CSS v4 only** (no SCSS/CSS files — see `.cursor/rules/tailwind-ui.mdc`), ngx-translate AR/EN
+- Reads use `httpResource`; route state via `withComponentInputBinding()` + `input()` (see `.cursor/rules/angular-best-practices.mdc`)
+- Audit 2026-11: findings, baselines and decisions live in `docs/audit/2026-11/` — keep `findings.md` current
 - Real API via `https://stg.api.brooch.sa` from `https://dev.account.brooch.sa:4300` (ssl) — see `.cursor/rules/identity-domain.mdc`
 - Also read `CLAUDE.md` and `.cursor/rules/*`
 
@@ -74,7 +76,7 @@ Inline `aria-busy` + `.ui-spinner` still belongs on individual busy controls.
 ### Onboarding purchase & payment
 
 Subscription owns every tenant-facing payment route; this SPA never calls `/payments/*`.
-Full contract: `ONBOARDING_FRONTEND_GUIDE.md`. Non-negotiables:
+The backend team's `ONBOARDING_FRONTEND_GUIDE.md` is not in this repo; the non-negotiables below are the contract:
 
 - **Never send an amount, currency, price or status.** `POST /subscriptions` takes `{ packageId }`,
   `…/pay` takes `{ token }`, `…/payments/verify` takes `{ providerPaymentId }`. Prices come from the

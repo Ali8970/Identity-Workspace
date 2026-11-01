@@ -20,7 +20,11 @@ You are an expert in TypeScript, Angular 22, and scalable web apps. Follow Angul
 - `input()` / `output()` / `model()` — never `@Input` / `@Output`
 - Prefer `inject()` over constructor DI
 - Singletons: prefer `@Service()` (v22+); else `@Injectable({ providedIn: 'root' })`
-- **Signal Forms only** (`@angular/forms/signals`) for forms in this project
+- **Signal Forms only** (`@angular/forms/signals`) for forms in this project — search drafts included
+- **Reads: `httpResource`** (stable in v22) with `parse` for the `ApiResponse` envelope and a request function that returns
+  `undefined` while inputs are missing. **Writes** stay `HttpClient` Observables. Don't `forkJoin` reads; compose resources with `computed`
+- Route params and query params arrive through `withComponentInputBinding()` + `input()`, not `ActivatedRoute` snapshots or subscriptions
+- Never use `effect()` to propagate state (`linkedSignal` / `computed` / event handlers instead). DOM writes go in `afterRenderEffect` or host bindings
 - Templates: `@if` / `@for` / `@switch` — never `*ngIf` / `*ngFor` / `*ngSwitch`
 - `[class]` / `[style]` — never `ngClass` / `ngStyle`
 - Prefer `protected` for template-only members; `readonly` for inputs/outputs/queries

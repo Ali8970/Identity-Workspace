@@ -43,7 +43,7 @@ alwaysApply: true
 - `POST /tenants/register` — no password; then set-password email → login
 - No OTP — 4-digit set-password codes / reset tokens only
 
-## Onboarding purchase (see `ONBOARDING_FRONTEND_GUIDE.md`, `AGENTS.md`)
+## Onboarding purchase (see `AGENTS.md`; the backend `ONBOARDING_FRONTEND_GUIDE.md` is not in this repo)
 - Catalogue = `GET /subscriptions/available-packages`; `POST /subscriptions/free-trial` is **gone**
 - `POST /subscriptions` `{ packageId }` is the only free-vs-paid decision — read `requiresPayment`
   off the response, never off the catalogue row

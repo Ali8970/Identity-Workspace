@@ -5,7 +5,7 @@ Angular **22.0.8** SPA for Brooch SSO + tenant Account workspace.
 ## Stack
 
 - Zoneless, Signal Forms, signals
-- SASS (no UI libraries)
+- Tailwind CSS v4 only (no UI libraries, no SCSS)
 - ngx-translate (`en` / `ar` + RTL)
 - Cookie session + CSRF (contract-aligned)
 - Real Brooch API: `https://stg.api.brooch.sa/api/v1`
@@ -34,7 +34,7 @@ apiBaseUrl: 'https://stg.api.brooch.sa/api/v1'
 
 ## AI quality gates
 
-- `.cursor/rules/*` — Angular + Account domain + i18n + SASS
+- `.cursor/rules/*` — Angular + Account domain + i18n + Tailwind
 - `.cursor/mcp.json` — Angular CLI MCP
 - `AGENTS.md` / `CLAUDE.md`
 - Journey acceptance: `docs/JOURNEY-MATRIX.md`

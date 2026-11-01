@@ -1,0 +1,25 @@
+---
+description: Tailwind CSS only — no UI libraries, no SCSS/CSS files
+globs: **/*.{html,ts,css}
+alwaysApply: true
+---
+
+# Tailwind UI (owner decision 2026-11-01)
+
+- **Tailwind v4 is the only styling system.** No Angular Material, PrimeNG or Bootstrap, no `.scss` or `.css` files, no
+  component `styles`/`styleUrl`, no `!important`. `src/tailwind.css` is the single stylesheet. It holds `@import 'tailwindcss'`,
+  `@theme` tokens, `@custom-variant`s, `@font-face`, and `@keyframes` inside `@theme`.
+- Legacy SCSS in `src/styles/` and `src/styles.scss` is being migrated out screen by screen (audit UI-01). **Never add to it.**
+- Tokens live in `src/tailwind.css` as CSS variables, aliased with `@theme inline`. Don't copy hex values or magic sizes into
+  utilities; add a token instead.
+- Dark mode is `data-theme` on `<html>` (the `dark:` variant). Don't use `prefers-color-scheme`.
+- Breakpoints are the desktop-first `max-w480` … `max-w1024` variants. Use logical utilities (`ps`/`pe`, `ms`/`me`, `start`/`end`) and `rtl:`.
+- Avoid `@apply`. When a large class list repeats, extract an Angular component, or a directive whose `host: { class }` carries
+  the utilities.
+- Class names must be statically visible to Tailwind: pick full class strings from typed maps (`tone → 'bg-… text-…'`), never
+  build them by string concatenation. Inline `style` only for genuinely dynamic values.
+- Prefer native `<button>`, `<input>` and `<a>` with attribute-selector components when wrapping. Shared primitives live under `src/app/shared/ui/` only.
+- Loading visuals (skeletons, global bar, overlay, spinner) share one shimmer defined once. Never restyle them per page.
+  Skeletons reuse the real layout utilities of the section they stand in for.
+- Refactors must be pixel-identical: `e2e/visual.spec.ts`, `e2e/states.spec.ts` and `e2e/routes-baseline.spec.ts` (computed
+  styles) must pass without updating snapshots.
