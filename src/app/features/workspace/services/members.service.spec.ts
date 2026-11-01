@@ -9,6 +9,8 @@ function node(id: string, name: string, children: TeamNode[] = []): TeamNode {
   return {
     id,
     name,
+    applicationKey: null,
+    kind: 'Team',
     managerTenantMembershipId: null,
     isMissingManager: false,
     memberCount: 0,
@@ -50,10 +52,10 @@ describe('MembersService', () => {
       ];
 
       expect(service.flattenTeams(tree)).toEqual([
-        { id: '1', name: 'Sales', depth: 0 },
-        { id: '1.1', name: 'Inside Sales', depth: 1 },
-        { id: '1.1.1', name: 'SDR', depth: 2 },
-        { id: '2', name: 'Engineering', depth: 0 },
+        { id: '1', name: 'Sales', depth: 0, kind: 'Team' },
+        { id: '1.1', name: 'Inside Sales', depth: 1, kind: 'Team' },
+        { id: '1.1.1', name: 'SDR', depth: 2, kind: 'Team' },
+        { id: '2', name: 'Engineering', depth: 0, kind: 'Team' },
       ]);
     });
 
@@ -62,7 +64,7 @@ describe('MembersService', () => {
     // that contract rather than re-defending against null at every consumer.
     it('treats an explicitly empty children array as a leaf', () => {
       expect(service.flattenTeams([node('1', 'Sales', [])])).toEqual([
-        { id: '1', name: 'Sales', depth: 0 },
+        { id: '1', name: 'Sales', depth: 0, kind: 'Team' },
       ]);
     });
   });
