@@ -1,10 +1,9 @@
 import { Service, inject } from '@angular/core';
 import { Observable, forkJoin, of } from 'rxjs';
-import { PERMISSIONS } from '@core/auth/permission-keys';
+import { AccessPolicy } from '@core/auth/access-policy';
 import { MembersApi } from '@domains/access/services/members-api.service';
 import { PermissionsApi } from '@domains/access/services/permissions-api.service';
 import { RolesApi } from '@domains/access/services/roles-api.service';
-import { SessionStore } from '@core/auth/session.store';
 import { RoleGrantScope } from '@domains/access/models/grant-scope.model';
 import {
   CreateRoleRequest,
@@ -21,19 +20,7 @@ export class RolesService {
   private readonly rolesApi = inject(RolesApi);
   private readonly permissionsApi = inject(PermissionsApi);
   private readonly membersApi = inject(MembersApi);
-  private readonly session = inject(SessionStore);
-
-  canReadMembers(): boolean {
-    return this.session.hasPermission(PERMISSIONS.membershipsRead);
-  }
-
-  canReadPermissions(): boolean {
-    return this.session.hasPermission(PERMISSIONS.permissionsRead);
-  }
-
-  canManageRoles(): boolean {
-    return this.session.hasPermission(PERMISSIONS.rolesManage);
-  }
+  private readonly access = inject(AccessPolicy);
 
   isProtected(role: RoleListItem): boolean {
     return role.isSystem || role.isOwnerRole;
@@ -50,7 +37,7 @@ export class RolesService {
   }> {
     return forkJoin({
       roles: this.rolesApi.list(),
-      permissions: this.canReadPermissions()
+      permissions: this.access.canReadPermissions()
         ? this.permissionsApi.catalog()
         : of([] as PermissionCatalogItem[]),
     });

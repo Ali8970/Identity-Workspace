@@ -3,6 +3,7 @@ import { Component, Injector, afterNextRender, computed, inject, signal } from '
 import { rxResource } from '@angular/core/rxjs-interop';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
+import { AccessPolicy } from '@core/auth/access-policy';
 import { SessionStore } from '@core/auth/session.store';
 import { ApplicationLabels } from '@core/i18n/application-labels.service';
 import { LanguageService } from '@core/i18n/language.service';
@@ -652,6 +653,7 @@ interface TeamRow {
 export class TeamsPage {
   private readonly teamsService = inject(TeamsService);
   private readonly session = inject(SessionStore);
+  private readonly access = inject(AccessPolicy);
   private readonly applicationLabels = inject(ApplicationLabels);
   protected readonly language = inject(LanguageService);
   private readonly translate = inject(TranslateService);
@@ -752,7 +754,7 @@ export class TeamsPage {
     ];
   });
 
-  protected readonly canManage = computed(() => this.teamsService.canManageTeams());
+  protected readonly canManage = this.access.canManageTeams;
 
   protected readonly applicationOptions = computed<TeamApplicationOption[]>(() =>
     this.applicationRows()

@@ -64,10 +64,6 @@ export class SessionStore {
     () => !this.onboardingCompletedSignal() && this.currentCompany()?.tenantStatus === 'Onboarding',
   );
 
-  hasPermission(permission: string): boolean {
-    return this.permissions().includes(permission);
-  }
-
   /** Records that the tenant now has a subscription — see `onboardingCompleted`. */
   markOnboardingComplete(): void {
     this.onboardingCompletedSignal.set(true);

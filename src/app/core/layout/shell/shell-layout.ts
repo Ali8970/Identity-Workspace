@@ -4,7 +4,7 @@ import { DOCUMENT } from '@angular/common';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { filter, firstValueFrom } from 'rxjs';
-import { PERMISSIONS } from '../../auth/permission-keys';
+import { AccessPolicy } from '../../auth/access-policy';
 import { SessionStore } from '../../auth/session.store';
 import { LanguageService } from '../../i18n/language.service';
 import { BusyOverlay } from '@shared/ui/busy-overlay/busy-overlay';
@@ -101,6 +101,7 @@ const MOBILE_BREAKPOINT = 1025;
 })
 export class ShellLayout {
   private readonly session = inject(SessionStore);
+  private readonly access = inject(AccessPolicy);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly document = inject(DOCUMENT);
@@ -164,13 +165,13 @@ export class ShellLayout {
     ];
 
     const admin: ShellNavItem[] = [];
-    if (this.canReadUsers()) {
+    if (this.access.canReadMembers()) {
       admin.push({ route: '/members', labelKey: 'shell.members', icon: 'members' });
     }
-    if (this.canReadRoles()) {
+    if (this.access.canReadRoles()) {
       admin.push({ route: '/roles', labelKey: 'shell.roles', icon: 'roles' });
     }
-    if (this.canReadTeams()) {
+    if (this.access.canReadTeams()) {
       admin.push({ route: '/teams', labelKey: 'shell.teams', icon: 'teams' });
     }
 
@@ -207,18 +208,6 @@ export class ShellLayout {
     if (!this.session.current()) {
       void firstValueFrom(this.session.bootstrap()).then(() => this.appRef.tick());
     }
-  }
-
-  protected canReadUsers(): boolean {
-    return this.session.hasPermission(PERMISSIONS.membershipsRead);
-  }
-
-  protected canReadRoles(): boolean {
-    return this.session.hasPermission(PERMISSIONS.rolesRead);
-  }
-
-  protected canReadTeams(): boolean {
-    return this.session.hasPermission(PERMISSIONS.teamsRead);
   }
 
   protected openMenu(): void {

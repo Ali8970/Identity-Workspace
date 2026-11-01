@@ -29,7 +29,7 @@ Living status of every audit finding. Updated after each fix.
 | DATA-01 | M | Account company switch triple-loads `/me/companies` | Pending (AP-3) | |
 | DATA-02 | L | Sequential boot reads; CSRF primed then invalidated | Pending (AP-3) | Backend confirmation (token rotation) |
 | DATA-03 | M | Root `models/`, `enums/`, `constants/` buckets and re-export shims | **Verified** | Root `models/`, `enums/`, `constants/` removed: each type/enum/endpoint lives with its owner; endpoint templates proven byte-identical; dead types dropped (ApplicationStatus, ApplicationKey, EligibilityReason, RemediationAction, REMEDIATION_BY_REASON, PagedResult, unused `applications` endpoint). Initial bundle 494.49 → 492.48 kB |
-| DATA-04 | M | Scattered permission checks → `AccessPolicy` | Pending | |
+| DATA-04 | M | Scattered permission checks → `AccessPolicy` | **Verified** | `core/auth/access-policy.ts`: 7 computed capabilities replace the `canX()` copies in shell, members, roles and teams (and the unused `SessionStore.hasPermission`); same permission keys (`access-policy.spec.ts`); 290/290 unit, 213/213 e2e |
 | DATA-05 | L | `withCredentials` repeated on every call | Pending | After SEC-03 |
 | DATA-06 | L | Pass-through facades | Pending | |
 | **Performance** | | | | |

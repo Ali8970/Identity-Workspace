@@ -3,7 +3,6 @@ import { TestBed } from '@angular/core/testing';
 import { MembersApi } from '@domains/access/services/members-api.service';
 import { RolesApi } from '@domains/access/services/roles-api.service';
 import { TeamsApi } from '@domains/team/services/teams-api.service';
-import { SessionStore } from '@core/auth/session.store';
 import { TeamNode } from '@domains/team/models/team.model';
 import { MembersService } from './members.service';
 
@@ -22,10 +21,8 @@ function node(id: string, name: string, children: TeamNode[] = []): TeamNode {
 
 describe('MembersService', () => {
   let service: MembersService;
-  let permissions: string[];
 
   beforeEach(() => {
-    permissions = [];
     TestBed.configureTestingModule({
       providers: [
         provideZonelessChangeDetection(),
@@ -33,10 +30,6 @@ describe('MembersService', () => {
         { provide: MembersApi, useValue: {} },
         { provide: RolesApi, useValue: {} },
         { provide: TeamsApi, useValue: {} },
-        {
-          provide: SessionStore,
-          useValue: { hasPermission: (p: string) => permissions.includes(p) },
-        },
       ],
     });
     service = TestBed.inject(MembersService);
@@ -68,17 +61,6 @@ describe('MembersService', () => {
       expect(service.flattenTeams([node('1', 'Sales', [])])).toEqual([
         { id: '1', name: 'Sales', depth: 0, kind: 'Team' },
       ]);
-    });
-  });
-
-  describe('canCreateMembers', () => {
-    it('is false without identity.memberships.manage', () => {
-      expect(service.canCreateMembers()).toBe(false);
-    });
-
-    it('is true with identity.memberships.manage', () => {
-      permissions = ['identity.memberships.manage'];
-      expect(service.canCreateMembers()).toBe(true);
     });
   });
 });

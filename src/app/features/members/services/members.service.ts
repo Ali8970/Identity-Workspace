@@ -3,8 +3,6 @@ import { Observable, catchError, forkJoin, of } from 'rxjs';
 import { MembersApi } from '@domains/access/services/members-api.service';
 import { RolesApi } from '@domains/access/services/roles-api.service';
 import { TeamsApi } from '@domains/team/services/teams-api.service';
-import { SessionStore } from '@core/auth/session.store';
-import { PERMISSIONS } from '@core/auth/permission-keys';
 import { TenantMembershipStatus } from '@core/auth/auth.enums';
 import {
   AddMemberRequest,
@@ -54,15 +52,6 @@ export class MembersService {
   private readonly rolesApi = inject(RolesApi);
   private readonly teamsApi = inject(TeamsApi);
   private readonly grantScope = inject(GrantScopeService);
-  private readonly session = inject(SessionStore);
-
-  canReadMembers(): boolean {
-    return this.session.hasPermission(PERMISSIONS.membershipsRead);
-  }
-
-  canCreateMembers(): boolean {
-    return this.session.hasPermission(PERMISSIONS.membershipsManage);
-  }
 
   loadMembers(status?: TenantMembershipStatus | ''): Observable<MemberListItem[]> {
     return this.membersApi.list(status ? { status } : {});

@@ -4,6 +4,7 @@ import { FormControl } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { form, minLength, submit } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
+import { AccessPolicy } from '@core/auth/access-policy';
 import { SessionStore } from '@core/auth/session.store';
 import { ApplicationLabels } from '@core/i18n/application-labels.service';
 import { permissionDisplayLabel } from '@core/i18n/permission-label';
@@ -646,6 +647,7 @@ import { MembersSkeleton } from './members.skeleton';
 export class MembersPage {
   private readonly membersService = inject(MembersService);
   private readonly session = inject(SessionStore);
+  private readonly access = inject(AccessPolicy);
   private readonly applicationLabels = inject(ApplicationLabels);
   private readonly translate = inject(TranslateService);
   protected readonly language = inject(LanguageService);
@@ -797,7 +799,7 @@ export class MembersPage {
     minLength(schema.roleIds, 1);
   });
 
-  protected readonly canManage = computed(() => this.membersService.canCreateMembers());
+  protected readonly canManage = this.access.canManageMembers;
   /** Invite panel uses the same memberships.manage permission. */
   protected readonly canCreate = this.canManage;
 

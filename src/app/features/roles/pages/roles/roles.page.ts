@@ -3,6 +3,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
+import { AccessPolicy } from '@core/auth/access-policy';
 import { SessionStore } from '@core/auth/session.store';
 import { ApplicationLabels } from '@core/i18n/application-labels.service';
 import { LanguageService } from '@core/i18n/language.service';
@@ -367,6 +368,7 @@ export class RolesPage {
   private readonly rolesService = inject(RolesService);
   private readonly grantScopeService = inject(GrantScopeService);
   private readonly session = inject(SessionStore);
+  private readonly access = inject(AccessPolicy);
   private readonly applicationLabels = inject(ApplicationLabels);
   private readonly language = inject(LanguageService);
   private readonly translate = inject(TranslateService);
@@ -388,9 +390,9 @@ export class RolesPage {
   protected readonly initialLoading = computed(() => this.catalog.status() === 'loading');
   protected readonly loadFailed = computed(() => this.catalog.status() === 'error');
 
-  protected readonly canManage = computed(() => this.rolesService.canManageRoles());
-  protected readonly canReadMembers = computed(() => this.rolesService.canReadMembers());
-  protected readonly canReadPermissions = computed(() => this.rolesService.canReadPermissions());
+  protected readonly canManage = this.access.canManageRoles;
+  protected readonly canReadMembers = this.access.canReadMembers;
+  protected readonly canReadPermissions = this.access.canReadPermissions;
 
   /** Applied filters — drive the visible list. */
   protected readonly search = signal('');
