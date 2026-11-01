@@ -1,18 +1,14 @@
 import { HttpContextToken, HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, switchMap, throwError } from 'rxjs';
-import { CSRF_EXEMPT_PATHS } from '../../constants/api-routes';
 import { HTTP_HEADERS } from '../../constants/app.constants';
 import { CsrfService } from '../auth/csrf.service';
+import { isApiRequest, isCsrfExemptRequest } from '../http/api-url';
 
 export const CSRF_RETRIED = new HttpContextToken<boolean>(() => false);
 
 function isUnsafe(method: string): boolean {
   return !['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(method.toUpperCase());
-}
-
-function isExempt(url: string): boolean {
-  return CSRF_EXEMPT_PATHS.some((path) => url.includes(path));
 }
 
 /**
@@ -37,7 +33,7 @@ function isAntiforgeryFailure(error: unknown): boolean {
 }
 
 export const csrfInterceptor: HttpInterceptorFn = (req, next) => {
-  if (!req.url.includes('/api/') || !isUnsafe(req.method) || isExempt(req.url)) {
+  if (!isApiRequest(req.url) || !isUnsafe(req.method) || isCsrfExemptRequest(req.url)) {
     return next(req);
   }
 

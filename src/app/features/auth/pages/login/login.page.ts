@@ -179,14 +179,15 @@ import { LoginService } from '../../services/login.service';
 })
 export class LoginPage {
   private readonly loginService = inject(LoginService);
-  private readonly initialQuery = this.loginService.readQueryState();
-  private readonly passwordField = viewChild<ElementRef<HTMLInputElement>>('passwordField');
   protected readonly globalErrors = inject(GlobalErrorService);
   private readonly sso = inject(SsoHandshakeService);
   private readonly session = inject(SessionStore);
   private readonly router = inject(Router);
   /** Injected directly rather than reached through LoginService. */
   protected readonly flow = inject(AuthFlowStore);
+
+  private readonly initialQuery = this.loginService.readQueryState();
+  private readonly passwordField = viewChild<ElementRef<HTMLInputElement>>('passwordField');
 
   protected readonly model = signal({
     email: this.initialQuery.email ?? '',

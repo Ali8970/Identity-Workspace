@@ -1,10 +1,11 @@
 import { Service, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { API_ROUTES, CSRF_EXEMPT_PATHS } from '../../constants/api-routes';
+import { API_ROUTES } from '../../constants/api-routes';
 import { AuthFlowStore } from '../auth/auth-flow.store';
 import { CsrfService } from '../auth/csrf.service';
 import { SessionStore } from '../auth/session.store';
 import { SsoHandshakeService } from '../auth/sso-handshake.service';
+import { isCsrfExemptRequest } from '../http/api-url';
 import {
   BroochError,
   isApplicationAccessDenied,
@@ -118,7 +119,7 @@ export class ApiErrorHandler {
       return false;
     }
     // Login / register / password flows are anonymous — never treat as session loss.
-    if (this.isPublicAuthRequest(request.url)) {
+    if (isCsrfExemptRequest(request.url)) {
       return false;
     }
     // No session to clear; show the error instead of a no-op logout that hides it.
@@ -126,11 +127,6 @@ export class ApiErrorHandler {
       return false;
     }
     return true;
-  }
-
-  private isPublicAuthRequest(url: string): boolean {
-    const path = url.split('?')[0];
-    return CSRF_EXEMPT_PATHS.some((suffix) => path.endsWith(suffix));
   }
 
   private readReturnUrl(): string | null {

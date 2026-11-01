@@ -1,6 +1,7 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { finalize } from 'rxjs';
+import { isApiRequest } from '../http/api-url';
 import { HttpActivityService } from '../loading/http-activity.service';
 import { SKIP_LOADING } from '../loading/loading-context';
 
@@ -9,7 +10,7 @@ import { SKIP_LOADING } from '../loading/loading-context';
  * not work the user is waiting on, so they stay out of the count.
  */
 export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
-  if (!req.url.includes('/api/') || req.context.get(SKIP_LOADING)) {
+  if (!isApiRequest(req.url) || req.context.get(SKIP_LOADING)) {
     return next(req);
   }
 

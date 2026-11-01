@@ -106,18 +106,9 @@ function guestHomeUrlTree(router: Router, returnUrl: string | null) {
 }
 
 /** Replace the guest URL in history so Back skips the auth form. */
-export function leaveAuthenticatedGuestRoute(router?: Router): void {
-  const target = (() => {
-    const params = new URLSearchParams(window.location.search);
-    const returnUrl = params.get('returnUrl');
-    return isSafeReturnUrl(returnUrl) ? returnUrl : '/';
-  })();
-
-  if (router) {
-    void router.navigateByUrl(target, { replaceUrl: true });
-    return;
-  }
-  window.location.replace(target);
+export function leaveAuthenticatedGuestRoute(router: Router): void {
+  const returnUrl = new URLSearchParams(window.location.search).get('returnUrl');
+  void router.navigateByUrl(isSafeReturnUrl(returnUrl) ? returnUrl : '/', { replaceUrl: true });
 }
 
 /**

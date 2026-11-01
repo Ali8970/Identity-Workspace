@@ -3,12 +3,13 @@ import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { ApiErrorHandler } from '../error/api-error-handler.service';
 import { SILENT_ERROR } from '../error/http-context';
+import { isApiRequest } from '../http/api-url';
 import { normalizeError } from '../error/normalize-error';
 import { LanguageService } from '../i18n/language.service';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   // Never rewrite asset / i18n loads — TranslateHttpLoader needs HttpErrorResponse as-is
-  if (!req.url.includes('/api/')) {
+  if (!isApiRequest(req.url)) {
     return next(req);
   }
 

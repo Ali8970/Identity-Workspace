@@ -1,12 +1,4 @@
-# Findings register — 2026-11 audit
-
-Living status of every audit finding. Updated after each fix.
-
-- **Status:** Pending → In progress → Fixed → **Verified** (validation passed), or Blocked (with a reason).
-- **AP-n:** needs explicit owner approval before implementation (behaviour, contract, dependency or deployment change).
-- Plan and full rationale: approved remediation plan (2026-11-01). Baseline: [baseline.md](baseline.md).
-
-| ID | Sev | Finding (short) | Status | Notes |
+ **Verified** | takeUntilDestroyed on both pages; full replacement in NG-02 || Error fixed upstream (fa0352c); inject order fixed; lint 0 problems || Questions in backend-confirmations.md || Questions in backend-confirmations.md || Spec written: security-headers.md (CSP with hashes); awaiting hosting owner || One exact-path matcher for the CSRF interceptor and ApiErrorHandler; equivalence spec || core/http/api-url.ts isApiRequest; every API_ROUTES URL classified as before (api-url.spec.ts) || Backslash and control characters rejected; dead location.replace branch removed; error.model.spec.ts || ID | Sev | Finding (short) | Status | Notes |
 |---|---|---|---|---|
 | **Security** | | | | |
 | SEC-01 | M | `isNavigableRedirect` accepts any http(s) origin | Pending (AP-1) | Needs backend confirmation of the registry domains |

@@ -1,6 +1,7 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { APP_KEY, HTTP_HEADERS } from '../../constants/app.constants';
 import { environment } from '../../../environments/environment';
+import { isApiRequest } from '../http/api-url';
 
 function isLocalDevHost(): boolean {
   const host = globalThis.location?.hostname ?? '';
@@ -8,7 +9,7 @@ function isLocalDevHost(): boolean {
 }
 
 export const applicationHeaderInterceptor: HttpInterceptorFn = (req, next) => {
-  if (!req.url.includes('/api/')) {
+  if (!isApiRequest(req.url)) {
     return next(req);
   }
 

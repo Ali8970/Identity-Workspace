@@ -86,6 +86,15 @@ export function isNavigableRedirect(url: string | null | undefined): url is stri
   }
 }
 
+/**
+ * A same-app path: one leading `/`, and no backslash or control character. Browsers read
+ * `/\host` and `/<tab>/host` as `//host`, which leaves the origin.
+ */
 export function isSafeReturnUrl(value: string | null): value is string {
-  return value !== null && value.startsWith('/') && !value.startsWith('//');
+  return (
+    value !== null &&
+    value.startsWith('/') &&
+    !value.startsWith('//') &&
+    ![...value].some((char) => char === '\\' || char.charCodeAt(0) < 0x20 || char.charCodeAt(0) === 0x7f)
+  );
 }

@@ -1,5 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormField, form, required, submit } from '@angular/forms/signals';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -264,7 +264,7 @@ export class ResetPasswordPage {
       }
     };
     bootstrap();
-    this.route.queryParamMap.subscribe(() => bootstrap());
+    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe(() => bootstrap());
   }
 
   protected togglePasswordVisibility(field: 'password' | 'confirm'): void {

@@ -2,9 +2,10 @@ import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { HTTP_HEADERS } from '../../constants/app.constants';
 import { LanguageService } from '../i18n/language.service';
+import { isApiRequest } from '../http/api-url';
 
 export const languageInterceptor: HttpInterceptorFn = (req, next) => {
-  if (!req.url.includes('/api/')) {
+  if (!isApiRequest(req.url)) {
     return next(req);
   }
   const language = inject(LanguageService);
