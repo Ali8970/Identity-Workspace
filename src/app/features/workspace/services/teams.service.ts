@@ -1,8 +1,8 @@
 import { Service, inject } from '@angular/core';
 import { Observable, map, of, switchMap } from 'rxjs';
 import { PERMISSIONS } from '../../../constants/app.constants';
-import { MembersApi, RolesApi, TeamsApi } from '../../../core/api/workspace-api.service';
-import { SessionStore } from '../../../core/auth/session.store';
+import { MembersApi, RolesApi, TeamsApi } from '@core/api/workspace-api.service';
+import { SessionStore } from '@core/auth/session.store';
 import {
   AddTeamMemberRequest,
   CreateTeamRequest,

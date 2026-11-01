@@ -2,12 +2,12 @@ import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { AuthFlowStore } from '../../../../core/auth/auth-flow.store';
-import { SsoHandshakeService } from '../../../../core/auth/sso-handshake.service';
-import { isNavigableRedirect } from '../../../../core/error/error.model';
-import { LanguageService } from '../../../../core/i18n/language.service';
-import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
-import { BusyOverlay } from '../../../../shared/ui/busy-overlay/busy-overlay';
+import { AuthFlowStore } from '@core/auth/auth-flow.store';
+import { SsoHandshakeService } from '@core/auth/sso-handshake.service';
+import { isNavigableRedirect } from '@core/error/error.model';
+import { LanguageService } from '@core/i18n/language.service';
+import { AuthLayout } from '@shared/ui/auth-layout/auth-layout';
+import { BusyOverlay } from '@shared/ui/busy-overlay/busy-overlay';
 import { SelectCompanyService } from '../../services/select-company.service';
 
 @Component({

@@ -1,4 +1,4 @@
-import { AppLanguage } from '../../core/i18n/language.service';
+import { AppLanguage } from '@core/i18n/language.service';
 
 /**
  * Formats a server-priced amount in the currency the server named.

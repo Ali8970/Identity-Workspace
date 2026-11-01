@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { FormField, email, form, required, submit } from '@angular/forms/signals';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
+import { AuthLayout } from '@shared/ui/auth-layout/auth-layout';
 import { PasswordService } from '../../services/password.service';
 
 @Component({

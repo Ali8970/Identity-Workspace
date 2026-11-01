@@ -1,8 +1,8 @@
 import { Service, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AuthFlowStore } from '../../../core/auth/auth-flow.store';
-import { SessionStore } from '../../../core/auth/session.store';
-import { isSafeReturnUrl } from '../../../core/error/error.model';
+import { AuthFlowStore } from '@core/auth/auth-flow.store';
+import { SessionStore } from '@core/auth/session.store';
+import { isSafeReturnUrl } from '@core/error/error.model';
 import { LoginResponse } from '../../../models/auth.model';
 import { LoginCredentials, LoginQueryState } from '../models/auth-feature.model';
 

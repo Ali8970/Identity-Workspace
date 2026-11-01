@@ -1,7 +1,7 @@
 import { Service, inject } from '@angular/core';
 import { Observable, forkJoin } from 'rxjs';
-import { MeApi } from '../../../core/auth/me-api.service';
-import { SessionStore } from '../../../core/auth/session.store';
+import { MeApi } from '@core/auth/me-api.service';
+import { SessionStore } from '@core/auth/session.store';
 import { MyCompanyDto } from '../../../models/auth.model';
 import { SessionDto } from '../models/workspace-feature.model';
 

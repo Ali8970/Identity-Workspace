@@ -20,9 +20,9 @@ import {
   validate,
 } from '@angular/forms/signals';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ApplicationLabels } from '../../../../core/i18n/application-labels.service';
-import { LanguageService } from '../../../../core/i18n/language.service';
-import { FocusTrap } from '../../../../shared/ui/focus-trap/focus-trap';
+import { ApplicationLabels } from '@core/i18n/application-labels.service';
+import { LanguageService } from '@core/i18n/language.service';
+import { FocusTrap } from '@shared/ui/focus-trap/focus-trap';
 import { AddMemberFormValue, RoleListItem } from '../../models/workspace-feature.model';
 import { RoleGrantScope } from '../../services/roles.service';
 import {

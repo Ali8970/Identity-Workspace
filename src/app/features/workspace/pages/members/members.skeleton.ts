@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { Skeleton, SkeletonHost } from '../../../../shared/ui/skeleton/skeleton';
-import { SkeletonTable } from '../../../../shared/ui/skeleton/skeleton-blocks';
+import { Skeleton, SkeletonHost } from '@shared/ui/skeleton/skeleton';
+import { SkeletonTable } from '@shared/ui/skeleton/skeleton-blocks';
 
 /** Mirrors the members page: invite panel above, member table below. */
 @Component({

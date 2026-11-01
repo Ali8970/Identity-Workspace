@@ -3,8 +3,8 @@ import { TranslatePipe } from '@ngx-translate/core';
 import {
   humanizePermissionToken,
   permissionDisplayLabel,
-} from '../../../../core/i18n/permission-label';
-import { LanguageService } from '../../../../core/i18n/language.service';
+} from '@core/i18n/permission-label';
+import { LanguageService } from '@core/i18n/language.service';
 import { PermissionCatalogItem } from '../../models/workspace-feature.model';
 
 interface PermissionEntry {

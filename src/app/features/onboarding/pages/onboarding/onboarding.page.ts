@@ -4,18 +4,18 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FormField, form, required, submit } from '@angular/forms/signals';
 import { firstValueFrom, forkJoin, map, of } from 'rxjs';
-import { SessionStore } from '../../../../core/auth/session.store';
-import { BroochError, clientError } from '../../../../core/error/error.model';
-import { GlobalErrorService } from '../../../../core/error/global-error.service';
+import { SessionStore } from '@core/auth/session.store';
+import { BroochError, clientError } from '@core/error/error.model';
+import { GlobalErrorService } from '@core/error/global-error.service';
 import { hasSubscription } from '../../../../enums/domain.enums';
-import { LanguageService } from '../../../../core/i18n/language.service';
+import { LanguageService } from '@core/i18n/language.service';
 import {
   AvailablePackageView,
   PendingOperationView,
 } from '../../../../models/subscription.model';
-import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
-import { BusyOverlay } from '../../../../shared/ui/busy-overlay/busy-overlay';
-import { durationLabel } from '../../../../shared/utils/format-duration';
+import { AuthLayout } from '@shared/ui/auth-layout/auth-layout';
+import { BusyOverlay } from '@shared/ui/busy-overlay/busy-overlay';
+import { durationLabel } from '@shared/utils/format-duration';
 import { OnboardingStep } from '../../models/onboarding-feature.model';
 import { CheckoutStore } from '../../services/checkout.store';
 import { OnboardingCompletion } from '../../services/onboarding-completion.service';

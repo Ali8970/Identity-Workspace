@@ -9,8 +9,8 @@ import {
   viewChildren,
 } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { LanguageService } from '../../../../core/i18n/language.service';
-import { FocusTrap } from '../../../../shared/ui/focus-trap/focus-trap';
+import { LanguageService } from '@core/i18n/language.service';
+import { FocusTrap } from '@shared/ui/focus-trap/focus-trap';
 import {
   MemberListItem,
   PermissionCatalogItem,

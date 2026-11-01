@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Skeleton, SkeletonHost, times } from '../../../../shared/ui/skeleton/skeleton';
+import { Skeleton, SkeletonHost, times } from '@shared/ui/skeleton/skeleton';
 
 /** Mirrors the roles page: list panel chrome above, role table rows below. */
 @Component({

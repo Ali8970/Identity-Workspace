@@ -1,8 +1,8 @@
 import { Component, ElementRef, inject, input, linkedSignal, output, viewChildren } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ApplicationLabels } from '../../../../core/i18n/application-labels.service';
-import { LanguageService } from '../../../../core/i18n/language.service';
-import { FocusTrap } from '../../../../shared/ui/focus-trap/focus-trap';
+import { ApplicationLabels } from '@core/i18n/application-labels.service';
+import { LanguageService } from '@core/i18n/language.service';
+import { FocusTrap } from '@shared/ui/focus-trap/focus-trap';
 import { TeamMembershipDdlItem, TeamNode } from '../../models/workspace-feature.model';
 
 export type TeamDetailsTab = 'overview' | 'members' | 'subteams' | 'settings';

@@ -3,14 +3,14 @@ import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FormField, email, form, required, submit } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
-import { AuthFlowStore } from '../../../../core/auth/auth-flow.store';
-import { SessionStore } from '../../../../core/auth/session.store';
-import { SsoHandshakeService } from '../../../../core/auth/sso-handshake.service';
-import { isNavigableRedirect } from '../../../../core/error/error.model';
-import { GlobalErrorService } from '../../../../core/error/global-error.service';
-import { redirectAwayIfAuthenticated } from '../../../../core/guards/auth.guards';
-import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
-import { BusyOverlay } from '../../../../shared/ui/busy-overlay/busy-overlay';
+import { AuthFlowStore } from '@core/auth/auth-flow.store';
+import { SessionStore } from '@core/auth/session.store';
+import { SsoHandshakeService } from '@core/auth/sso-handshake.service';
+import { isNavigableRedirect } from '@core/error/error.model';
+import { GlobalErrorService } from '@core/error/global-error.service';
+import { redirectAwayIfAuthenticated } from '@core/guards/auth.guards';
+import { AuthLayout } from '@shared/ui/auth-layout/auth-layout';
+import { BusyOverlay } from '@shared/ui/busy-overlay/busy-overlay';
 import { LoginService } from '../../services/login.service';
 
 @Component({

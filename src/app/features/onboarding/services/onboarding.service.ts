@@ -1,7 +1,7 @@
 import { Service, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { SubscriptionApi } from '../../../core/api/subscription-api.service';
-import { TenantApi } from '../../../core/api/workspace-api.service';
+import { SubscriptionApi } from '@core/api/subscription-api.service';
+import { TenantApi } from '@core/api/workspace-api.service';
 import {
   AvailablePackageView,
   CurrentSubscriptionView,

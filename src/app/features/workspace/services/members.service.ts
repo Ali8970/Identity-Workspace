@@ -1,7 +1,7 @@
 import { Service, inject } from '@angular/core';
 import { Observable, catchError, forkJoin, of } from 'rxjs';
-import { MembersApi, RolesApi, TeamsApi } from '../../../core/api/workspace-api.service';
-import { SessionStore } from '../../../core/auth/session.store';
+import { MembersApi, RolesApi, TeamsApi } from '@core/api/workspace-api.service';
+import { SessionStore } from '@core/auth/session.store';
 import { PERMISSIONS } from '../../../constants/app.constants';
 import { TenantMembershipStatus } from '../../../enums/domain.enums';
 import {

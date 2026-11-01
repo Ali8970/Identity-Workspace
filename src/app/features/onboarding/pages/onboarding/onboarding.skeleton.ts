@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { Skeleton, SkeletonHost, times } from '../../../../shared/ui/skeleton/skeleton';
+import { Skeleton, SkeletonHost, times } from '@shared/ui/skeleton/skeleton';
 import { OnboardingStep } from '../../models/onboarding-feature.model';
 
 /** Mirrors whichever onboarding step is loading: the company form or the package list. */

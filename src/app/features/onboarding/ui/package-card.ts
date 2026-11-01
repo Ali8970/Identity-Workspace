@@ -1,8 +1,8 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { LanguageService } from '../../../core/i18n/language.service';
+import { LanguageService } from '@core/i18n/language.service';
 import { AvailablePackageView } from '../../../models/subscription.model';
-import { formatMoney } from '../../../shared/utils/format-money';
+import { formatMoney } from '@shared/utils/format-money';
 
 /**
  * One row of the priced catalogue.

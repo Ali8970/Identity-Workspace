@@ -37,13 +37,13 @@ Living status of every audit finding. Updated after each fix.
 | PERF-02 | L | Full client-side lists (suspected) | Pending | Benchmark before acting |
 | **Architecture and code** | | | | |
 | ARCH-01 | H | `features/workspace` holds six domains | Pending | |
-| ARCH-02 | M | No path aliases or boundary lint | Pending | |
+| ARCH-02 | M | No path aliases or boundary lint | **Verified** | tsconfig aliases; 67 files codemodded; `no-restricted-imports` layer rules catch all 4 probe violations; prod bundle byte-identical |
 | ARCH-03 | H | Feature data access in `core/api`, `core/payments` | Pending | |
 | ARCH-04 | M | App chrome in `shared/` | Pending | |
 | ARCH-05 | M | One flat route table | Pending | URLs stay byte-identical |
 | ARCH-06 | L | Hard-coded route paths in the store and guards | Pending | |
 | ARCH-07 | M | Root singletons hold feature state | Pending | |
-| ARCH-08 | M | Docs contradict each other; `ONBOARDING_FRONTEND_GUIDE.md` missing | In progress | Stack contradictions fixed (CLAUDE, README, AGENTS, `tailwind-ui.mdc`, `angular-best-practices.mdc`); missing guide reference resolved. `architecture.mdc` lands with ARCH-02 |
+| ARCH-08 | M | Docs contradict each other; `ONBOARDING_FRONTEND_GUIDE.md` missing | **Verified** | Stack docs reconciled (`5689b7a`); `architecture.mdc` added |
 | CODE-01 | H | Oversized pages and dialogs (>500 lines) | Pending | |
 | CODE-02 | M | Large inline templates | Pending | |
 | CODE-03 | M | Duplicated dialog shell and confirm-state logic | Pending | |

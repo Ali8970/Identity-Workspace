@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { LanguageService } from '../../../core/i18n/language.service';
+import { LanguageService } from '@core/i18n/language.service';
 import { ToastService } from './toast.service';
 
 /**

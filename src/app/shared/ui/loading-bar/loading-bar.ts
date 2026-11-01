@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { HttpActivityService } from '../../../core/loading/http-activity.service';
+import { HttpActivityService } from '@core/loading/http-activity.service';
 
 /**
  * App-wide progress bar for any in-flight API call. Non-blocking by design — the

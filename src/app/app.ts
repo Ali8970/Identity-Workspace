@@ -3,10 +3,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { filter } from 'rxjs';
-import { OnboardedNotice, PAYMENT_SUCCEEDED_TOAST } from './core/auth/onboarded-notice';
-import { LoadingBar } from './shared/ui/loading-bar/loading-bar';
-import { ToastHost } from './shared/ui/toast/toast-host';
-import { ToastService } from './shared/ui/toast/toast.service';
+import { OnboardedNotice, PAYMENT_SUCCEEDED_TOAST } from '@core/auth/onboarded-notice';
+import { LoadingBar } from '@shared/ui/loading-bar/loading-bar';
+import { ToastHost } from '@shared/ui/toast/toast-host';
+import { ToastService } from '@shared/ui/toast/toast.service';
 
 @Component({
   selector: 'app-root',

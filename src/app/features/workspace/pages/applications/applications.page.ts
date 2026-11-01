@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { SessionStore } from '../../../../core/auth/session.store';
+import { SessionStore } from '@core/auth/session.store';
 import { ApplicationsService } from '../../services/applications.service';
 import { ApplicationCard } from './application-card';
 import {

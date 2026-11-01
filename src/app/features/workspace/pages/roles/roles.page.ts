@@ -3,17 +3,17 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { SessionStore } from '../../../../core/auth/session.store';
-import { ApplicationLabels } from '../../../../core/i18n/application-labels.service';
-import { LanguageService } from '../../../../core/i18n/language.service';
-import { ConfirmDialog } from '../../../../shared/ui/confirm-dialog/confirm-dialog';
-import { applicationModifier } from '../../../../shared/ui/display';
-import { EmptyState } from '../../../../shared/ui/empty-state/empty-state';
-import { ErrorPanel } from '../../../../shared/ui/error-panel/error-panel';
-import { ListFilterBar } from '../../../../shared/ui/list-filter-bar/list-filter-bar';
-import type { ListStatCard } from '../../../../shared/ui/list-stats/list-stat-card';
-import { ListStats } from '../../../../shared/ui/list-stats/list-stats';
-import { PageHeader } from '../../../../shared/ui/page-header/page-header';
+import { SessionStore } from '@core/auth/session.store';
+import { ApplicationLabels } from '@core/i18n/application-labels.service';
+import { LanguageService } from '@core/i18n/language.service';
+import { ConfirmDialog } from '@shared/ui/confirm-dialog/confirm-dialog';
+import { applicationModifier } from '@shared/ui/display';
+import { EmptyState } from '@shared/ui/empty-state/empty-state';
+import { ErrorPanel } from '@shared/ui/error-panel/error-panel';
+import { ListFilterBar } from '@shared/ui/list-filter-bar/list-filter-bar';
+import type { ListStatCard } from '@shared/ui/list-stats/list-stat-card';
+import { ListStats } from '@shared/ui/list-stats/list-stats';
+import { PageHeader } from '@shared/ui/page-header/page-header';
 import {
   MemberListItem,
   PermissionCatalogItem,

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Skeleton, SkeletonHost, times } from '../../../../shared/ui/skeleton/skeleton';
+import { Skeleton, SkeletonHost, times } from '@shared/ui/skeleton/skeleton';
 
 /** Mirrors the applications launcher: summary, then a six-card grid. */
 @Component({

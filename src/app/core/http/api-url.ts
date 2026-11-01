@@ -1,5 +1,5 @@
 import { CSRF_EXEMPT_PATHS } from '../../constants/api-routes';
-import { environment } from '../../../environments/environment';
+import { environment } from '@env/environment';
 
 const API_BASE = environment.apiBaseUrl.replace(/\/$/, '');
 const API_BASE_PATH = new URL(API_BASE).pathname;

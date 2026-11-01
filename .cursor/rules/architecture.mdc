@@ -1,0 +1,36 @@
+---
+description: Where code lives — layers, import direction, feature folder contract
+globs: src/app/**
+alwaysApply: true
+---
+
+# Architecture (adapted from LandLord `architecture.mdc`, audit 2026-11)
+
+## Layers and import direction
+```
+features → domains → shared → core
+```
+- **features/<name>/** imports `@domains/*`, `@shared/*` and `@core/*`. **Never another feature** (`@features/*` or `../../<other>/`).
+  Only `app.routes.ts` reaches into features, through lazy `loadComponent`/`loadChildren`.
+- **domains/<entity>/** (business entities used by 2+ features: API service, models, enums, endpoints, widgets)
+  imports `@shared/*`, `@core/*` and lower-ranked domains only. Ranks: `access` 0, `team` 1 (team may use access).
+- **shared/** is domain-agnostic presentational UI and pure utils. It may use `@core/*` primitives, never `@domains/*` or `@features/*`.
+- **core/** is app-wide singletons and infrastructure (auth/session, http, error, i18n, theme, loading, routing, layout). It never
+  imports features. Only `core/layout` may use `@domains/*`.
+- Cross-layer imports use the aliases `@core @domains @shared @features @env`. Within a layer, use relative imports.
+- Enforced by `no-restricted-imports` blocks in `eslint.config.js`. `npm run lint` must stay at 0 problems.
+
+## Placement decision
+1. Used by one feature → `features/<name>/…`
+2. Used by 2+ features and tied to a business entity → `domains/<entity>/…`
+3. Used by 2+ features and domain-agnostic → `shared/…`
+4. App-wide plumbing (session, http, errors, layout chrome) → `core/…`
+
+## Feature folder contract
+`<name>.routes.ts` · `pages/` (routed components, `*.page.ts`) · `components/` (feature UI, dialogs) · `services/`
+(facades and stores that hold real logic; no pass-throughs) · `models/` · `enums/` · `constants/` (`<name>.endpoints.ts`) · `utils/`.
+Types never live in components. There are no re-export shims: import a type from its owner.
+
+## Migration status
+The audit (docs/audit/2026-11/findings.md) is moving the remaining legacy layout into this shape: root `constants/`,
+`models/` and `enums/`; `core/api`; `core/payments`; `shared/layouts`; and the six-domain `features/workspace`. Don't add files to those locations.

@@ -3,8 +3,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { Observable, of, throwError } from 'rxjs';
-import { SessionStore } from '../../../../core/auth/session.store';
-import { BroochError } from '../../../../core/error/error.model';
+import { SessionStore } from '@core/auth/session.store';
+import { BroochError } from '@core/error/error.model';
 import {
   SubscriptionOperationStatusView,
   SubscriptionPaymentResult,

@@ -9,8 +9,8 @@ import {
   submit,
 } from '@angular/forms/signals';
 import { TranslatePipe } from '@ngx-translate/core';
-import { LanguageService } from '../../../core/i18n/language.service';
-import { formatMoney } from '../../../shared/utils/format-money';
+import { LanguageService } from '@core/i18n/language.service';
+import { formatMoney } from '@shared/utils/format-money';
 import { CardFormValue } from '../models/onboarding-feature.model';
 
 /** Shape checks only — acceptance is the provider's call, and a decline is normal. */

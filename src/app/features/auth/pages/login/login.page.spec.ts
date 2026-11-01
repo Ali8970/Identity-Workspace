@@ -3,8 +3,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
-import { SessionStore } from '../../../../core/auth/session.store';
-import { SsoHandshakeService } from '../../../../core/auth/sso-handshake.service';
+import { SessionStore } from '@core/auth/session.store';
+import { SsoHandshakeService } from '@core/auth/sso-handshake.service';
 import { LoginService } from '../../services/login.service';
 import { LoginPage } from './login.page';
 

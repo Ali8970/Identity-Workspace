@@ -2,29 +2,29 @@ import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { SessionStore } from '../../../../core/auth/session.store';
-import { clientError } from '../../../../core/error/error.model';
-import { GlobalErrorService } from '../../../../core/error/global-error.service';
-import { LanguageService } from '../../../../core/i18n/language.service';
+import { SessionStore } from '@core/auth/session.store';
+import { clientError } from '@core/error/error.model';
+import { GlobalErrorService } from '@core/error/global-error.service';
+import { LanguageService } from '@core/i18n/language.service';
 import {
   CardDetails,
   MoyasarTokenizationService,
   TokenizationFailureReason,
   tokenizationFailureReason,
-} from '../../../../core/payments/moyasar-tokenization.service';
+} from '@core/payments/moyasar-tokenization.service';
 import {
   PaymentAuthenticationNavigator,
   RedirectRejectionReason,
   validateAuthenticationUrl,
-} from '../../../../core/payments/payment-redirect';
+} from '@core/payments/payment-redirect';
 import {
   SubscriptionOperationStatusView,
   SubscriptionPaymentResult,
 } from '../../../../models/subscription.model';
-import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
-import { BusyOverlay } from '../../../../shared/ui/busy-overlay/busy-overlay';
-import { durationLabel } from '../../../../shared/utils/format-duration';
-import { formatMoney } from '../../../../shared/utils/format-money';
+import { AuthLayout } from '@shared/ui/auth-layout/auth-layout';
+import { BusyOverlay } from '@shared/ui/busy-overlay/busy-overlay';
+import { durationLabel } from '@shared/utils/format-duration';
+import { formatMoney } from '@shared/utils/format-money';
 import { CardFormValue } from '../../models/onboarding-feature.model';
 import { CheckoutStore } from '../../services/checkout.store';
 import { OnboardingService } from '../../services/onboarding.service';

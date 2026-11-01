@@ -5,26 +5,26 @@ import {
   onboardingCompleteGuard,
   onboardingGuard,
   tenantSelectionGuard,
-} from './core/guards/auth.guards';
+} from '@core/guards/auth.guards';
 
 export const routes: Routes = [
   {
     path: 'login',
     canActivate: [guestGuard],
     loadComponent: () =>
-      import('./features/auth/pages/login/login.page').then((m) => m.LoginPage),
+      import('@features/auth/pages/login/login.page').then((m) => m.LoginPage),
   },
   {
     path: 'register',
     canActivate: [guestGuard],
     loadComponent: () =>
-      import('./features/auth/pages/register/register.page').then((m) => m.RegisterPage),
+      import('@features/auth/pages/register/register.page').then((m) => m.RegisterPage),
   },
   {
     path: 'forgot-password',
     canActivate: [guestGuard],
     loadComponent: () =>
-      import('./features/auth/pages/forgot-password/forgot-password.page').then(
+      import('@features/auth/pages/forgot-password/forgot-password.page').then(
         (m) => m.ForgotPasswordPage,
       ),
   },
@@ -32,7 +32,7 @@ export const routes: Routes = [
     path: 'reset-password',
     canActivate: [guestGuard],
     loadComponent: () =>
-      import('./features/auth/pages/reset-password/reset-password.page').then(
+      import('@features/auth/pages/reset-password/reset-password.page').then(
         (m) => m.ResetPasswordPage,
       ),
   },
@@ -40,7 +40,7 @@ export const routes: Routes = [
     path: 'set-password',
     canActivate: [guestGuard],
     loadComponent: () =>
-      import('./features/auth/pages/set-password/set-password.page').then(
+      import('@features/auth/pages/set-password/set-password.page').then(
         (m) => m.SetPasswordPage,
       ),
   },
@@ -48,7 +48,7 @@ export const routes: Routes = [
     path: 'select-company',
     canActivate: [tenantSelectionGuard],
     loadComponent: () =>
-      import('./features/auth/pages/select-company/select-company.page').then(
+      import('@features/auth/pages/select-company/select-company.page').then(
         (m) => m.SelectCompanyPage,
       ),
   },
@@ -57,7 +57,7 @@ export const routes: Routes = [
     canActivate: [authGuard, onboardingCompleteGuard],
     data: { step: 'company' },
     loadComponent: () =>
-      import('./features/onboarding/pages/onboarding/onboarding.page').then(
+      import('@features/onboarding/pages/onboarding/onboarding.page').then(
         (m) => m.OnboardingPage,
       ),
   },
@@ -66,7 +66,7 @@ export const routes: Routes = [
     canActivate: [authGuard, onboardingCompleteGuard],
     data: { step: 'package' },
     loadComponent: () =>
-      import('./features/onboarding/pages/onboarding/onboarding.page').then(
+      import('@features/onboarding/pages/onboarding/onboarding.page').then(
         (m) => m.OnboardingPage,
       ),
   },
@@ -76,7 +76,7 @@ export const routes: Routes = [
     path: 'onboarding/payment',
     canActivate: [authGuard, onboardingCompleteGuard],
     loadComponent: () =>
-      import('./features/onboarding/pages/payment/payment.page').then((m) => m.PaymentPage),
+      import('@features/onboarding/pages/payment/payment.page').then((m) => m.PaymentPage),
   },
   // Payment results — the four paths the backend builds its callbacks against. Deliberately
   // OUTSIDE onboardingCompleteGuard: a verified payment flips the tenant to active, and that
@@ -85,27 +85,27 @@ export const routes: Routes = [
     path: `onboarding/${path}`,
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/onboarding/pages/payment-result/payment-result.page').then(
+      import('@features/onboarding/pages/payment-result/payment-result.page').then(
         (m) => m.PaymentResultPage,
       ),
   })),
   {
     path: 'access-denied',
     loadComponent: () =>
-      import('./features/auth/pages/access-denied/access-denied.page').then(
+      import('@features/auth/pages/access-denied/access-denied.page').then(
         (m) => m.AccessDeniedPage,
       ),
   },
   {
     path: 'denied',
     loadComponent: () =>
-      import('./features/auth/pages/denied/denied.page').then((m) => m.DeniedPage),
+      import('@features/auth/pages/denied/denied.page').then((m) => m.DeniedPage),
   },
   {
     path: 'session-expired',
     canActivate: [guestGuard],
     loadComponent: () =>
-      import('./features/auth/pages/session-expired/session-expired.page').then(
+      import('@features/auth/pages/session-expired/session-expired.page').then(
         (m) => m.SessionExpiredPage,
       ),
   },
@@ -113,7 +113,7 @@ export const routes: Routes = [
     path: '',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./shared/layouts/shell-layout').then((m) => m.ShellLayout),
+      import('@shared/layouts/shell-layout').then((m) => m.ShellLayout),
     children: [
       {
         path: '',
@@ -123,45 +123,45 @@ export const routes: Routes = [
             path: '',
             pathMatch: 'full',
             loadComponent: () =>
-              import('./features/workspace/pages/applications/applications.page').then(
+              import('@features/workspace/pages/applications/applications.page').then(
                 (m) => m.ApplicationsPage,
               ),
           },
           {
             path: 'applications',
             loadComponent: () =>
-              import('./features/workspace/pages/applications/applications.page').then(
+              import('@features/workspace/pages/applications/applications.page').then(
                 (m) => m.ApplicationsPage,
               ),
           },
           {
             path: 'members',
             loadComponent: () =>
-              import('./features/workspace/pages/members/members.page').then(
+              import('@features/workspace/pages/members/members.page').then(
                 (m) => m.MembersPage,
               ),
           },
           {
             path: 'roles',
             loadComponent: () =>
-              import('./features/workspace/pages/roles/roles.page').then((m) => m.RolesPage),
+              import('@features/workspace/pages/roles/roles.page').then((m) => m.RolesPage),
           },
           {
             path: 'teams',
             loadComponent: () =>
-              import('./features/workspace/pages/teams/teams.page').then((m) => m.TeamsPage),
+              import('@features/workspace/pages/teams/teams.page').then((m) => m.TeamsPage),
           },
           {
             path: 'my-access',
             loadComponent: () =>
-              import('./features/workspace/pages/my-access/my-access.page').then(
+              import('@features/workspace/pages/my-access/my-access.page').then(
                 (m) => m.MyAccessPage,
               ),
           },
           {
             path: 'account',
             loadComponent: () =>
-              import('./features/workspace/pages/account/account.page').then(
+              import('@features/workspace/pages/account/account.page').then(
                 (m) => m.AccountPage,
               ),
           },

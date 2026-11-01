@@ -1,19 +1,19 @@
 import { Component, computed, inject } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { SessionStore } from '../../../../core/auth/session.store';
+import { SessionStore } from '@core/auth/session.store';
 import {
   humanizePermissionToken,
   permissionActionLabel,
   permissionScopeLabel,
-} from '../../../../core/i18n/permission-label';
-import { LanguageService } from '../../../../core/i18n/language.service';
-import { Disclosure } from '../../../../shared/ui/disclosure/disclosure';
-import { EmptyState } from '../../../../shared/ui/empty-state/empty-state';
-import { ErrorPanel } from '../../../../shared/ui/error-panel/error-panel';
-import type { ListStatCard } from '../../../../shared/ui/list-stats/list-stat-card';
-import { ListStats } from '../../../../shared/ui/list-stats/list-stats';
-import { PageHeader } from '../../../../shared/ui/page-header/page-header';
+} from '@core/i18n/permission-label';
+import { LanguageService } from '@core/i18n/language.service';
+import { Disclosure } from '@shared/ui/disclosure/disclosure';
+import { EmptyState } from '@shared/ui/empty-state/empty-state';
+import { ErrorPanel } from '@shared/ui/error-panel/error-panel';
+import type { ListStatCard } from '@shared/ui/list-stats/list-stat-card';
+import { ListStats } from '@shared/ui/list-stats/list-stats';
+import { PageHeader } from '@shared/ui/page-header/page-header';
 import { MyAccessService } from '../../services/my-access.service';
 import { MyAccessSkeleton } from './my-access.skeleton';
 

@@ -1,7 +1,7 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { MembersApi, RolesApi, TeamsApi } from '../../../core/api/workspace-api.service';
-import { SessionStore } from '../../../core/auth/session.store';
+import { MembersApi, RolesApi, TeamsApi } from '@core/api/workspace-api.service';
+import { SessionStore } from '@core/auth/session.store';
 import { TeamNode } from '../models/workspace-feature.model';
 import { MembersService } from './members.service';
 

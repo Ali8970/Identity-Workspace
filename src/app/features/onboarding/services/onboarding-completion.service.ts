@@ -1,9 +1,9 @@
 import { Service, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, finalize, of } from 'rxjs';
-import { OnboardedNotice } from '../../../core/auth/onboarded-notice';
-import { SessionStore } from '../../../core/auth/session.store';
-import { isNavigableRedirect } from '../../../core/error/error.model';
+import { OnboardedNotice } from '@core/auth/onboarded-notice';
+import { SessionStore } from '@core/auth/session.store';
+import { isNavigableRedirect } from '@core/error/error.model';
 import { CheckoutStore } from './checkout.store';
 
 /** The two fields every completion-bearing response carries. */

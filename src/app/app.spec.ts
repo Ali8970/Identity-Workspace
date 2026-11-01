@@ -3,8 +3,8 @@ import { Component, provideZonelessChangeDetection } from '@angular/core';
 import { Router, provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { App } from './app';
-import { OnboardedNotice } from './core/auth/onboarded-notice';
-import { ToastService } from './shared/ui/toast/toast.service';
+import { OnboardedNotice } from '@core/auth/onboarded-notice';
+import { ToastService } from '@shared/ui/toast/toast.service';
 
 @Component({ template: '' })
 class Blank {}

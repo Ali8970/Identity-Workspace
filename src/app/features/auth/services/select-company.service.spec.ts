@@ -1,8 +1,8 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { SessionStore } from '../../../core/auth/session.store';
-import { AuthFlowStore } from '../../../core/auth/auth-flow.store';
+import { SessionStore } from '@core/auth/session.store';
+import { AuthFlowStore } from '@core/auth/auth-flow.store';
 import { SelectCompanyService } from './select-company.service';
 
 /**

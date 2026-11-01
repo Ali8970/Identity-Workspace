@@ -1,6 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { SessionStore } from '../../../core/auth/session.store';
+import { SessionStore } from '@core/auth/session.store';
 import { LoginService } from './login.service';
 
 describe('LoginService activation hand-off', () => {

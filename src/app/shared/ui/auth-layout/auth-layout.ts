@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { LanguageService } from '../../../core/i18n/language.service';
-import { ThemeService } from '../../../core/theme/theme.service';
+import { LanguageService } from '@core/i18n/language.service';
+import { ThemeService } from '@core/theme/theme.service';
 import { GlobalErrorBanner } from '../global-error-banner/global-error-banner';
 
 @Component({

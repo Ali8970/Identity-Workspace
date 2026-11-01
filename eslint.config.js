@@ -2,6 +2,64 @@
 const eslint = require('@eslint/js');
 const tseslint = require('typescript-eslint');
 const angular = require('angular-eslint');
+const fs = require('node:fs');
+const path = require('node:path');
+
+/**
+ * Layer boundaries (audit ARCH-02): features → domains → shared → core, never sideways.
+ * Cross-layer imports use the tsconfig aliases; these rules make the direction mechanical.
+ */
+const FEATURES = fs
+  .readdirSync(path.join(__dirname, 'src/app/features'), { withFileTypes: true })
+  .filter((entry) => entry.isDirectory())
+  .map((entry) => entry.name);
+
+const NO_FEATURES = [
+  { group: ['@features/*'], message: 'Only the router may reach into a feature. Move shared code to @domains or @shared.' },
+  { regex: '^(\.\./)+features/', message: 'Only the router may reach into a feature.' },
+];
+
+const boundaries = [
+  ...FEATURES.map((feature) => ({
+    files: [`src/app/features/${feature}/**/*.ts`],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            { group: ['@features/*'], message: 'A feature never imports another feature. Use @domains or @shared.' },
+            ...(FEATURES.length > 1
+              ? [
+                  {
+                    regex: `^(\.\./)+(${FEATURES.filter((other) => other !== feature).join('|')})/`,
+                    message: 'A feature never imports another feature. Use @domains or @shared.',
+                  },
+                ]
+              : []),
+          ],
+        },
+      ],
+    },
+  })),
+  {
+    files: ['src/app/shared/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            ...NO_FEATURES,
+            { group: ['@domains/*'], message: 'Shared is domain-agnostic. Domain widgets belong in @domains.' },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/app/core/**/*.ts'],
+    rules: { 'no-restricted-imports': ['error', { patterns: NO_FEATURES }] },
+  },
+];
 
 /**
  * Flat config mirroring the rules in CLAUDE.md / AGENTS.md so they are enforced
@@ -98,4 +156,5 @@ module.exports = tseslint.config(
       '@angular-eslint/template/eqeqeq': 'error',
     },
   },
+  ...boundaries,
 );

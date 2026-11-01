@@ -1,9 +1,9 @@
 import { Service, inject } from '@angular/core';
 import { Observable, forkJoin, map, of } from 'rxjs';
 import { PERMISSIONS } from '../../../constants/app.constants';
-import { MembersApi, PermissionsApi, RolesApi } from '../../../core/api/workspace-api.service';
-import { MeApi } from '../../../core/auth/me-api.service';
-import { SessionStore } from '../../../core/auth/session.store';
+import { MembersApi, PermissionsApi, RolesApi } from '@core/api/workspace-api.service';
+import { MeApi } from '@core/auth/me-api.service';
+import { SessionStore } from '@core/auth/session.store';
 import {
   CreateRoleRequest,
   MemberListItem,

@@ -11,15 +11,15 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { filter, forkJoin } from 'rxjs';
 import { routes } from './app.routes';
-import { SessionStore } from './core/auth/session.store';
-import { GlobalErrorService } from './core/error/global-error.service';
-import { LanguageService } from './core/i18n/language.service';
-import { applicationHeaderInterceptor } from './core/interceptors/application-header.interceptor';
-import { csrfInterceptor } from './core/interceptors/csrf.interceptor';
-import { errorInterceptor } from './core/interceptors/error.interceptor';
-import { languageInterceptor } from './core/interceptors/language.interceptor';
-import { loadingInterceptor } from './core/interceptors/loading.interceptor';
-import { ThemeService } from './core/theme/theme.service';
+import { SessionStore } from '@core/auth/session.store';
+import { GlobalErrorService } from '@core/error/global-error.service';
+import { LanguageService } from '@core/i18n/language.service';
+import { applicationHeaderInterceptor } from '@core/interceptors/application-header.interceptor';
+import { csrfInterceptor } from '@core/interceptors/csrf.interceptor';
+import { errorInterceptor } from '@core/interceptors/error.interceptor';
+import { languageInterceptor } from '@core/interceptors/language.interceptor';
+import { loadingInterceptor } from '@core/interceptors/loading.interceptor';
+import { ThemeService } from '@core/theme/theme.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [

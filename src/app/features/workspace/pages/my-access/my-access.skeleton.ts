@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { Skeleton, SkeletonHost, times } from '../../../../shared/ui/skeleton/skeleton';
-import { SkeletonPanel } from '../../../../shared/ui/skeleton/skeleton-blocks';
+import { Skeleton, SkeletonHost, times } from '@shared/ui/skeleton/skeleton';
+import { SkeletonPanel } from '@shared/ui/skeleton/skeleton-blocks';
 
 /** Mirrors My access: roles beside permissions grouped by application. */
 @Component({

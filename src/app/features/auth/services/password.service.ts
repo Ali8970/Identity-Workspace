@@ -1,7 +1,7 @@
 import { Service, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AuthApi } from '../../../core/auth/auth-api.service';
-import { AuthFlowStore } from '../../../core/auth/auth-flow.store';
+import { AuthApi } from '@core/auth/auth-api.service';
+import { AuthFlowStore } from '@core/auth/auth-flow.store';
 import {
   CompleteForgotPasswordRequest,
   ForgotPasswordRequest,

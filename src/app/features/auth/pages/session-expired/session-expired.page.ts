@@ -2,10 +2,10 @@ import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { SessionStore } from '../../../../core/auth/session.store';
-import { isSafeReturnUrl } from '../../../../core/error/error.model';
-import { redirectAwayIfAuthenticated } from '../../../../core/guards/auth.guards';
-import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
+import { SessionStore } from '@core/auth/session.store';
+import { isSafeReturnUrl } from '@core/error/error.model';
+import { redirectAwayIfAuthenticated } from '@core/guards/auth.guards';
+import { AuthLayout } from '@shared/ui/auth-layout/auth-layout';
 
 @Component({
   selector: 'app-session-expired-page',

@@ -1,4 +1,4 @@
-import { AppLanguage } from '../../core/i18n/language.service';
+import { AppLanguage } from '@core/i18n/language.service';
 
 /**
  * Formats a server timestamp for display, e.g. "Sep 22, 2026, 2:00 PM".

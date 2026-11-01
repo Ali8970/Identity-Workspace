@@ -12,20 +12,20 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { OnboardedNotice } from '../../../../core/auth/onboarded-notice';
-import { SessionStore } from '../../../../core/auth/session.store';
-import { BroochError, isTransientError } from '../../../../core/error/error.model';
-import { LanguageService } from '../../../../core/i18n/language.service';
+import { OnboardedNotice } from '@core/auth/onboarded-notice';
+import { SessionStore } from '@core/auth/session.store';
+import { BroochError, isTransientError } from '@core/error/error.model';
+import { LanguageService } from '@core/i18n/language.service';
 import { isTerminalOperationStatus } from '../../../../enums/domain.enums';
 import {
   SubscriptionOperationStatusView,
   SubscriptionPaymentResult,
   isOperationSettling,
 } from '../../../../models/subscription.model';
-import { AuthLayout } from '../../../../shared/ui/auth-layout/auth-layout';
-import { BusyOverlay } from '../../../../shared/ui/busy-overlay/busy-overlay';
-import { formatDateTime, formatTimeAgo } from '../../../../shared/utils/format-date-time';
-import { formatMoney } from '../../../../shared/utils/format-money';
+import { AuthLayout } from '@shared/ui/auth-layout/auth-layout';
+import { BusyOverlay } from '@shared/ui/busy-overlay/busy-overlay';
+import { formatDateTime, formatTimeAgo } from '@shared/utils/format-date-time';
+import { formatMoney } from '@shared/utils/format-money';
 import { CheckoutStore } from '../../services/checkout.store';
 import { OnboardingCompletion } from '../../services/onboarding-completion.service';
 import { OnboardingService } from '../../services/onboarding.service';
