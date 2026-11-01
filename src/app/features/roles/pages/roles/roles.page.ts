@@ -22,13 +22,13 @@ import {
 import { RoleGrantScope } from '@domains/access/models/grant-scope.model';
 import { GrantScopeService } from '@domains/access/services/grant-scope.service';
 import { RolesService } from '../../services/roles.service';
-import { RoleDetailsDialog } from './role-details-dialog';
+import { RoleDetailsDialog } from '../../components/role-details-dialog/role-details-dialog';
 import {
   RoleApplicationOption,
   RoleFormDialog,
   RoleFormMode,
   RoleFormResult,
-} from './role-form-dialog';
+} from '../../components/role-form-dialog/role-form-dialog';
 import { RolesSkeleton } from './roles.skeleton';
 
 type StatusFilter = '' | 'active' | 'inactive';

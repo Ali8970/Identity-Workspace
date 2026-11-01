@@ -19,14 +19,14 @@ import {
   TeamNode,
 } from '../../../../models/workspace.model';
 import { TeamsService } from '../../services/teams.service';
-import { TeamDetailsDialog } from './team-details-dialog';
+import { TeamDetailsDialog } from '../../components/team-details-dialog/team-details-dialog';
 import {
   TeamApplicationOption,
   TeamDescriptionState,
   TeamFormDialog,
   TeamFormResult,
   TeamFormSeed,
-} from './team-form-dialog';
+} from '../../components/team-form-dialog/team-form-dialog';
 import { TeamsSkeleton } from './teams.skeleton';
 
 const MAX_TEAM_DEPTH = 6;

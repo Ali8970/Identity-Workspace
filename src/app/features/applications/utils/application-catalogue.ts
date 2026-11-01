@@ -1,4 +1,4 @@
-import { AvailableApplicationDto } from '../../../../models/auth.model';
+import { AvailableApplicationDto } from '../../../models/auth.model';
 
 /** Product codes shown on the applications launcher — Figma grid order (LTR). */
 export const PRODUCT_CODES = ['los', 'aos', 'mos', 'sos', 'dos', 'ios'] as const;

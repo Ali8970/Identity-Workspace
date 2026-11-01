@@ -123,45 +123,45 @@ export const routes: Routes = [
             path: '',
             pathMatch: 'full',
             loadComponent: () =>
-              import('@features/workspace/pages/applications/applications.page').then(
+              import('@features/applications/pages/applications/applications.page').then(
                 (m) => m.ApplicationsPage,
               ),
           },
           {
             path: 'applications',
             loadComponent: () =>
-              import('@features/workspace/pages/applications/applications.page').then(
+              import('@features/applications/pages/applications/applications.page').then(
                 (m) => m.ApplicationsPage,
               ),
           },
           {
             path: 'members',
             loadComponent: () =>
-              import('@features/workspace/pages/members/members.page').then(
+              import('@features/members/pages/members/members.page').then(
                 (m) => m.MembersPage,
               ),
           },
           {
             path: 'roles',
             loadComponent: () =>
-              import('@features/workspace/pages/roles/roles.page').then((m) => m.RolesPage),
+              import('@features/roles/pages/roles/roles.page').then((m) => m.RolesPage),
           },
           {
             path: 'teams',
             loadComponent: () =>
-              import('@features/workspace/pages/teams/teams.page').then((m) => m.TeamsPage),
+              import('@features/teams/pages/teams/teams.page').then((m) => m.TeamsPage),
           },
           {
             path: 'my-access',
             loadComponent: () =>
-              import('@features/workspace/pages/my-access/my-access.page').then(
+              import('@features/my-access/pages/my-access/my-access.page').then(
                 (m) => m.MyAccessPage,
               ),
           },
           {
             path: 'account',
             loadComponent: () =>
-              import('@features/workspace/pages/account/account.page').then(
+              import('@features/account/pages/account/account.page').then(
                 (m) => m.AccountPage,
               ),
           },

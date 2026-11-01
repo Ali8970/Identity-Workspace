@@ -33,4 +33,4 @@ Types never live in components. There are no re-export shims: import a type from
 
 ## Migration status
 The audit (docs/audit/2026-11/findings.md) is moving the remaining legacy layout into this shape: root `constants/`,
-`models/` and `enums/`; `core/api`; `core/payments`; and the six-domain `features/workspace`. Don't add files to those locations.
+`models/` and `enums/`; `core/api`; and `core/payments`. Don't add files to those locations.

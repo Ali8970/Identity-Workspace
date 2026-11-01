@@ -3,12 +3,12 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { SessionStore } from '@core/auth/session.store';
 import { ApplicationsService } from '../../services/applications.service';
-import { ApplicationCard } from './application-card';
+import { ApplicationCard } from '../../components/application-card/application-card';
 import {
   LauncherApplication,
   buildLauncherApps,
   isDeveloperPersona,
-} from './application-catalogue';
+} from '../../utils/application-catalogue';
 import { ApplicationsSkeleton } from './applications.skeleton';
 
 @Component({

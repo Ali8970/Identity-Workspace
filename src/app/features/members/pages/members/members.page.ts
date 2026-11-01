@@ -30,7 +30,7 @@ import {
 import { AddMemberFormValue } from '../../models/member-invite.model';
 import { MEMBER_STATUSES, MembersService } from '../../services/members.service';
 import { RoleGrantScope } from '@domains/access/models/grant-scope.model';
-import { MemberInviteDialog } from './member-invite-dialog';
+import { MemberInviteDialog } from '../../components/member-invite-dialog/member-invite-dialog';
 import { MembersSkeleton } from './members.skeleton';
 
 @Component({

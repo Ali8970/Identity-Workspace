@@ -33,7 +33,7 @@ import {
 } from '../../../../models/workspace.model';
 import { RoleGrantScope } from '@domains/access/models/grant-scope.model';
 import { RolesService } from '../../services/roles.service';
-import { RolePermissionTree } from './role-permission-tree';
+import { RolePermissionTree } from '../role-permission-tree/role-permission-tree';
 
 export type RoleFormMode = 'create' | 'edit';
 

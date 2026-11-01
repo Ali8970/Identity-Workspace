@@ -28,7 +28,7 @@ Living status of every audit finding. Updated after each fix.
 | **Data** | | | | |
 | DATA-01 | M | Account company switch triple-loads `/me/companies` | Pending (AP-3) | |
 | DATA-02 | L | Sequential boot reads; CSRF primed then invalidated | Pending (AP-3) | Backend confirmation (token rotation) |
-| DATA-03 | M | Root `models/`, `enums/`, `constants/` buckets and re-export shims | Pending | |
+| DATA-03 | M | Root `models/`, `enums/`, `constants/` buckets and re-export shims | In progress | Workspace model shim removed (`c0fe1c8`); root `models/`, `enums/`, `constants/` remain |
 | DATA-04 | M | Scattered permission checks → `AccessPolicy` | Pending | |
 | DATA-05 | L | `withCredentials` repeated on every call | Pending | After SEC-03 |
 | DATA-06 | L | Pass-through facades | Pending | |
@@ -36,7 +36,7 @@ Living status of every audit finding. Updated after each fix.
 | PERF-01 | M | Initial bundle near the budget (see baseline) | Pending | Measured every phase |
 | PERF-02 | L | Full client-side lists (suspected) | Pending | Benchmark before acting |
 | **Architecture and code** | | | | |
-| ARCH-01 | H | `features/workspace` holds six domains | Pending | |
+| ARCH-01 | H | `features/workspace` holds six domains | **Verified** | `features/workspace` → `applications`, `members`, `roles`, `teams`, `my-access`, `account` (dialogs in `components/`, catalogue in `utils/`); grant scope moved to `domains/access`; lint proves no cross-feature imports; 285/285 unit, 213/213 e2e |
 | ARCH-02 | M | No path aliases or boundary lint | **Verified** | tsconfig aliases; 67 files codemodded; `no-restricted-imports` layer rules catch all 4 probe violations; prod bundle byte-identical |
 | ARCH-03 | H | Feature data access in `core/api`, `core/payments` | Pending | |
 | ARCH-04 | M | App chrome in `shared/` | **Verified** | Chrome moved to `core/layout/{shell,shell-header,shell-sidebar,auth-layout,loading-bar,global-error-banner}`; 285/285 unit, 213/213 e2e |
