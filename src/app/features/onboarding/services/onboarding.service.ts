@@ -66,8 +66,12 @@ export class OnboardingService {
     return this.subscriptionApi.verifyPayment(operationId, { providerPaymentId });
   }
 
-  loadOperation(operationId: string): Observable<SubscriptionOperationStatusView> {
-    return this.subscriptionApi.operation(operationId);
+  /** `background` is for polls the payer did not ask for — see `SubscriptionApi.operation`. */
+  loadOperation(
+    operationId: string,
+    options: { background?: boolean } = {},
+  ): Observable<SubscriptionOperationStatusView> {
+    return this.subscriptionApi.operation(operationId, options);
   }
 
   retryPayment(operationId: string): Observable<SubscriptionRetryPaymentResult> {

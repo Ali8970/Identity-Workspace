@@ -24,7 +24,7 @@
       "selectionRestart": "Please sign in again to choose a company.",
       "intentBanner": "After you sign in, we will open the application you came from.",
       "retryIn": "Try again in {{seconds}}s",
-      "onboardedBanner": "Your workspace is ready. Sign in again to pick up your new access.",
+      
       "activatedBanner": "Your password is set. Sign in to continue.",
       "titleContinue": "Continue to your app",
       "subtitleContinue": "Sign in to open the Brooch application you requested."
@@ -896,6 +896,10 @@
     "backToCompany": "Back to company profile",
     "loading": "Loading your workspace…",
     "redirecting": "Activating your workspace…",
+    "successToast": {
+      "title": "Payment successful",
+      "body": "Your workspace is ready. Sign in again to start using it."
+    },
     "noPackages": "No packages are available right now. Contact support or try again later.",
     "package": {
       "free": "Free",
@@ -957,31 +961,97 @@
       }
     },
     "result": {
-      "checking": "Checking your payment…",
-      "doNotClose": "Please keep this window open.",
+      "checking": "Checking…",
       "checkAgain": "Check again",
+      "checkNow": "Check now",
+      "autoChecking": "Checking automatically",
+      "lastChecked": "Last checked {{time}}",
+      "justNow": "just now",
+      "offline": "You are offline. We will check again as soon as your connection is back.",
+      "safeToLeave": "It is safe to leave this page. Your payment will not be affected, and we will pick up where you left off when you come back.",
       "continueToSignIn": "Continue to sign in",
+      "openWorkspace": "Open my workspace",
       "resumeSetup": "Resume setup",
-      "tryAnotherCard": "Try another card",
+      "tryAgain": "Try again",
+      "returnToPayment": "Return to payment",
       "notRetryable": "This purchase can no longer be retried. Start again from the package step.",
       "backToPackages": "Back to packages",
       "startAgain": "Start again",
-      "reauthNote": "Your workspace is ready — please sign in again to start.",
+      "reauthNote": "To switch on your new access, please sign in again — it only takes a moment.",
+      "failedTips": "Check your card details and that online payments are enabled, or use a different card.",
+      "holdNote": "If your bank shows a pending amount for this attempt, it is a temporary hold that your bank will release.",
+      "slow": {
+        "loading": "This is taking a little longer than usual — your payment provider is still responding.",
+        "pending": "Your bank is taking a little longer than usual. Please do not pay again — we are still waiting for its answer.",
+        "provisioning": "Setup is taking a little longer than usual. Your payment is safe and will not be taken again."
+      },
+      "finishing": {
+        "signIn": "Taking you to sign in…",
+        "workspace": "Opening your workspace…"
+      },
+      "failureReasons": {
+        "CardDeclined": "Your bank declined this card."
+      },
+      "steps": {
+        "label": "Purchase progress",
+        "verify": {
+          "label": "Payment confirmation",
+          "active": "Checking with your bank…",
+          "paused": "Still waiting for your bank",
+          "done": "Payment confirmed"
+        },
+        "setup": {
+          "label": "Workspace setup",
+          "todo": "Starts once your payment is confirmed",
+          "active": "Preparing your apps…",
+          "paused": "Taking longer than usual",
+          "blocked": "Paused — resume it below"
+        },
+        "ready": {
+          "label": "Ready to start",
+          "todo": "Sign in and get going"
+        }
+      },
+      "receipt": {
+        "label": "Payment receipt",
+        "amountPaid": "Amount paid",
+        "paid": "Paid",
+        "card": "Paid with",
+        "date": "Date"
+      },
+      "reference": {
+        "label": "Reference",
+        "support": "Support reference",
+        "copy": "Copy reference",
+        "copied": "Reference copied"
+      },
       "loading": {
         "title": "Confirming your payment",
-        "body": "We are checking the result with your payment provider."
+        "body": "We are checking the result with your payment provider. This usually takes a few seconds."
       },
       "pending": {
         "title": "Confirming your payment…",
-        "body": "Hang tight — we have not finished verifying yet. Keep this page open."
+        "body": "Your bank is confirming the payment. This page updates on its own — there is no need to refresh."
+      },
+      "pendingStalled": {
+        "title": "Still waiting for your bank",
+        "body": "Your bank has not confirmed this payment yet. This can sometimes take a few minutes."
+      },
+      "awaiting": {
+        "title": "Waiting for your payment",
+        "body": "We have not received a payment for this purchase yet. If you did not finish verifying with your bank, you can return to the payment step."
       },
       "provisioning": {
         "title": "Payment confirmed",
-        "body": "We are finishing your workspace setup now."
+        "body": "We are setting up your workspace now. This page updates on its own."
+      },
+      "provisioningStalled": {
+        "title": "Still setting up your workspace",
+        "body": "Your payment is confirmed and will not be taken again. Setup is taking longer than expected."
       },
       "completed": {
         "title": "Your workspace is ready",
-        "body": "Payment and setup are done. Sign in again to continue."
+        "body": "Your payment went through and everything is set up. Welcome to Brooch!"
       },
       "provisioningFailed": {
         "title": "Almost there",
@@ -989,7 +1059,7 @@
       },
       "failed": {
         "title": "Payment did not go through",
-        "body": "Nothing reliable was charged here. You can try again."
+        "body": "This attempt was not completed, so you have not been charged for it."
       },
       "closed": {
         "title": "This purchase is closed",
@@ -998,6 +1068,10 @@
       "unknown": {
         "title": "We could not find this purchase",
         "body": "There is no purchase to confirm for this session. Go back and start again."
+      },
+      "unreachable": {
+        "title": "We could not check your payment",
+        "body": "We could not reach Brooch to confirm this purchase. This does not affect your payment — check again in a moment."
       }
     },
     "pending": {
@@ -1029,6 +1103,10 @@
   },
   "ui": {
     "skipToContent": "Skip to content",
+    "toast": {
+      "region": "Notifications",
+      "dismiss": "Dismiss notification"
+    },
     "multiSelect": {
       "placeholder": "Select…",
       "search": "Search…",

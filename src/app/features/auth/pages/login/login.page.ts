@@ -29,19 +29,13 @@ import { LoginService } from '../../services/login.service';
       </header>
 
       @if (statusBanner(); as banner) {
-        <div class="auth-status" [class]="banner.toneClass" role="status">
+        <div [class]="'auth-status ' + banner.toneClass" role="status">
           <span class="auth-status__icon" aria-hidden="true">
             @switch (banner.kind) {
               @case ('intent') {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
                   <circle cx="12" cy="12" r="9" />
                   <path d="M12 10v6M12 7h.01" />
-                </svg>
-              }
-              @case ('onboarded') {
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                  <path d="m9 12 2 2 4-4" />
-                  <circle cx="12" cy="12" r="9" />
                 </svg>
               }
               @case ('activated') {
@@ -206,8 +200,6 @@ export class LoginPage {
 
   protected readonly busy = signal(false);
   protected readonly selectionRestartRequired = signal(false);
-  /** The re-authentication that follows a completed purchase — a success, not a failure. */
-  protected readonly justOnboarded = signal(false);
   /** Arrived from a finished set-password — sign-in is the next step. */
   protected readonly justActivated = signal(false);
   protected readonly redirecting = signal(false);
@@ -221,20 +213,16 @@ export class LoginPage {
     () => this.submitted() && this.loginForm.password().invalid(),
   );
 
-  /** One banner only — intent wins, then onboarded, then a fresh password, then selection restart. */
+  /**
+   * One banner only — intent wins, then a fresh password, then selection restart. A completed
+   * purchase is not a banner: it arrives as a toast, the same one any other landing page shows.
+   */
   protected readonly statusBanner = computed(() => {
     if (this.flow.intentId()) {
       return {
         kind: 'intent' as const,
         toneClass: 'auth-status--info',
         messageKey: 'auth.login.intentBanner',
-      };
-    }
-    if (this.justOnboarded()) {
-      return {
-        kind: 'onboarded' as const,
-        toneClass: 'auth-status--success',
-        messageKey: 'auth.login.onboardedBanner',
       };
     }
     if (this.justActivated()) {
@@ -268,7 +256,6 @@ export class LoginPage {
     const query = this.initialQuery;
     this.returnUrl.set(query.returnUrl);
     this.selectionRestartRequired.set(query.selectionRestartRequired);
-    this.justOnboarded.set(query.justOnboarded);
     this.justActivated.set(query.justActivated);
     if (query.email) {
       afterNextRender(() => {

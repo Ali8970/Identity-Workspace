@@ -1,7 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Service, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_ROUTES } from '../../constants/api-routes';
+import { SILENT_ERROR } from '../error/http-context';
+import { SKIP_LOADING } from '../loading/loading-context';
 import { ApiResponse } from '../../models/api-response.model';
 import {
   AvailablePackageView,
@@ -99,12 +101,26 @@ export class SubscriptionApi {
       .pipe(unwrapData());
   }
 
-  /** The normalized purchase status — the only response that may be treated as proof. */
-  operation(operationId: string): Observable<SubscriptionOperationStatusView> {
+  /**
+   * The normalized purchase status — the only response that may be treated as proof.
+   *
+   * `background` marks a poll the payer did not ask for: it stays off the global loading bar
+   * and off the error banner, since a result screen re-reads every few seconds and a blip on
+   * one of those reads is not news. Auth side effects (a 401 ending the session) still apply —
+   * `SILENT_ERROR` only hides the banner.
+   */
+  operation(
+    operationId: string,
+    options: { background?: boolean } = {},
+  ): Observable<SubscriptionOperationStatusView> {
+    const context = options.background
+      ? new HttpContext().set(SKIP_LOADING, true).set(SILENT_ERROR, true)
+      : undefined;
+
     return this.http
       .get<ApiResponse<SubscriptionOperationStatusView>>(
         API_ROUTES.subscriptionOperation(operationId),
-        { withCredentials: true },
+        { withCredentials: true, context },
       )
       .pipe(unwrapData());
   }

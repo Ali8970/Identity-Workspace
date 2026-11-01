@@ -93,8 +93,16 @@ Full contract: `ONBOARDING_FRONTEND_GUIDE.md`. Non-negotiables:
   `CheckoutStore` holds only two breadcrumbs (package id, operation id) plus the in-memory
   tokenization config — which is per attempt and never persisted.
 - **`requiresReauthentication` is honoured and explained** — `OnboardingCompletion` signs the owner
-  out and lands them on `/login?onboarded=1` with a success banner.
+  out and lands them on `/login?onboarded=1` with a "Payment successful" toast (`ToastService`).
+  `App` owns that toast: a completed purchase is remembered (`OnboardedNotice`) and cleared only
+  when the toast has been seen out, so it survives a 401 sign-out, `/session-expired` and the full
+  page load to `completionUrl` — never "spend" the notice on first sight.
 - Payment result routes sit **outside** `onboardingCompleteGuard`; a verified payment activates the
   tenant, and that guard would bounce the payer off their own result.
+- The result screen's watch is bounded and never a dead end: polls after the first read go through
+  `loadOperation(id, { background: true })` (off the loading bar and the banner); a read lost in
+  transit is retried, never shown as "not found"; past the deadline the screen says it has stalled
+  and hands "Check again" to the payer. Polling is still gated on `isOperationSettling` — never on
+  elapsed time alone.
 - Provider/tokenization failures bypass the HTTP pipeline, so they are published through
   `GlobalErrorService` via `clientError()` — never a page-local error panel.

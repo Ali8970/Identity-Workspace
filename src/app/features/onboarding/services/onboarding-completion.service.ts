@@ -1,6 +1,7 @@
 import { Service, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, finalize, of } from 'rxjs';
+import { OnboardedNotice } from '../../../core/auth/onboarded-notice';
 import { SessionStore } from '../../../core/auth/session.store';
 import { isNavigableRedirect } from '../../../core/error/error.model';
 import { CheckoutStore } from './checkout.store';
@@ -27,6 +28,7 @@ export interface CompletionOutcome {
 export class OnboardingCompletion {
   private readonly session = inject(SessionStore);
   private readonly checkout = inject(CheckoutStore);
+  private readonly onboardedNotice = inject(OnboardedNotice);
   private readonly router = inject(Router);
 
   private settled = false;
@@ -50,12 +52,19 @@ export class OnboardingCompletion {
     this.checkout.clear();
 
     if (!outcome.requiresReauthentication) {
+      // No login page on this path — the applications page shows its own welcome, so the
+      // notice must not linger and greet a later, unrelated sign-in in this tab.
+      this.onboardedNotice.clear();
       // The session survives, but the tenant it describes has just changed status. A full load
       // re-bootstraps /me rather than entering the shell on a stale payload. `replace`, not
       // `assign`: the wizard must not stay on the history stack.
       window.location.replace('/applications?onboarded=1');
       return;
     }
+
+    // The hand-off below can end in a full page load (`completionUrl`), which carries no flag
+    // and wipes anything in memory; the notice is what gets the toast onto that page.
+    this.onboardedNotice.remember();
 
     // A failed logout must not strand the payer on a success screen — the redirect happens
     // either way, and the stale session is dropped locally regardless.

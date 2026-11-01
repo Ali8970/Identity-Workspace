@@ -3,6 +3,8 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { API_ROUTES } from '../../constants/api-routes';
+import { SILENT_ERROR } from '../error/http-context';
+import { SKIP_LOADING } from '../loading/loading-context';
 import { SubscriptionApi } from './subscription-api.service';
 
 const OPERATION_ID = '11111111-2222-3333-4444-555555555555';
@@ -69,6 +71,22 @@ describe('SubscriptionApi', () => {
       .flush({ statusCode: 200, message: 'ok', data: status });
 
     await expect(read).resolves.toEqual(status);
+  });
+
+  it('keeps a background status poll off the loading bar and the error banner', () => {
+    api.operation(OPERATION_ID).subscribe();
+    api.operation(OPERATION_ID, { background: true }).subscribe();
+
+    const [foreground, background] = backend.match(
+      API_ROUTES.subscriptionOperation(OPERATION_ID),
+    );
+
+    expect(foreground.request.context.get(SKIP_LOADING)).toBe(false);
+    expect(foreground.request.context.get(SILENT_ERROR)).toBe(false);
+    expect(background.request.context.get(SKIP_LOADING)).toBe(true);
+    expect(background.request.context.get(SILENT_ERROR)).toBe(true);
+    foreground.flush({ statusCode: 200, message: 'ok', data: {} });
+    background.flush({ statusCode: 200, message: 'ok', data: {} });
   });
 
   it('sends an empty body on both retries so neither can carry an amount', () => {

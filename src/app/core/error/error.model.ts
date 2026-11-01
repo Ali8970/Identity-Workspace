@@ -55,6 +55,17 @@ export function isRateLimited(error: BroochError): boolean {
   );
 }
 
+/**
+ * True when a failure says nothing about the request itself — the network dropped, the server
+ * hiccuped or asked us to slow down — so asking again later may well succeed.
+ *
+ * A 4xx refusal is an answer, not an outage: retrying a 404 or a 403 only repeats it. Status `0`
+ * is how a request that never reached a server surfaces after normalization.
+ */
+export function isTransientError(error: BroochError): boolean {
+  return error.status === 0 || error.status === 408 || error.status >= 500 || isRateLimited(error);
+}
+
 export function isApplicationAccessDenied(error: BroochError): boolean {
   return error.code === 'Auth.ApplicationAccessDenied';
 }
