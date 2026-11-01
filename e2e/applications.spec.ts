@@ -19,13 +19,14 @@ test('catalogue apps returned by the backend are openable and the rest stay lock
   await expect(main.getByRole('listitem')).toHaveCount(6);
 
   await expect(main.getByRole('link', { name: 'Open app' })).toHaveCount(3);
+  // Catalogue order is pinned in application-catalogue.spec.ts: listing, landlord, CRM.
   await expect(main.getByRole('link', { name: 'Open app' }).nth(0)).toHaveAttribute(
     'href',
-    'https://landlord.brooch.example',
+    'https://listing.brooch.example',
   );
   await expect(main.getByRole('link', { name: 'Open app' }).nth(1)).toHaveAttribute(
     'href',
-    'https://listing.brooch.example',
+    'https://landlord.brooch.example',
   );
   await expect(main.getByRole('link', { name: 'Open app' }).nth(2)).toHaveAttribute(
     'href',
@@ -38,7 +39,7 @@ test('catalogue apps returned by the backend are openable and the rest stay lock
 
   await expect(main.getByText('This app is not available for your account yet')).toHaveCount(3);
   await expect(
-    main.getByRole('heading', { name: 'Real estate investment management' }),
+    main.getByRole('heading', { name: 'Real Estate Investment Operating System' }),
   ).toBeVisible();
   await expect(main.getByRole('heading', { name: 'Account' })).toHaveCount(0);
 });
