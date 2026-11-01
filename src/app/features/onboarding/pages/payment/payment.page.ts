@@ -21,7 +21,7 @@ import {
   SubscriptionOperationStatusView,
   SubscriptionPaymentResult,
 } from '../../../../models/subscription.model';
-import { AuthLayout } from '@shared/ui/auth-layout/auth-layout';
+import { AuthLayout } from '@core/layout/auth-layout/auth-layout';
 import { BusyOverlay } from '@shared/ui/busy-overlay/busy-overlay';
 import { durationLabel } from '@shared/utils/format-duration';
 import { formatMoney } from '@shared/utils/format-money';

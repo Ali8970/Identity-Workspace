@@ -14,7 +14,7 @@ import { CookieJar, JSDOM } from 'jsdom';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const indexHtml = read('src/index.html');
-const authLayout = read('src/app/shared/ui/auth-layout/auth-layout.ts');
+const authLayout = read('src/app/core/layout/auth-layout/auth-layout.ts');
 const flatten = (value) => value.replace(/\s+/g, ' ').trim();
 
 /**
@@ -142,7 +142,7 @@ if (!loginDocument.querySelector('link[rel="preconnect"][href*="brooch.sa"]')) {
 if (failures.length > 0) {
   console.error(`app shell check failed:\n${failures.map((line) => `  - ${line}`).join('\n')}`);
   console.error(
-    '\nThe shell in src/index.html mirrors shared/ui/auth-layout/auth-layout.ts.\n' +
+    '\nThe shell in src/index.html mirrors core/layout/auth-layout/auth-layout.ts.\n' +
       'Update both, or the pre-boot paint will not match what Angular renders.',
   );
   process.exit(1);

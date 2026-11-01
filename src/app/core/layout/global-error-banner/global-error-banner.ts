@@ -1,7 +1,7 @@
 import { Component, ElementRef, afterRenderEffect, inject, input, viewChild } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { GlobalErrorService } from '@core/error/global-error.service';
-import { scrollAlertIntoView } from '../../utils/scroll-alert-into-view';
+import { GlobalErrorService } from '../../error/global-error.service';
+import { scrollAlertIntoView } from '@shared/utils/scroll-alert-into-view';
 
 @Component({
   selector: 'app-global-error-banner',

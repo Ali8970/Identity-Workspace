@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { AuthLayout } from '@shared/ui/auth-layout/auth-layout';
+import { AuthLayout } from '@core/layout/auth-layout/auth-layout';
 
 @Component({
   selector: 'app-access-denied-page',

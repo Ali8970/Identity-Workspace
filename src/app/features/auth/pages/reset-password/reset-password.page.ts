@@ -4,7 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormField, form, required, submit } from '@angular/forms/signals';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom, map } from 'rxjs';
-import { AuthLayout } from '@shared/ui/auth-layout/auth-layout';
+import { AuthLayout } from '@core/layout/auth-layout/auth-layout';
 import { PasswordService } from '../../services/password.service';
 
 /**

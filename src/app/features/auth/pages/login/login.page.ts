@@ -9,7 +9,7 @@ import { SsoHandshakeService } from '@core/auth/sso-handshake.service';
 import { isNavigableRedirect } from '@core/error/error.model';
 import { GlobalErrorService } from '@core/error/global-error.service';
 import { redirectAwayIfAuthenticated } from '@core/guards/auth.guards';
-import { AuthLayout } from '@shared/ui/auth-layout/auth-layout';
+import { AuthLayout } from '@core/layout/auth-layout/auth-layout';
 import { BusyOverlay } from '@shared/ui/busy-overlay/busy-overlay';
 import { LoginService } from '../../services/login.service';
 

@@ -113,7 +113,7 @@ export const routes: Routes = [
     path: '',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('@shared/layouts/shell-layout').then((m) => m.ShellLayout),
+      import('@core/layout/shell/shell-layout').then((m) => m.ShellLayout),
     children: [
       {
         path: '',

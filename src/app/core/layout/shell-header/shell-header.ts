@@ -2,9 +2,9 @@ import { Component, computed, inject, input, output, signal } from '@angular/cor
 import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MyCompanyDto } from '../../../models/auth.model';
-import { LanguageService } from '@core/i18n/language.service';
-import { ThemeService } from '@core/theme/theme.service';
-import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
+import { LanguageService } from '../../i18n/language.service';
+import { ThemeService } from '../../theme/theme.service';
+import { ConfirmDialog } from '@shared/ui/confirm-dialog/confirm-dialog';
 
 /**
  * Account shell header — same chrome as Brooch CRM (52px bar, icon buttons,

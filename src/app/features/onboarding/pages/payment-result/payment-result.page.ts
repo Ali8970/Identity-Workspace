@@ -22,7 +22,7 @@ import {
   SubscriptionPaymentResult,
   isOperationSettling,
 } from '../../../../models/subscription.model';
-import { AuthLayout } from '@shared/ui/auth-layout/auth-layout';
+import { AuthLayout } from '@core/layout/auth-layout/auth-layout';
 import { BusyOverlay } from '@shared/ui/busy-overlay/busy-overlay';
 import { formatDateTime, formatTimeAgo } from '@shared/utils/format-date-time';
 import { formatMoney } from '@shared/utils/format-money';

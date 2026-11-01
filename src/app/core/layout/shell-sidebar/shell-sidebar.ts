@@ -1,7 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ShellNavGroup } from '../../layouts/shell-nav.model';
+import { ShellNavGroup } from '../shell/shell-nav.model';
 
 /**
  * Shell sidebar — Figma Identity redesign (node 96:9):

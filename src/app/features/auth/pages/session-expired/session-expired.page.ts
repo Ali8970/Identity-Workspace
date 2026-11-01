@@ -5,7 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { SessionStore } from '@core/auth/session.store';
 import { isSafeReturnUrl } from '@core/error/error.model';
 import { redirectAwayIfAuthenticated } from '@core/guards/auth.guards';
-import { AuthLayout } from '@shared/ui/auth-layout/auth-layout';
+import { AuthLayout } from '@core/layout/auth-layout/auth-layout';
 
 @Component({
   selector: 'app-session-expired-page',

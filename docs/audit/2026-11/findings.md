@@ -39,7 +39,7 @@ Living status of every audit finding. Updated after each fix.
 | ARCH-01 | H | `features/workspace` holds six domains | Pending | |
 | ARCH-02 | M | No path aliases or boundary lint | **Verified** | tsconfig aliases; 67 files codemodded; `no-restricted-imports` layer rules catch all 4 probe violations; prod bundle byte-identical |
 | ARCH-03 | H | Feature data access in `core/api`, `core/payments` | Pending | |
-| ARCH-04 | M | App chrome in `shared/` | Pending | |
+| ARCH-04 | M | App chrome in `shared/` | **Verified** | Chrome moved to `core/layout/{shell,shell-header,shell-sidebar,auth-layout,loading-bar,global-error-banner}`; 285/285 unit, 213/213 e2e |
 | ARCH-05 | M | One flat route table | Pending | URLs stay byte-identical |
 | ARCH-06 | L | Hard-coded route paths in the store and guards | Pending | |
 | ARCH-07 | M | Root singletons hold feature state | Pending | |
@@ -61,6 +61,7 @@ Living status of every audit finding. Updated after each fix.
 | UI-03 | H | Visual baseline only covers first paint | **Verified** | Step 0: 15 states × 2 variants + network + computed-style baselines, stable over 3 runs |
 | UI-04 | L | `<img>` without intrinsic size | Pending | |
 | UI-05 | L | No automated a11y check | Pending (AP-6) | |
+| UI-06 | M | `npm run check:app-shell` already fails on `stg`: the pre-boot shell in `src/index.html` no longer mirrors `AuthLayout` (all 16 parts) and its Arabic translation drops the feature icons | Pending (approval) | Found 2026-11-01 while moving `auth-layout`; identical output before the move. Fixing it changes the pre-Angular first paint of auth pages |
 | **Testing and production** | | | | |
 | TEST-01 | H | = BUG-01 | **Verified** | |
 | TEST-02 | H | Missing specs for auth, interceptors, grant scope, onboarding | Pending | |
